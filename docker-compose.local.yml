@@ -1,0 +1,20 @@
+services:
+  mysql:
+    image: mysql:8
+    container_name: worldcup-mysql
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: worldcup
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./db/setup.sql:/docker-entrypoint-initdb.d/setup.sql
+    networks:
+      - worldcup-net
+
+volumes:
+  mysql_data:
+
+networks:
+  worldcup-net:

@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Access Denied')}"></head>
+<body>
+<div th:replace="~{fragments/layout :: navbar}"></div>
+<div class="container">
+    <div class="alert alert-warning">
+        <h4>Access Denied</h4>
+        <p>You do not have permission to view this page.</p>
+        <a th:href="@{/predictions/list}" class="btn btn-primary">Back to predictions</a>
+    </div>
+</div>
+</body>
+</html>

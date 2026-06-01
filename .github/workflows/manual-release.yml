@@ -1,0 +1,34 @@
+name: Manual Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      bump:
+        description: "Version bump type (major, minor, patch, or specific version like 1.0.0)"
+        required: true
+        default: "patch"
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+
+      - name: Configure Git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+      - name: Bump Version
+        run: ./bump-version.sh ${{ github.event.inputs.bump }}
+
+      - name: Show New Version
+        run: mvn help:evaluate -Dexpression=project.version -q -DforceStdout

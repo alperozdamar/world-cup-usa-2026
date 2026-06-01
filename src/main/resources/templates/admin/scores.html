@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Admin - Enter Scores')}"></head>
+<body>
+<div th:replace="~{fragments/layout :: navbar}"></div>
+<div class="container">
+    <h2>Enter Match Scores</h2>
+    <p class="text-muted">Admin only. Enter actual results after each match.</p>
+
+    <div th:if="${successMessage}" class="alert alert-success" th:text="${successMessage}"></div>
+    <div th:if="${errorMessage}" class="alert alert-danger" th:text="${errorMessage}"></div>
+
+    <div class="table-responsive">
+        <table class="table table-sm table-striped align-middle">
+            <thead class="table-dark">
+            <tr>
+                <th>Date</th>
+                <th>Stage</th>
+                <th>Match</th>
+                <th>Actual Score</th>
+                <th></th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="match : ${matches}">
+                <td>
+                    <div th:text="${T(com.alper.worldcup.service.MatchViewHelper).formatKickoffDate(match, zoneId)}"></div>
+                    <div class="small text-muted"
+                         th:text="${T(com.alper.worldcup.service.MatchViewHelper).formatKickoffTime(match, zoneId)}"></div>
+                </td>
+                <td th:text="${match.stage}"></td>
+                <td>
+                    <span th:text="${match.homeDisplayName}"></span>
+                    vs
+                    <span th:text="${match.awayDisplayName}"></span>
+                </td>
+                <td>
+                    <form th:action="@{/admin/scores/save}" method="post" class="d-flex gap-1">
+                        <input type="hidden" name="matchId" th:value="${match.id}">
+                        <input type="number" name="homeScore" min="0" max="20" class="form-control form-control-sm"
+                               style="width:4rem" required th:value="${match.homeScoreActual}">
+                        <span class="align-self-center">-</span>
+                        <input type="number" name="awayScore" min="0" max="20" class="form-control form-control-sm"
+                               style="width:4rem" required th:value="${match.awayScoreActual}">
+                        <button type="submit" class="btn btn-sm btn-warning">Save</button>
+                    </form>
+                </td>
+                <td>
+                    <span th:if="${match.scoreEntered}" class="badge bg-success">Saved</span>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+</body>
+</html>

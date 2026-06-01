@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Timezone Settings')}"></head>
+<body>
+<div th:replace="~{fragments/layout :: navbar}"></div>
+<div class="container" style="max-width: 520px;">
+    <h2>Timezone Settings</h2>
+    <p class="text-muted">Match times are stored in UTC and displayed in your chosen timezone.</p>
+
+    <div th:if="${successMessage}" class="alert alert-success" th:text="${successMessage}"></div>
+    <div th:if="${errorMessage}" class="alert alert-danger" th:text="${errorMessage}"></div>
+
+    <form th:action="@{/profile/settings}" method="post">
+        <div class="mb-3">
+            <label class="form-label">Your timezone</label>
+            <select name="timezoneId" class="form-select" required>
+                <option th:each="tz : ${timezones}"
+                        th:value="${tz}"
+                        th:text="${tz}"
+                        th:selected="${tz == timezoneId}"></option>
+            </select>
+        </div>
+        <button type="submit" class="btn btn-primary">Save</button>
+    </form>
+</div>
+</body>
+</html>
