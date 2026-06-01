@@ -77,8 +77,17 @@ src/main/resources/
 db/setup.sql          Spring Security users
 ```
 
+## Rules (draft)
+
+Scoring principles for group review (not yet implemented in code):
+
+- [English](document/PrinciplesAndRules.en.md)
+- [Turkish](document/PrinciplesAndRules.tr.md)
+
+See [Changelog.md](Changelog.md) for project history.
+
 ## Next steps
 
-- Define and implement scoring rules in `PointsServiceImpl`
+- Approve rules, then implement scoring in `PointsServiceImpl`
 - Enable knockout-stage predictions once group results are known
 - Resolve knockout placeholder teams (e.g. `1A`, `2B`) after group stage

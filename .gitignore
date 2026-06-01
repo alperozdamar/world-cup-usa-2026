@@ -30,3 +30,6 @@ src/main/resources/application-local.properties
 
 # OS
 .DS_Store
+Fixtures.txt
+Groups.txt
+instructions.md
