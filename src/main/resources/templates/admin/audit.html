@@ -6,7 +6,7 @@
 <div class="container">
     <h2>Prediction Audit</h2>
     <p class="text-muted">
-        History of every prediction entered or updated. Times shown in
+        History of every match score and group 1st/2nd prediction entered or updated. Times shown in
         <strong th:text="${zoneId}">America/New_York</strong>.
     </p>
 
@@ -33,30 +33,36 @@
             <tr>
                 <th>When</th>
                 <th>Player</th>
+                <th>Type</th>
                 <th>Action</th>
-                <th>Match</th>
+                <th>Subject</th>
                 <th>Prediction</th>
             </tr>
             </thead>
             <tbody>
             <tr th:each="audit : ${audits}">
-                <td th:text="${@matchViewHelper.formatRecordedAt(audit.recordedAt, zoneId)}"></td>
+                <td th:text="${@matchViewHelper.formatRecordedAt(audit.recordedAt(), zoneId)}"></td>
                 <td>
-                    <span th:text="${displayNames[audit.username]}">Player</span>
-                    <span class="small text-muted" th:text="'(' + ${audit.username} + ')'"></span>
+                    <span th:text="${displayNames[audit.username()]}">Player</span>
+                    <span class="small text-muted" th:text="'(' + ${audit.username()} + ')'"></span>
                 </td>
                 <td>
                     <span class="badge"
-                          th:classappend="${audit.action.name() == 'CREATED'} ? ' bg-success' : ' bg-info text-dark'"
-                          th:text="${audit.action}"></span>
+                          th:classappend="${audit.type() == 'Group'} ? ' bg-warning text-dark' : ' bg-primary'"
+                          th:text="${audit.type()}"></span>
                 </td>
-                <td th:text="${audit.matchLabel}"></td>
                 <td>
-                    <strong th:text="${audit.changeLabel}"></strong>
+                    <span class="badge"
+                          th:classappend="${audit.action().name() == 'CREATED'} ? ' bg-success' : ' bg-info text-dark'"
+                          th:text="${audit.action()}"></span>
+                </td>
+                <td th:text="${audit.subjectLabel()}"></td>
+                <td>
+                    <strong th:text="${audit.changeLabel()}"></strong>
                 </td>
             </tr>
             <tr th:if="${#lists.isEmpty(audits)}">
-                <td colspan="5" class="text-muted">No prediction activity recorded yet.</td>
+                <td colspan="6" class="text-muted">No prediction activity recorded yet.</td>
             </tr>
             </tbody>
         </table>

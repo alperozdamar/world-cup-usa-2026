@@ -2,13 +2,17 @@ package com.alper.worldcup.controller;
 
 import com.alper.worldcup.dao.MatchRepository;
 import com.alper.worldcup.entity.Match;
-import com.alper.worldcup.entity.PredictionAudit;
 import com.alper.worldcup.entity.UserProfile;
+import com.alper.worldcup.service.AuditEntryView;
+import com.alper.worldcup.service.GroupStandingPredictionService;
 import com.alper.worldcup.service.PredictionAuditService;
 import com.alper.worldcup.service.PredictionService;
 import com.alper.worldcup.service.UserProfileService;
+import com.alper.worldcup.entity.GroupResult;
+import com.alper.worldcup.entity.Team;
 import java.security.Principal;
 import java.time.ZoneId;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -26,15 +30,18 @@ public class AdminController {
 
     private final MatchRepository matchRepository;
     private final PredictionService predictionService;
+    private final GroupStandingPredictionService groupStandingPredictionService;
     private final PredictionAuditService predictionAuditService;
     private final UserProfileService userProfileService;
 
     public AdminController(MatchRepository matchRepository,
                            PredictionService predictionService,
+                           GroupStandingPredictionService groupStandingPredictionService,
                            PredictionAuditService predictionAuditService,
                            UserProfileService userProfileService) {
         this.matchRepository = matchRepository;
         this.predictionService = predictionService;
+        this.groupStandingPredictionService = groupStandingPredictionService;
         this.predictionAuditService = predictionAuditService;
         this.userProfileService = userProfileService;
     }
@@ -62,11 +69,41 @@ public class AdminController {
         return "redirect:/admin/scores";
     }
 
+    @GetMapping("/group-results")
+    public String groupResults(Model model) {
+        Map<String, List<Team>> teamsByGroup = groupStandingPredictionService.getTeamsByGroup();
+        Map<String, GroupResult> groupResults = groupStandingPredictionService.getGroupResults();
+        List<AdminGroupResultView> groups = new ArrayList<>();
+        for (String groupName : groupStandingPredictionService.getGroupNames()) {
+            groups.add(new AdminGroupResultView(
+                    groupName,
+                    teamsByGroup.getOrDefault(groupName, List.of()),
+                    groupResults.get(groupName)));
+        }
+        model.addAttribute("groups", groups);
+        return "admin/group-results";
+    }
+
+    @PostMapping("/group-results/save")
+    public String saveGroupResult(@RequestParam String groupName,
+                                  @RequestParam Integer firstTeamId,
+                                  @RequestParam Integer secondTeamId,
+                                  RedirectAttributes redirectAttributes) {
+        try {
+            groupStandingPredictionService.saveGroupResult(groupName, firstTeamId, secondTeamId);
+            redirectAttributes.addFlashAttribute("successMessage",
+                    "Group " + groupName + " result saved and points updated.");
+        } catch (Exception ex) {
+            redirectAttributes.addFlashAttribute("errorMessage", ex.getMessage());
+        }
+        return "redirect:/admin/group-results";
+    }
+
     @GetMapping("/audit")
     public String audit(Principal principal,
                         @RequestParam(required = false) String username,
                         Model model) {
-        List<PredictionAudit> audits = predictionAuditService.getAuditTrail(username);
+        List<AuditEntryView> audits = predictionAuditService.getCombinedAuditTrail(username);
         Map<String, String> displayNames = new HashMap<>();
         for (UserProfile profile : userProfileService.getAllProfiles()) {
             displayNames.put(profile.getUsername(), userProfileService.getDisplayName(profile.getUsername()));

@@ -10,6 +10,9 @@ public class DataLoaderConfig {
 
     @Bean
     CommandLineRunner loadFixtures(FixtureImportService fixtureImportService) {
-        return args -> fixtureImportService.importFixturesIfEmpty();
+        return args -> {
+            fixtureImportService.importFixturesIfEmpty();
+            fixtureImportService.syncTeamGroupNamesFromMatches();
+        };
     }
 }

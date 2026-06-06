@@ -55,14 +55,25 @@ Round to nearest whole point after multiplying.
 
 ---
 
-## Proposed scoring — extras (optional, phase 2+)
+## Scoring — group 1st & 2nd predictions (implemented)
 
-Locked before the first match of the group (or before tournament kickoff — group decides).
+Locked **before that group’s first match**. Enter picks at `/predictions/groups`.
 
 | Pick | Points | Lock |
 |------|--------|------|
-| **Group winner (1st place)** | 3 per group | Before that group’s first match |
-| **Group runner-up (2nd place)** | 2 per group | Same |
+| **Correct 1st place** | **3** per group | Before group’s first match |
+| **Correct 2nd place** | **2** per group | Same |
+| **Qualifying team, wrong place** | **1** per slot | e.g. picked 1st, they finished 2nd |
+| **Wrong pick** | **0** | |
+
+Maximum **5 points per group** if both 1st and 2nd are correct. Admin enters official group results at `/admin/group-results` after the group stage ends.
+
+---
+
+## Proposed scoring — other extras (not yet implemented)
+
+| Pick | Points | Lock |
+|------|--------|------|
 | **Knockout match winner** (not score) | 3 | Kickoff |
 | **Reach semi-final** (pre–Round of 32) | 5 | Before Round of 32 |
 | **Reach final** | 8 | Before Round of 32 |
@@ -83,14 +94,16 @@ We **do not** recommend scoring “best third-place” qualifiers unless the who
 
 ## Player responsibilities
 
-- Enter and update predictions **before kickoff**  
+- Enter group 1st/2nd picks **before each group's first match**
+- Enter and update match predictions **before kickoff**  
 - Set your **timezone** in profile so kickoff times are clear  
 - Do not share accounts  
 - Accept admin-entered results as final for scoring
 
 ## Admin responsibilities
 
-- Enter actual scores promptly after matches  
+- Enter actual match scores promptly after matches
+- Enter group 1st/2nd results after each group finishes  
 - Do not change a result once agreed unless FIFA correction  
 - Enable knockout / bracket picks only when teams are known
 
@@ -109,8 +122,8 @@ We **do not** recommend scoring “best third-place” qualifiers unless the who
 
 Please comment before we implement in code:
 
+- [x] Include group winner/runner-up picks yes/no? **Yes — implemented**
 - [ ] Use knockout multiplier yes/no?  
-- [ ] Include group winner/runner-up picks yes/no?  
 - [ ] Champion pick points: 10 or 12?  
 - [ ] Daily “round leader” +1 bonus yes/no?  
 - [ ] Global lock for all pre-tournament picks: opening match or per group?  

@@ -7,6 +7,9 @@ All notable changes to this project will be documented in this file.
   - WC-0010 - Production deploy workflow (build on PR, deploy on main only) and DEPLOY.md
   - WC-0011 - Document first-time EC2 seed of users/authorities via db/setup.sql
   - WC-0012 - Feedback & Wishes page for shared app comments and suggestions
+  - WC-0013 - Group 1st/2nd predictions page, admin group results, leaderboard includes group points
+  - WC-0014 - Group teams loaded from fixtures; +1 pt for qualifying team in wrong place
+  - WC-0015 - Group prediction audit trail and tournament kickoff countdown in header
 
 ## [v0.0.2-PRERELEASE]
   - WC-0005 - Implemented approved scoring rules (5/2/+1, knockout multipliers) in PointsServiceImpl

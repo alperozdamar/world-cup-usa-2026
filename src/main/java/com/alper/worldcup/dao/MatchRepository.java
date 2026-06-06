@@ -2,7 +2,9 @@ package com.alper.worldcup.dao;
 
 import com.alper.worldcup.entity.Match;
 import com.alper.worldcup.entity.MatchStage;
+import java.time.Instant;
 import java.util.List;
+import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
@@ -17,4 +19,21 @@ public interface MatchRepository extends JpaRepository<Match, Integer> {
     @Query("SELECT m FROM Match m LEFT JOIN FETCH m.homeTeam LEFT JOIN FETCH m.awayTeam "
             + "ORDER BY m.kickoffUtc")
     List<Match> findAllWithTeams();
+
+    @Query("SELECT MIN(m.kickoffUtc) FROM Match m "
+            + "WHERE m.groupName = :groupName AND m.stage = com.alper.worldcup.entity.MatchStage.GROUP_STAGE")
+    Optional<Instant> findEarliestGroupStageKickoff(String groupName);
+
+    @Query("SELECT DISTINCT m.groupName FROM Match m "
+            + "WHERE m.stage = com.alper.worldcup.entity.MatchStage.GROUP_STAGE AND m.groupName IS NOT NULL "
+            + "ORDER BY m.groupName")
+    List<String> findDistinctGroupStageGroupNames();
+
+    @Query("SELECT m FROM Match m JOIN FETCH m.homeTeam JOIN FETCH m.awayTeam "
+            + "WHERE m.stage = com.alper.worldcup.entity.MatchStage.GROUP_STAGE AND m.groupName = :groupName")
+    List<Match> findGroupStageMatchesByGroup(String groupName);
+
+    @Query("SELECT MIN(m.kickoffUtc) FROM Match m "
+            + "WHERE m.stage = com.alper.worldcup.entity.MatchStage.GROUP_STAGE")
+    Optional<Instant> findTournamentStartKickoff();
 }

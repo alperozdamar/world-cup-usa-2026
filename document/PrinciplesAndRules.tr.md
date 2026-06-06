@@ -55,14 +55,25 @@ Geç turların daha değerli olması için maç puanını tura göre çarp:
 
 ---
 
-## Önerilen puanlama — ekstralar (isteğe bağlı, 2. aşama+)
+## Puanlama — grup 1. ve 2. tahminleri (uygulandı)
 
-O grubun ilk maçından önce (veya turnuva açılışından önce — grup karar verir) kilitlenir.
+**O grubun ilk maçından önce** kilitlenir. Tahminler: `/predictions/groups`
 
 | Tahmin | Puan | Kilit |
 |--------|------|--------|
-| **Grup birincisi** | Grup başına 3 | O grubun ilk maçından önce |
-| **Grup ikincisi** | Grup başına 2 | Aynı |
+| **Doğru 1. sıra** | Grup başına **3** | O grubun ilk maçından önce |
+| **Doğru 2. sıra** | Grup başına **2** | Aynı |
+| **Doğru takım, yanlış sıra** | **1** (slot başına) | örn. 1. dedin, 2. bitirdi |
+| **Yanlış tahmin** | **0** | |
+
+Her iki tahmin de doğruysa grup başına en fazla **5 puan**. Admin, grup aşaması bitince `/admin/group-results` üzerinden resmi sonuçları girer.
+
+---
+
+## Önerilen puanlama — diğer ekstralar (henüz uygulanmadı)
+
+| Tahmin | Puan | Kilit |
+|--------|------|--------|
 | **Eleme maçı galibi** (skor değil) | 3 | Başlama vuruşu |
 | **Yarı finale çıkma** (Son 32 öncesi) | 5 | Son 32 öncesi |
 | **Finale çıkma** | 8 | Son 32 öncesi |
@@ -83,14 +94,16 @@ O grubun ilk maçından önce (veya turnuva açılışından önce — grup kara
 
 ## Oyuncu sorumlulukları
 
-- Tahminleri **başlama vuruşundan önce** gir ve güncelle  
+- Grup 1./2. tahminlerini **her grubun ilk maçından önce** gir
+- Maç skoru tahminlerini **başlama vuruşundan önce** gir ve güncelle  
 - Profilde **saat dilimini** ayarla  
 - Hesap paylaşma  
 - Puanlama için admin skorlarını kabul et
 
 ## Admin sorumlulukları
 
-- Maçlar bitince skorları zamanında gir  
+- Maçlar bitince skorları zamanında gir
+- Grup 1./2. sonuçlarını grup bittikten sonra gir  
 - FIFA düzeltmesi yoksa sonucu değiştirme  
 - Knockout / bracket tahminlerini sadece takımlar belli olunca aç
 
@@ -109,8 +122,8 @@ O grubun ilk maçından önce (veya turnuva açılışından önce — grup kara
 
 Koda geçmeden önce lütfen yorumlayın:
 
+- [x] Grup birincisi / ikincisi tahminleri olsun mu? **Evet — uygulandı**
 - [ ] Eleme turu çarpanı kullanılsın mı?  
-- [ ] Grup birincisi / ikincisi tahminleri olsun mu?  
 - [ ] Şampiyon tahmini: 10 mu 12 puan mı?  
 - [ ] Günlük “tur lideri” +1 bonus olsun mu?  
 - [ ] Ön turnuva tahminleri: tek kilit (açılış) mi, grup grup mı?  

@@ -86,6 +86,28 @@ public class FixtureImportService {
 
         log.info("Imported {} matches ({} group stage)", fixtures.size(),
                 fixtures.stream().filter(f -> f.stage() == MatchStage.GROUP_STAGE).count());
+        syncTeamGroupNamesFromMatches();
+    }
+
+    @Transactional
+    public void syncTeamGroupNamesFromMatches() {
+        for (Match match : matchRepository.findByStageWithTeams(MatchStage.GROUP_STAGE)) {
+            if (match.getGroupName() == null) {
+                continue;
+            }
+            updateTeamGroupName(match.getHomeTeam(), match.getGroupName());
+            updateTeamGroupName(match.getAwayTeam(), match.getGroupName());
+        }
+    }
+
+    private void updateTeamGroupName(Team team, String groupName) {
+        if (team == null || groupName == null) {
+            return;
+        }
+        if (!groupName.equals(team.getGroupName())) {
+            team.setGroupName(groupName);
+            teamRepository.save(team);
+        }
     }
 
     private Team findOrCreateTeam(String name, String groupName) {

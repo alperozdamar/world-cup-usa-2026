@@ -2,11 +2,17 @@ package com.alper.worldcup.controller;
 
 import com.alper.worldcup.entity.Match;
 import com.alper.worldcup.entity.Prediction;
-import com.alper.worldcup.service.MatchViewHelper;
+import com.alper.worldcup.entity.GroupResult;
+import com.alper.worldcup.entity.GroupStandingPrediction;
+import com.alper.worldcup.entity.Team;
+import com.alper.worldcup.service.GroupStandingPredictionService;
+import com.alper.worldcup.service.LeaderboardService;
 import com.alper.worldcup.service.PredictionService;
 import com.alper.worldcup.service.UserProfileService;
 import java.security.Principal;
 import java.time.ZoneId;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import org.springframework.stereotype.Controller;
@@ -22,11 +28,17 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 public class PredictionController {
 
     private final PredictionService predictionService;
+    private final GroupStandingPredictionService groupStandingPredictionService;
+    private final LeaderboardService leaderboardService;
     private final UserProfileService userProfileService;
 
     public PredictionController(PredictionService predictionService,
+                                GroupStandingPredictionService groupStandingPredictionService,
+                                LeaderboardService leaderboardService,
                                 UserProfileService userProfileService) {
         this.predictionService = predictionService;
+        this.groupStandingPredictionService = groupStandingPredictionService;
+        this.leaderboardService = leaderboardService;
         this.userProfileService = userProfileService;
     }
 
@@ -60,9 +72,56 @@ public class PredictionController {
         return "redirect:/predictions/list";
     }
 
+    @GetMapping("/groups")
+    public String groupStandings(Principal principal, Model model) {
+        String username = principal.getName();
+        ZoneId zoneId = userProfileService.getUserZoneId(username);
+        List<String> groupNames = groupStandingPredictionService.getGroupNames();
+        Map<String, List<Team>> teamsByGroup = groupStandingPredictionService.getTeamsByGroup();
+        Map<String, GroupStandingPrediction> predictions =
+                groupStandingPredictionService.getPredictionsForUser(username);
+        Map<String, GroupResult> groupResults = groupStandingPredictionService.getGroupResults();
+
+        List<GroupPredictionView> groups = new ArrayList<>();
+        for (String groupName : groupNames) {
+            String firstKickoffLabel = groupStandingPredictionService.getFirstKickoffForGroup(groupName)
+                    .map(kickoff -> kickoff.atZone(zoneId).format(java.time.format.DateTimeFormatter
+                            .ofPattern("EEE, MMM d yyyy HH:mm z")))
+                    .orElse(null);
+            groups.add(new GroupPredictionView(
+                    groupName,
+                    teamsByGroup.getOrDefault(groupName, List.of()),
+                    predictions.get(groupName),
+                    groupResults.get(groupName),
+                    firstKickoffLabel,
+                    groupStandingPredictionService.isGroupEditable(groupName)));
+        }
+
+        model.addAttribute("groups", groups);
+        model.addAttribute("zoneId", zoneId.getId());
+        return "predictions/groups";
+    }
+
+    @PostMapping("/groups/save")
+    public String saveGroupStandings(Principal principal,
+                                     @RequestParam String groupName,
+                                     @RequestParam Integer firstTeamId,
+                                     @RequestParam Integer secondTeamId,
+                                     RedirectAttributes redirectAttributes) {
+        try {
+            groupStandingPredictionService.savePrediction(
+                    principal.getName(), groupName, firstTeamId, secondTeamId);
+            redirectAttributes.addFlashAttribute("successMessage",
+                    "Group " + groupName + " prediction saved.");
+        } catch (Exception ex) {
+            redirectAttributes.addFlashAttribute("errorMessage", ex.getMessage());
+        }
+        return "redirect:/predictions/groups";
+    }
+
     @GetMapping("/leaderboard")
     public String leaderboard(Model model) {
-        List<Object[]> leaderboard = predictionService.getLeaderboard();
+        List<Object[]> leaderboard = leaderboardService.getLeaderboard();
         List<String> usernames = leaderboard.stream()
                 .map(row -> (String) row[0])
                 .toList();

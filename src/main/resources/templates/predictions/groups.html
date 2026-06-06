@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Group 1st & 2nd Predictions')}"></head>
+<body>
+<div th:replace="~{fragments/layout :: navbar}"></div>
+<div class="container">
+    <div class="mb-3">
+        <a th:href="@{/predictions/list}" class="text-decoration-none">&larr; Match score predictions</a>
+    </div>
+
+    <h2>Group 1st &amp; 2nd Predictions</h2>
+    <p class="text-muted mb-0">
+        Pick who finishes 1st and 2nd in each group.
+        Locks before that group's first match.
+        Times shown in <strong th:text="${zoneId}">America/New_York</strong>.
+    </p>
+    <p class="text-muted small mb-0 mt-1">
+        <strong>3 pts</strong> correct 1st · <strong>2 pts</strong> correct 2nd ·
+        <strong>1 pt</strong> if you picked a qualifying team in the wrong place (max 5 per group).
+    </p>
+
+    <div th:if="${successMessage}" class="alert alert-success mt-3" th:text="${successMessage}"></div>
+    <div th:if="${errorMessage}" class="alert alert-danger mt-3" th:text="${errorMessage}"></div>
+
+    <div th:if="${#lists.isEmpty(groups)}" class="alert alert-warning mt-3">
+        No groups loaded yet. Fixtures are imported automatically on first startup from
+        <code>data/fixtures.txt</code>. Restart the app after MySQL is running, or check that group stage
+        matches appear on the Match Predictions page.
+    </div>
+
+    <div class="row g-3 mt-2">
+        <div class="col-md-6 col-lg-4" th:each="group : ${groups}">
+            <div class="card h-100">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <strong th:text="'Group ' + ${group.groupName}">Group A</strong>
+                    <span class="badge"
+                          th:classappend="${group.editable} ? ' bg-success' : ' bg-secondary'"
+                          th:text="${@groupStandingPredictionService.statusLabel(group.groupName, group.prediction)}">
+                    </span>
+                </div>
+                <div class="card-body">
+                    <p class="small text-muted mb-3" th:if="${group.firstKickoffLabel}">
+                        First match: <span th:text="${group.firstKickoffLabel}"></span>
+                    </p>
+
+                    <div th:if="${group.prediction != null}" class="mb-3">
+                        <div class="small">
+                            Your pick:
+                            <strong th:text="${group.prediction.firstPlaceTeam.name}"></strong> (1st),
+                            <strong th:text="${group.prediction.secondPlaceTeam.name}"></strong> (2nd)
+                        </div>
+                        <div th:if="${group.groupResult != null}" class="small text-success mt-1">
+                            Actual:
+                            <span th:text="${group.groupResult.firstPlaceTeam.name}"></span> (1st),
+                            <span th:text="${group.groupResult.secondPlaceTeam.name}"></span> (2nd)
+                            · Points:
+                            <strong th:text="${group.prediction.points}">0</strong>
+                        </div>
+                    </div>
+
+                    <form th:if="${group.editable and !#lists.isEmpty(group.teams)}"
+                          th:action="@{/predictions/groups/save}" method="post">
+                        <input type="hidden" name="groupName" th:value="${group.groupName}">
+                        <div class="mb-2">
+                            <label class="form-label small mb-1">1st place</label>
+                            <select name="firstTeamId" class="form-select form-select-sm" required>
+                                <option value="" disabled th:selected="${group.prediction == null}">Select team</option>
+                                <option th:each="team : ${group.teams}"
+                                        th:value="${team.id}"
+                                        th:text="${team.name}"
+                                        th:selected="${group.prediction != null and group.prediction.firstPlaceTeam.id == team.id}"></option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label small mb-1">2nd place</label>
+                            <select name="secondTeamId" class="form-select form-select-sm" required>
+                                <option value="" disabled th:selected="${group.prediction == null}">Select team</option>
+                                <option th:each="team : ${group.teams}"
+                                        th:value="${team.id}"
+                                        th:text="${team.name}"
+                                        th:selected="${group.prediction != null and group.prediction.secondPlaceTeam.id == team.id}"></option>
+                            </select>
+                        </div>
+                        <button type="submit" class="btn btn-sm btn-primary">Save</button>
+                    </form>
+
+                    <p th:if="${#lists.isEmpty(group.teams)}" class="text-danger small mb-0">
+                        No teams found for this group — fixtures may not be loaded.
+                    </p>
+
+                    <p th:if="${!group.editable and group.prediction == null}"
+                       class="text-muted small mb-0">
+                        Locked — no prediction entered.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div th:replace="~{fragments/layout :: footer}"></div>
+</body>
+</html>

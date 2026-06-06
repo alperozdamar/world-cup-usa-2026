@@ -5,7 +5,7 @@
 <div th:replace="~{fragments/layout :: navbar}"></div>
 <div class="container">
     <h2>Scoring Rules</h2>
-    <p class="text-muted">Approved by the group · match predictions only (phase 1)</p>
+    <p class="text-muted">Approved by the group · match scores + group 1st/2nd picks</p>
 
     <div class="card mb-4">
         <div class="card-header">Per match</div>
@@ -26,6 +26,28 @@
     </div>
 
     <div class="card mb-4">
+        <div class="card-header">Group 1st &amp; 2nd predictions</div>
+        <div class="card-body">
+            <table class="table mb-0">
+                <thead>
+                <tr><th>Pick</th><th>Points</th><th>Lock</th></tr>
+                </thead>
+                <tbody>
+                <tr><td>Correct 1st place in group</td><td><strong>3</strong></td><td>Before that group's first match</td></tr>
+                <tr><td>Correct 2nd place in group</td><td><strong>2</strong></td><td>Before that group's first match</td></tr>
+                <tr><td>Qualifying team picked in wrong place (1st ↔ 2nd)</td><td><strong>1</strong></td><td>Per team slot</td></tr>
+                <tr><td>Wrong pick</td><td><strong>0</strong></td><td>—</td></tr>
+                </tbody>
+            </table>
+            <p class="small text-muted mt-3 mb-0">
+                Max 5 points per group if both places are exact.
+                Example: you pick A 1st and B 2nd, but they finish B 1st and A 2nd → 1 + 1 = 2 points.
+                Enter picks on <a th:href="@{/predictions/groups}">Group 1st &amp; 2nd Predictions</a>.
+            </p>
+        </div>
+    </div>
+
+    <div class="card mb-4">
         <div class="card-header">Knockout multiplier</div>
         <div class="card-body">
             <table class="table mb-0">
@@ -41,9 +63,10 @@
     </div>
 
     <ul>
-        <li>Predictions lock at kickoff (UTC).</li>
+        <li>Match score predictions lock at kickoff (UTC).</li>
+        <li>Group 1st/2nd predictions lock before each group's first match.</li>
         <li>No negative points.</li>
-        <li>Admin enters official scores after each match.</li>
+        <li>Admin enters official match scores and group results after play ends.</li>
     </ul>
 </div>
 <div th:replace="~{fragments/layout :: footer}"></div>

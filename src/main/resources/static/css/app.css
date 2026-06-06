@@ -38,11 +38,36 @@ body {
     border-bottom: 1px solid #343a40;
 }
 
+.world-clocks-header {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+    gap: 0.75rem 1.5rem;
+}
+
 .world-clocks {
     display: flex;
     flex-wrap: wrap;
     justify-content: center;
     gap: 0.5rem 1.75rem;
+}
+
+.tournament-countdown-wrap {
+    text-align: center;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.tournament-countdown-label {
+    color: #adb5bd;
+    margin-right: 0.35rem;
+}
+
+.tournament-countdown-time {
+    font-variant-numeric: tabular-nums;
+    font-weight: 600;
+    letter-spacing: 0.02em;
 }
 
 .world-clock-city {
