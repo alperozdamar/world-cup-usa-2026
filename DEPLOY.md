@@ -24,7 +24,47 @@ docker exec mysql-standalone mysql -uroot -p'password' -e "SHOW DATABASES;"
 # worldcup must exist
 ```
 
-### 2. EC2 — Security group
+Create MySQL 8 if needed:
+
+```bash
+docker run -d --name mysql-standalone \
+  --restart unless-stopped \
+  -e MYSQL_ROOT_PASSWORD='password' \
+  -e MYSQL_DATABASE=worldcup \
+  -p 3306:3306 \
+  mysql:8
+```
+
+### 2. EC2 — Seed login tables (first time only)
+
+Hibernate creates app tables (`matches`, `predictions`, etc.) on startup, but **not** Spring Security tables (`users`, `authorities`). Without this step the app crash-loops on first boot.
+
+From your **Mac** (repo root), copy `db/setup.sql` to EC2:
+
+```bash
+scp -i Alper_DevOps2_Key.pem db/setup.sql \
+  ec2-user@54.242.205.198:/home/ec2-user/setup.sql
+```
+
+On **EC2**, load into the `worldcup` database:
+
+```bash
+docker exec -i mysql-standalone mysql -uroot -p'password' worldcup \
+  < /home/ec2-user/setup.sql
+```
+
+Verify:
+
+```bash
+docker exec mysql-standalone mysql -uroot -p'password' worldcup \
+  -e "SHOW TABLES; SELECT username FROM users;"
+```
+
+You should see `users`, `authorities`, and 7 players. Safe to re-run (`INSERT IGNORE` / `CREATE IF NOT EXISTS`).
+
+Source of truth: [`db/setup.sql`](db/setup.sql)
+
+### 3. EC2 — Security group
 
 Allow inbound **TCP 8090** from your IP (or `0.0.0.0/0` if you accept public access).
 
@@ -34,7 +74,7 @@ AWS Console → EC2 → Security Groups → inbound rule:
 |------|------|--------|
 | Custom TCP | 8090 | Your IP / 0.0.0.0/0 |
 
-### 3. GitHub repository secrets
+### 4. GitHub repository secrets
 
 Repo: **alperozdamar/world-cup-usa-2026** → Settings → Secrets and variables → Actions
 
@@ -49,7 +89,7 @@ Repo: **alperozdamar/world-cup-usa-2026** → Settings → Secrets and variables
 
 You can copy `DOCKERHUB_*`, `EC2_*` from the **my-finance-watcher** repo secrets if already set.
 
-### 4. SSH key access
+### 5. SSH key access
 
 The EC2 user must run Docker without sudo. If deploy fails with permission denied:
 
@@ -92,8 +132,10 @@ docker rm world-cup-usa-2026 || true
 
 docker run -d --name world-cup-usa-2026 \
   --restart unless-stopped \
+  --memory=384m \
   --link mysql-standalone:mysql \
   -p 8090:8090 \
+  -e JAVA_TOOL_OPTIONS='-Xmx256m -Xms128m' \
   -e SPRING_DATASOURCE_URL='jdbc:mysql://mysql:3306/worldcup?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true' \
   -e SPRING_DATASOURCE_USERNAME=root \
   -e SPRING_DATASOURCE_PASSWORD='password' \
@@ -121,9 +163,22 @@ Login: `alper` / `123` (change password in Profile after first login)
 | Problem | Fix |
 |---------|-----|
 | Connection refused on 8090 | Open security group port 8090 |
-| App crash-loop / OOM | Stop finance app; consider t3.small or add swap |
+| App crash-loop on first deploy | Run [`db/setup.sql`](db/setup.sql) into `worldcup` (see step 2 above) |
+| App crash-loop / OOM | Add **1 GB swap** (below); keep finance app stopped; use `-Xmx128m` |
 | DB connection error | `docker start mysql-standalone`; check `MYSQL_ROOT_PASSWORD` secret |
 | `Access denied for user` | Env vars must use `root` / `password` / host `mysql` |
+| Disk 100% full | `docker system prune -af`; expand EBS to 20 GB |
+
+### Add swap on EC2 (recommended for t3.micro)
+
+```bash
+sudo dd if=/dev/zero of=/swapfile bs=1M count=1024
+sudo chmod 600 /swapfile
+sudo mkswap /swapfile
+sudo swapon /swapfile
+echo '/swapfile swap swap defaults 0 0' | sudo tee -a /etc/fstab
+free -h
+```
 
 ---
 
