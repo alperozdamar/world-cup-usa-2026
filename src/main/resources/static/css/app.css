@@ -30,6 +30,40 @@ body {
     border-top: 1px solid #dee2e6;
 }
 
+body.admin-page {
+    background-color: #faf3f3;
+}
+
+.admin-navbar {
+    background: #7f1d1d;
+}
+
+.admin-badge {
+    background: #fecaca;
+    color: #7f1d1d;
+    font-size: 0.65rem;
+    letter-spacing: 0.06em;
+    vertical-align: middle;
+}
+
+.admin-mode-bar {
+    background: #991b1b;
+    color: #fecaca;
+    font-size: 0.8125rem;
+    padding: 0.4rem 0;
+    text-align: center;
+    margin-bottom: 1.5rem;
+    border-bottom: 1px solid #7f1d1d;
+}
+
+.admin-page .card {
+    border-color: #e7caca;
+}
+
+.admin-page h2 {
+    color: #7f1d1d;
+}
+
 .world-clocks-bar {
     background: #1a1d21;
     color: #e9ecef;

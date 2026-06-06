@@ -1,10 +1,15 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head th:replace="~{fragments/layout :: head('Admin - Group Results')}"></head>
-<body>
-<div th:replace="~{fragments/layout :: navbar}"></div>
+<body class="admin-page">
+<div th:replace="~{fragments/layout :: navbar-admin}"></div>
 <div class="container">
     <h2>Group Results</h2>
+    <div class="alert alert-warning py-2">
+        <strong>After group stage only.</strong> Do not enter 1st/2nd place here before all group
+        matches are played. Players use
+        <a th:href="@{/predictions/groups}">Group 1st &amp; 2nd Predictions</a> for their guesses.
+    </div>
     <p class="text-muted">
         Enter the official 1st and 2nd place teams for each group after the group stage ends.
         Player points update automatically (3 pts 1st, 2 pts 2nd, 1 pt if team qualifies in wrong place).

@@ -64,6 +64,36 @@
     </nav>
     <script th:src="@{/js/world-clocks.js}" defer></script>
 </div>
+<div th:fragment="navbar-admin">
+    <div th:replace="~{fragments/layout :: world-clocks}"></div>
+    <nav class="navbar navbar-expand-lg navbar-dark admin-navbar mb-0">
+        <div class="container">
+            <a class="navbar-brand d-flex align-items-center gap-2" th:href="@{/predictions/list}">
+                <img th:src="@{/images/ataturk.png}" alt="Ataturk" class="navbar-brand-icon">
+                World Cup 2026
+                <span class="badge admin-badge">Admin</span>
+            </a>
+            <div class="navbar-nav ms-auto">
+                <a class="nav-link" th:href="@{/predictions/list}">My Predictions</a>
+                <a class="nav-link" th:href="@{/predictions/leaderboard}">Leaderboard</a>
+                <a class="nav-link" th:href="@{/rules}">Rules</a>
+                <a class="nav-link" th:href="@{/feedback}">Feedback</a>
+                <a class="nav-link" th:href="@{/profile/settings}">Profile</a>
+                <a class="nav-link active-admin" th:href="@{/admin/scores}">Admin Scores</a>
+                <a class="nav-link active-admin" th:href="@{/admin/group-results}">Group Results</a>
+                <a class="nav-link active-admin" th:href="@{/admin/audit}">Audit</a>
+                <span class="nav-link text-white-50" sec:authentication="name">user</span>
+                <form th:action="@{/logout}" method="post" class="d-inline">
+                    <button type="submit" class="btn btn-link nav-link">Logout</button>
+                </form>
+            </div>
+        </div>
+    </nav>
+    <div class="admin-mode-bar">
+        Admin area — enter official results only (after matches / group stage finish)
+    </div>
+    <script th:src="@{/js/world-clocks.js}" defer></script>
+</div>
 <footer th:fragment="footer" class="app-footer">
     <div class="container text-center">
         <small class="text-muted">
