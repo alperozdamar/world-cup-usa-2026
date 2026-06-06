@@ -1,5 +1,7 @@
-package com.alper.worldcup.service;
+package com.alper.worldcup.config;
 
+import com.alper.worldcup.service.UserAccountService;
+import com.alper.worldcup.service.UserProfileService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
