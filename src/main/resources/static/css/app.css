@@ -29,3 +29,29 @@ body {
     padding: 1.25rem 0;
     border-top: 1px solid #dee2e6;
 }
+
+.world-clocks-bar {
+    background: #1a1d21;
+    color: #e9ecef;
+    font-size: 0.8125rem;
+    padding: 0.4rem 0;
+    border-bottom: 1px solid #343a40;
+}
+
+.world-clocks {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.5rem 1.75rem;
+}
+
+.world-clock-city {
+    color: #adb5bd;
+    margin-right: 0.35rem;
+}
+
+.world-clock-time {
+    font-variant-numeric: tabular-nums;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+}
