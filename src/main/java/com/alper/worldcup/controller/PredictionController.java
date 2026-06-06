@@ -10,6 +10,7 @@ import com.alper.worldcup.entity.Team;
 import com.alper.worldcup.service.FinalPredictionService;
 import com.alper.worldcup.service.GroupStandingPredictionService;
 import com.alper.worldcup.service.LeaderboardService;
+import com.alper.worldcup.service.PeerPredictionService;
 import com.alper.worldcup.service.PredictionService;
 import com.alper.worldcup.service.UserProfileService;
 import java.security.Principal;
@@ -33,17 +34,20 @@ public class PredictionController {
     private final PredictionService predictionService;
     private final GroupStandingPredictionService groupStandingPredictionService;
     private final FinalPredictionService finalPredictionService;
+    private final PeerPredictionService peerPredictionService;
     private final LeaderboardService leaderboardService;
     private final UserProfileService userProfileService;
 
     public PredictionController(PredictionService predictionService,
                                 GroupStandingPredictionService groupStandingPredictionService,
                                 FinalPredictionService finalPredictionService,
+                                PeerPredictionService peerPredictionService,
                                 LeaderboardService leaderboardService,
                                 UserProfileService userProfileService) {
         this.predictionService = predictionService;
         this.groupStandingPredictionService = groupStandingPredictionService;
         this.finalPredictionService = finalPredictionService;
+        this.peerPredictionService = peerPredictionService;
         this.leaderboardService = leaderboardService;
         this.userProfileService = userProfileService;
     }
@@ -158,6 +162,22 @@ public class PredictionController {
             redirectAttributes.addFlashAttribute("errorMessage", ex.getMessage());
         }
         return "redirect:/predictions/final";
+    }
+
+    @GetMapping("/others")
+    public String others(Principal principal, Model model) {
+        ZoneId zoneId = userProfileService.getUserZoneId(principal.getName());
+        model.addAttribute("zoneId", zoneId.getId());
+        model.addAttribute("tournamentStarted", peerPredictionService.isTournamentStarted());
+        model.addAttribute("tournamentStartLabel", finalPredictionService.getTournamentStartKickoff()
+                .map(kickoff -> kickoff.atZone(zoneId).format(java.time.format.DateTimeFormatter
+                        .ofPattern("EEE, MMM d yyyy HH:mm z")))
+                .orElse(null));
+        model.addAttribute("matchViews", peerPredictionService.getVisibleMatchPredictions());
+        model.addAttribute("groupNames", groupStandingPredictionService.getGroupNames());
+        model.addAttribute("groupRows", peerPredictionService.getVisibleGroupPredictions());
+        model.addAttribute("finalRows", peerPredictionService.getVisibleFinalPredictions());
+        return "predictions/others";
     }
 
     @GetMapping("/leaderboard")

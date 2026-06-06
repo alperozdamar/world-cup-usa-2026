@@ -13,6 +13,7 @@ All notable changes to this project will be documented in this file.
   - WC-0016 - Distinct admin page styling and clearer Group Results warning
   - WC-0017 - Final prediction page (champion/runner-up), admin final result, audit, rules, leaderboard
   - WC-0018 - Per-match "Locks in" countdown on predictions list (minute granularity)
+  - WC-0019 - Other players' predictions page with kickoff/tournament visibility rules
 
 ## [v0.0.2-PRERELEASE]
   - WC-0005 - Implemented approved scoring rules (5/2/+1, knockout multipliers) in PointsServiceImpl

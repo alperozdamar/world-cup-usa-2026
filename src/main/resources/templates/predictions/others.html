@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Other Players\' Predictions')}"></head>
+<body>
+<div th:replace="~{fragments/layout :: navbar}"></div>
+<div class="container">
+    <h2>Other Players&rsquo; Predictions</h2>
+    <p class="text-muted mb-0">
+        Match scores appear after each game kicks off.
+        Group and final picks appear after the tournament starts
+        <span th:if="${tournamentStartLabel != null}">
+            (<strong th:text="${tournamentStartLabel}"></strong>)
+        </span>.
+    </p>
+
+    <section class="mt-4">
+        <h4 class="h5">Match scores</h4>
+        <p class="text-muted small">Only games that have already started.</p>
+
+        <div th:if="${#lists.isEmpty(matchViews)}" class="alert alert-secondary py-2">
+            No match predictions to show yet — check back after the first kickoff.
+        </div>
+
+        <div th:each="matchView : ${matchViews}" class="card mb-3">
+            <div class="card-header">
+                <strong th:text="${matchView.match.homeDisplayName} + ' vs ' + ${matchView.match.awayDisplayName}"></strong>
+                <span class="text-muted ms-2">
+                    · Group <span th:text="${matchView.match.groupName}"></span>
+                    · <span th:text="${@matchViewHelper.formatKickoffDate(matchView.match, zoneId)}"></span>
+                    <span th:text="${@matchViewHelper.formatKickoffTime(matchView.match, zoneId)}"></span>
+                </span>
+                <span th:if="${matchView.match.scoreEntered}" class="ms-2 badge bg-success">
+                    Final: <span th:text="${matchView.match.homeScoreActual} + '-' + ${matchView.match.awayScoreActual}"></span>
+                </span>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-sm table-striped mb-0 align-middle">
+                        <thead>
+                        <tr>
+                            <th>Player</th>
+                            <th>Prediction</th>
+                            <th th:if="${matchView.match.scoreEntered}">Points</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr th:each="pick : ${matchView.predictions}">
+                            <td>
+                                <span th:text="${pick.displayName}"></span>
+                                <span class="small text-muted" th:text="'(' + ${pick.username} + ')'"></span>
+                            </td>
+                            <td th:text="${pick.homeGuess} + ' - ' + ${pick.awayGuess}"></td>
+                            <td th:if="${matchView.match.scoreEntered}">
+                                <span th:if="${pick.points != null}" th:text="${pick.points}"></span>
+                                <span th:if="${pick.points == null}" class="text-muted">—</span>
+                            </td>
+                        </tr>
+                        <tr th:if="${#lists.isEmpty(matchView.predictions)}">
+                            <td colspan="3" class="text-muted">No predictions saved for this match.</td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="mt-4">
+        <h4 class="h5">Group 1st &amp; 2nd</h4>
+        <div th:if="${!tournamentStarted}" class="alert alert-secondary py-2">
+            Hidden until tournament kickoff — picks are still editable before then.
+        </div>
+        <div th:if="${tournamentStarted and #lists.isEmpty(groupRows)}" class="alert alert-secondary py-2">
+            No group predictions saved yet.
+        </div>
+        <div th:if="${tournamentStarted and !#lists.isEmpty(groupRows)}" class="table-responsive">
+            <table class="table table-sm table-striped align-middle">
+                <thead class="table-dark">
+                <tr>
+                    <th>Player</th>
+                    <th th:each="groupName : ${groupNames}" th:text="'Group ' + ${groupName}"></th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="row : ${groupRows}">
+                    <td>
+                        <span th:text="${row.displayName}"></span>
+                        <span class="small text-muted" th:text="'(' + ${row.username} + ')'"></span>
+                    </td>
+                    <td th:each="groupName : ${groupNames}">
+                        <span th:with="pick=${row.picksByGroup.get(groupName)}">
+                            <span th:if="${pick != null}">
+                                <span th:text="${pick.firstTeamName}"></span> (1st)<br>
+                                <span th:text="${pick.secondTeamName}"></span> (2nd)
+                            </span>
+                            <span th:if="${pick == null}" class="text-muted">—</span>
+                        </span>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <section class="mt-4 mb-4">
+        <h4 class="h5">Final (champion &amp; runner-up)</h4>
+        <div th:if="${!tournamentStarted}" class="alert alert-secondary py-2">
+            Hidden until tournament kickoff — picks are still editable before then.
+        </div>
+        <div th:if="${tournamentStarted and #lists.isEmpty(finalRows)}" class="alert alert-secondary py-2">
+            No final predictions saved yet.
+        </div>
+        <div th:if="${tournamentStarted and !#lists.isEmpty(finalRows)}" class="table-responsive">
+            <table class="table table-sm table-striped align-middle">
+                <thead class="table-dark">
+                <tr>
+                    <th>Player</th>
+                    <th>Champion</th>
+                    <th>Runner-up</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="row : ${finalRows}">
+                    <td>
+                        <span th:text="${row.displayName}"></span>
+                        <span class="small text-muted" th:text="'(' + ${row.username} + ')'"></span>
+                    </td>
+                    <td th:text="${row.championName}"></td>
+                    <td th:text="${row.runnerUpName}"></td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+</div>
+<div th:replace="~{fragments/layout :: footer}"></div>
+</body>
+</html>
