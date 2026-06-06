@@ -7,10 +7,8 @@ on:
     branches: [main]
 
 jobs:
-  build-and-deploy:
+  build:
     runs-on: ubuntu-latest
-    env:
-      REPO: world-cup-usa-2026
     steps:
       - uses: actions/checkout@v4
 
@@ -18,26 +16,41 @@ jobs:
         with:
           java-version: '21'
           distribution: 'temurin'
+          cache: maven
 
-      - name: Build with Maven
-        run: mvn --batch-mode --update-snapshots verify -Dmaven.test.skip=true
-
-      - name: Get version from pom.xml
-        run: echo "VERSION=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)" >> $GITHUB_ENV
+      - name: Build and test
+        run: mvn --batch-mode verify
 
       - name: Build Docker image
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        env:
+          REPO: world-cup-usa-2026
         run: |
-          docker build --no-cache . -t ${{ secrets.DOCKERHUB_USERNAME }}/${{ env.REPO }}:${{ env.VERSION }}
-          docker tag ${{ secrets.DOCKERHUB_USERNAME }}/${{ env.REPO }}:${{ env.VERSION }} ${{ secrets.DOCKERHUB_USERNAME }}/${{ env.REPO }}:latest
+          VERSION=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)
+          docker build . -t ${{ secrets.DOCKERHUB_USERNAME }}/${{ env.REPO }}:${VERSION}
+          docker tag ${{ secrets.DOCKERHUB_USERNAME }}/${{ env.REPO }}:${VERSION} \
+            ${{ secrets.DOCKERHUB_USERNAME }}/${{ env.REPO }}:latest
 
       - name: Login to DockerHub
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         run: echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
 
       - name: Push Docker image
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        env:
+          REPO: world-cup-usa-2026
         run: |
-          docker push ${{ secrets.DOCKERHUB_USERNAME }}/${{ env.REPO }}:${{ env.VERSION }}
+          VERSION=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)
+          docker push ${{ secrets.DOCKERHUB_USERNAME }}/${{ env.REPO }}:${VERSION}
           docker push ${{ secrets.DOCKERHUB_USERNAME }}/${{ env.REPO }}:latest
 
+  deploy:
+    needs: build
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    env:
+      REPO: world-cup-usa-2026
+    steps:
       - name: Deploy to EC2 via SSH
         uses: appleboy/ssh-action@v1.0.3
         with:
@@ -45,11 +58,19 @@ jobs:
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
+            set -e
+            docker start mysql-standalone || true
             docker pull ${{ secrets.DOCKERHUB_USERNAME }}/${{ env.REPO }}:latest
             docker stop ${{ env.REPO }} || true
             docker rm ${{ env.REPO }} || true
-            docker run -d --name ${{ env.REPO }} --link mysql-standalone:mysql -p 8090:8090 \
-              -e SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/worldcup?useSSL=false\&serverTimezone=UTC \
+            docker run -d --name ${{ env.REPO }} \
+              --restart unless-stopped \
+              --link mysql-standalone:mysql \
+              -p 8090:8090 \
+              -e SPRING_DATASOURCE_URL='jdbc:mysql://mysql:3306/worldcup?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true' \
               -e SPRING_DATASOURCE_USERNAME=root \
-              -e SPRING_DATASOURCE_PASSWORD=${{ secrets.MYSQL_ROOT_PASSWORD }} \
+              -e SPRING_DATASOURCE_PASSWORD='${{ secrets.MYSQL_ROOT_PASSWORD }}' \
               ${{ secrets.DOCKERHUB_USERNAME }}/${{ env.REPO }}:latest
+            sleep 15
+            docker ps
+            docker logs ${{ env.REPO }} --tail 20

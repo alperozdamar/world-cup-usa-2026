@@ -5,6 +5,7 @@ import com.alper.worldcup.dao.PredictionRepository;
 import com.alper.worldcup.entity.Match;
 import com.alper.worldcup.entity.MatchStage;
 import com.alper.worldcup.entity.Prediction;
+import com.alper.worldcup.entity.PredictionAuditAction;
 import java.time.Instant;
 import java.util.HashMap;
 import java.util.List;
@@ -18,13 +19,16 @@ public class PredictionService {
     private final MatchRepository matchRepository;
     private final PredictionRepository predictionRepository;
     private final PointsService pointsService;
+    private final PredictionAuditService predictionAuditService;
 
     public PredictionService(MatchRepository matchRepository,
                              PredictionRepository predictionRepository,
-                             PointsService pointsService) {
+                             PointsService pointsService,
+                             PredictionAuditService predictionAuditService) {
         this.matchRepository = matchRepository;
         this.predictionRepository = predictionRepository;
         this.pointsService = pointsService;
+        this.predictionAuditService = predictionAuditService;
     }
 
     @Transactional(readOnly = true)
@@ -60,6 +64,15 @@ public class PredictionService {
 
         Prediction prediction = predictionRepository.findByUsernameAndMatchId(username, matchId)
                 .orElse(new Prediction());
+
+        boolean isUpdate = prediction.getId() != null;
+        Integer previousHome = isUpdate ? prediction.getHomeScoreGuess() : null;
+        Integer previousAway = isUpdate ? prediction.getAwayScoreGuess() : null;
+
+        if (isUpdate && homeGuess.equals(previousHome) && awayGuess.equals(previousAway)) {
+            return;
+        }
+
         prediction.setUsername(username);
         prediction.setMatch(match);
         prediction.setHomeScoreGuess(homeGuess);
@@ -71,6 +84,15 @@ public class PredictionService {
         }
 
         predictionRepository.save(prediction);
+
+        predictionAuditService.recordPredictionChange(
+                username,
+                match,
+                homeGuess,
+                awayGuess,
+                isUpdate ? PredictionAuditAction.UPDATED : PredictionAuditAction.CREATED,
+                previousHome,
+                previousAway);
     }
 
     @Transactional

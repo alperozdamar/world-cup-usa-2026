@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Admin - Prediction Audit')}"></head>
+<body>
+<div th:replace="~{fragments/layout :: navbar}"></div>
+<div class="container">
+    <h2>Prediction Audit</h2>
+    <p class="text-muted">
+        History of every prediction entered or updated. Times shown in
+        <strong th:text="${zoneId}">America/New_York</strong>.
+    </p>
+
+    <form th:action="@{/admin/audit}" method="get" class="row g-2 align-items-end mb-4">
+        <div class="col-auto">
+            <label class="form-label">Filter by player</label>
+            <select name="username" class="form-select">
+                <option value="" th:selected="${selectedUsername == ''}">All players</option>
+                <option th:each="player : ${players}"
+                        th:value="${player.username}"
+                        th:text="${player.displayName != null ? player.displayName + ' (' + player.username + ')' : player.username}"
+                        th:selected="${player.username == selectedUsername}"></option>
+            </select>
+        </div>
+        <div class="col-auto">
+            <button type="submit" class="btn btn-primary">Apply filter</button>
+            <a th:href="@{/admin/audit}" class="btn btn-outline-secondary">Show all</a>
+        </div>
+    </form>
+
+    <div class="table-responsive">
+        <table class="table table-sm table-striped align-middle">
+            <thead class="table-dark">
+            <tr>
+                <th>When</th>
+                <th>Player</th>
+                <th>Action</th>
+                <th>Match</th>
+                <th>Prediction</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="audit : ${audits}">
+                <td th:text="${@matchViewHelper.formatRecordedAt(audit.recordedAt, zoneId)}"></td>
+                <td>
+                    <span th:text="${displayNames[audit.username]}">Player</span>
+                    <span class="small text-muted" th:text="'(' + ${audit.username} + ')'"></span>
+                </td>
+                <td>
+                    <span class="badge"
+                          th:classappend="${audit.action.name() == 'CREATED'} ? ' bg-success' : ' bg-info text-dark'"
+                          th:text="${audit.action}"></span>
+                </td>
+                <td th:text="${audit.matchLabel}"></td>
+                <td>
+                    <strong th:text="${audit.changeLabel}"></strong>
+                </td>
+            </tr>
+            <tr th:if="${#lists.isEmpty(audits)}">
+                <td colspan="5" class="text-muted">No prediction activity recorded yet.</td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+</body>
+</html>

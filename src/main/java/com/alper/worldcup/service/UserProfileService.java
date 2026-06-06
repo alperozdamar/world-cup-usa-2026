@@ -4,6 +4,7 @@ import com.alper.worldcup.dao.UserProfileRepository;
 import com.alper.worldcup.entity.UserProfile;
 import java.time.ZoneId;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -45,6 +46,14 @@ public class UserProfileService {
             names.put(username, getDisplayName(username));
         }
         return names;
+    }
+
+    @Transactional(readOnly = true)
+    public List<UserProfile> getAllProfiles() {
+        return userProfileRepository.findAll().stream()
+                .sorted(Comparator.comparing(profile ->
+                        profile.getDisplayName() != null ? profile.getDisplayName() : profile.getUsername()))
+                .toList();
     }
 
     @Transactional

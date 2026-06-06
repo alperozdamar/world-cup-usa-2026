@@ -16,6 +16,8 @@ public class MatchViewHelper {
             DateTimeFormatter.ofPattern("EEE, MMM d yyyy");
     private static final DateTimeFormatter TIME_FORMAT =
             DateTimeFormatter.ofPattern("HH:mm z");
+    private static final DateTimeFormatter RECORDED_AT_FORMAT =
+            DateTimeFormatter.ofPattern("EEE, MMM d yyyy HH:mm z");
 
     public String formatKickoffDate(Match match, String timezoneId) {
         ZonedDateTime zdt = match.getKickoffUtc().atZone(ZoneId.of(timezoneId));
@@ -25,6 +27,10 @@ public class MatchViewHelper {
     public String formatKickoffTime(Match match, String timezoneId) {
         ZonedDateTime zdt = match.getKickoffUtc().atZone(ZoneId.of(timezoneId));
         return zdt.format(TIME_FORMAT);
+    }
+
+    public String formatRecordedAt(Instant instant, String timezoneId) {
+        return instant.atZone(ZoneId.of(timezoneId)).format(RECORDED_AT_FORMAT);
     }
 
     public boolean isEditable(Match match) {
