@@ -57,13 +57,9 @@ mvn spring-boot:run -Dspring-boot.run.profiles=local
 
 ## Deployment
 
-Same as my-finance-watcher:
+See [DEPLOY.md](DEPLOY.md) for EC2 + GitHub Actions setup.
 
-- `mvn verify` builds the JAR
-- `Dockerfile` packages the JAR on port **8090**
-- `.github/workflows/deploy.yml` builds, pushes to Docker Hub, and deploys to EC2 via SSH
-
-Configure GitHub secrets: `DOCKERHUB_USERNAME`, `DOCKERHUB_TOKEN`, `EC2_HOST`, `EC2_USER`, `EC2_SSH_KEY`, `MYSQL_ROOT_PASSWORD`.
+Same as my-finance-watcher: Maven build → Docker Hub → EC2 SSH on port **8090**.
 
 ## Project layout
 
