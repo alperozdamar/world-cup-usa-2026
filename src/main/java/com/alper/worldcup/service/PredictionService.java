@@ -67,9 +67,7 @@ public class PredictionService {
         prediction.setUpdatedAt(Instant.now());
 
         if (match.isScoreEntered()) {
-            prediction.setPoints(pointsService.calculatePoints(
-                    homeGuess, awayGuess,
-                    match.getHomeScoreActual(), match.getAwayScoreActual()));
+            prediction.setPoints(calculateMatchPoints(match, homeGuess, awayGuess));
         }
 
         predictionRepository.save(prediction);
@@ -87,11 +85,9 @@ public class PredictionService {
         matchRepository.save(match);
 
         for (Prediction prediction : predictionRepository.findByMatchId(matchId)) {
-            prediction.setPoints(pointsService.calculatePoints(
+            prediction.setPoints(calculateMatchPoints(match,
                     prediction.getHomeScoreGuess(),
-                    prediction.getAwayScoreGuess(),
-                    homeScore,
-                    awayScore));
+                    prediction.getAwayScoreGuess()));
             predictionRepository.save(prediction);
         }
     }
@@ -99,6 +95,15 @@ public class PredictionService {
     @Transactional(readOnly = true)
     public List<Object[]> getLeaderboard() {
         return predictionRepository.findLeaderboardTotals();
+    }
+
+    private int calculateMatchPoints(Match match, int homeGuess, int awayGuess) {
+        return pointsService.calculatePoints(
+                homeGuess,
+                awayGuess,
+                match.getHomeScoreActual(),
+                match.getAwayScoreActual(),
+                match.getStage());
     }
 
     private void validateScore(Integer score) {

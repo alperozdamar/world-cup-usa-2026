@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Scoring Rules')}"></head>
+<body>
+<div th:replace="~{fragments/layout :: navbar}"></div>
+<div class="container">
+    <h2>Scoring Rules</h2>
+    <p class="text-muted">Approved by the group · match predictions only (phase 1)</p>
+
+    <div class="card mb-4">
+        <div class="card-header">Per match</div>
+        <div class="card-body">
+            <table class="table mb-0">
+                <thead>
+                <tr><th>Result</th><th>Points</th></tr>
+                </thead>
+                <tbody>
+                <tr><td>Exact score</td><td><strong>5</strong></td></tr>
+                <tr><td>Correct outcome (win / draw / loss), wrong score</td><td><strong>2</strong></td></tr>
+                <tr><td>Correct goal difference bonus (not exact)</td><td><strong>+1</strong></td></tr>
+                <tr><td>Wrong outcome</td><td><strong>0</strong></td></tr>
+                </tbody>
+            </table>
+            <p class="small text-muted mt-3 mb-0">Base points capped at 6 per match before knockout multiplier.</p>
+        </div>
+    </div>
+
+    <div class="card mb-4">
+        <div class="card-header">Knockout multiplier</div>
+        <div class="card-body">
+            <table class="table mb-0">
+                <tbody>
+                <tr><td>Round of 32</td><td>×1.0</td></tr>
+                <tr><td>Round of 16</td><td>×1.25</td></tr>
+                <tr><td>Quarter-final / Third place</td><td>×1.5</td></tr>
+                <tr><td>Semi-final</td><td>×1.75</td></tr>
+                <tr><td>Final</td><td>×2.0</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <ul>
+        <li>Predictions lock at kickoff (UTC).</li>
+        <li>No negative points.</li>
+        <li>Admin enters official scores after each match.</li>
+    </ul>
+</div>
+</body>
+</html>

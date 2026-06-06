@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v0.0.2-PRERELEASE]
+  - WC-0005 - Implemented approved scoring rules (5/2/+1, knockout multipliers) in PointsServiceImpl
+  - WC-0006 - Added friend group users with display names; alper is admin
+  - WC-0007 - Password change page at /profile/password ({noop} storage)
+  - WC-0008 - Rules page, leaderboard shows full names, profile settings updated
+
 ## [v0.0.1-PRERELEASE]
   - WC-0001 - Initial prerelease: Spring Boot app, MySQL, Docker local setup
   - WC-0002 - Group stage fixtures import (72 matches), predictions until kickoff, user timezone

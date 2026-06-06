@@ -16,12 +16,16 @@ public class UserProfile {
     @Column(name = "timezone_id", nullable = false, length = 64)
     private String timezoneId;
 
+    @Column(name = "display_name", length = 100)
+    private String displayName;
+
     public UserProfile() {
     }
 
-    public UserProfile(String username, String timezoneId) {
+    public UserProfile(String username, String timezoneId, String displayName) {
         this.username = username;
         this.timezoneId = timezoneId;
+        this.displayName = displayName;
     }
 
     public String getUsername() {
@@ -38,5 +42,13 @@ public class UserProfile {
 
     public void setTimezoneId(String timezoneId) {
         this.timezoneId = timezoneId;
+    }
+
+    public String getDisplayName() {
+        return displayName;
+    }
+
+    public void setDisplayName(String displayName) {
+        this.displayName = displayName;
     }
 }

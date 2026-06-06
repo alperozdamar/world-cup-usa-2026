@@ -24,9 +24,9 @@
             <tbody>
             <tr th:each="match : ${matches}">
                 <td>
-                    <div th:text="${T(com.alper.worldcup.service.MatchViewHelper).formatKickoffDate(match, zoneId)}"></div>
+                    <div th:text="${@matchViewHelper.formatKickoffDate(match, zoneId)}"></div>
                     <div class="small text-muted"
-                         th:text="${T(com.alper.worldcup.service.MatchViewHelper).formatKickoffTime(match, zoneId)}"></div>
+                         th:text="${@matchViewHelper.formatKickoffTime(match, zoneId)}"></div>
                 </td>
                 <td th:text="${match.stage}"></td>
                 <td>

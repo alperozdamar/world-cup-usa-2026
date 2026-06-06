@@ -43,14 +43,17 @@ mvn spring-boot:run -Dspring-boot.run.profiles=local
 
 4. Open http://localhost:8090
 
-### Default users (from `db/setup.sql`)
+### Players (default password `123` for all — change via Profile → Change password)
 
-| User  | Password | Roles        |
-|-------|----------|--------------|
-| alper | 123      | ADMIN, USER  |
-| john  | (bcrypt) | USER         |
-| mary  | (bcrypt) | USER         |
-| susan | test123  | ADMIN, USER  |
+| Username | Name | Role |
+|----------|------|------|
+| alper | Alper Ozdamar | Admin |
+| gonenc | Gonenc Gorgulu | User |
+| tcan | Tayyip Can | User |
+| kubilay | Kubilay Kahraman | User |
+| ali | Ali Sahin | User |
+| sadik | Sadik Demirdogen | User |
+| adem | Adem Sari | User |
 
 ## Deployment
 
@@ -77,9 +80,9 @@ src/main/resources/
 db/setup.sql          Spring Security users
 ```
 
-## Rules (draft)
+## Rules
 
-Scoring principles for group review (not yet implemented in code):
+Implemented — see `/rules` in the app or:
 
 - [English](document/PrinciplesAndRules.en.md)
 - [Turkish](document/PrinciplesAndRules.tr.md)
@@ -88,6 +91,6 @@ See [Changelog.md](Changelog.md) for project history.
 
 ## Next steps
 
-- Approve rules, then implement scoring in `PointsServiceImpl`
 - Enable knockout-stage predictions once group results are known
 - Resolve knockout placeholder teams (e.g. `1A`, `2B`) after group stage
+- Optional: group winner / champion picks (phase 2)

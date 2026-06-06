@@ -15,7 +15,8 @@
         <div class="navbar-nav ms-auto">
             <a class="nav-link" th:href="@{/predictions/list}">My Predictions</a>
             <a class="nav-link" th:href="@{/predictions/leaderboard}">Leaderboard</a>
-            <a class="nav-link" th:href="@{/profile/settings}">Timezone</a>
+            <a class="nav-link" th:href="@{/rules}">Rules</a>
+            <a class="nav-link" th:href="@{/profile/settings}">Profile</a>
             <a class="nav-link" sec:authorize="hasRole('ADMIN')" th:href="@{/admin/scores}">Admin Scores</a>
             <span class="nav-link text-white-50" sec:authentication="name">user</span>
             <form th:action="@{/logout}" method="post" class="d-inline">

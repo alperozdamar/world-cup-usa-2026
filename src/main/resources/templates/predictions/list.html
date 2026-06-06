@@ -11,6 +11,9 @@
                 Times shown in <strong th:text="${zoneId}">America/New_York</strong>.
                 Predictions lock at kickoff (UTC).
             </p>
+            <p class="text-muted small mb-0 mt-1">
+                <a th:href="@{/profile/settings}">Set your timezone</a> in Profile to see kickoffs in your local time.
+            </p>
         </div>
     </div>
 
@@ -32,8 +35,8 @@
             </thead>
             <tbody>
             <tr th:each="match : ${matches}">
-                <td th:text="${T(com.alper.worldcup.service.MatchViewHelper).formatKickoffDate(match, zoneId)}"></td>
-                <td th:text="${T(com.alper.worldcup.service.MatchViewHelper).formatKickoffTime(match, zoneId)}"></td>
+                <td th:text="${@matchViewHelper.formatKickoffDate(match, zoneId)}"></td>
+                <td th:text="${@matchViewHelper.formatKickoffTime(match, zoneId)}"></td>
                 <td th:text="'Group ' + ${match.groupName}"></td>
                 <td>
                     <span th:text="${match.homeDisplayName}"></span>
@@ -55,12 +58,12 @@
                 </td>
                 <td>
                     <span class="badge"
-                          th:classappend="${T(com.alper.worldcup.service.MatchViewHelper).isEditable(match)} ? ' bg-success' : ' bg-secondary'"
-                          th:text="${T(com.alper.worldcup.service.MatchViewHelper).statusLabel(match, predictions[match.id])}">
+                          th:classappend="${@matchViewHelper.isEditable(match)} ? ' bg-success' : ' bg-secondary'"
+                          th:text="${@matchViewHelper.statusLabel(match, predictions[match.id])}">
                     </span>
                 </td>
                 <td>
-                    <form th:if="${T(com.alper.worldcup.service.MatchViewHelper).isEditable(match)}"
+                    <form th:if="${@matchViewHelper.isEditable(match)}"
                           th:action="@{/predictions/save}" method="post" class="d-flex gap-1">
                         <input type="hidden" name="matchId" th:value="${match.id}">
                         <input type="number" name="homeScore" min="0" max="20" class="form-control form-control-sm"

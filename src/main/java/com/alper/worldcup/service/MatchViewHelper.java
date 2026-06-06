@@ -1,39 +1,39 @@
 package com.alper.worldcup.service;
 
 import com.alper.worldcup.entity.Match;
+import com.alper.worldcup.entity.MatchStage;
 import com.alper.worldcup.entity.Prediction;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
+import org.springframework.stereotype.Component;
 
-public final class MatchViewHelper {
+@Component
+public class MatchViewHelper {
 
     private static final DateTimeFormatter DATE_FORMAT =
             DateTimeFormatter.ofPattern("EEE, MMM d yyyy");
     private static final DateTimeFormatter TIME_FORMAT =
             DateTimeFormatter.ofPattern("HH:mm z");
 
-    private MatchViewHelper() {
-    }
-
-    public static String formatKickoffDate(Match match, ZoneId zoneId) {
-        ZonedDateTime zdt = match.getKickoffUtc().atZone(zoneId);
+    public String formatKickoffDate(Match match, String timezoneId) {
+        ZonedDateTime zdt = match.getKickoffUtc().atZone(ZoneId.of(timezoneId));
         return zdt.format(DATE_FORMAT);
     }
 
-    public static String formatKickoffTime(Match match, ZoneId zoneId) {
-        ZonedDateTime zdt = match.getKickoffUtc().atZone(zoneId);
+    public String formatKickoffTime(Match match, String timezoneId) {
+        ZonedDateTime zdt = match.getKickoffUtc().atZone(ZoneId.of(timezoneId));
         return zdt.format(TIME_FORMAT);
     }
 
-    public static boolean isEditable(Match match) {
+    public boolean isEditable(Match match) {
         return match.isPredictionsEnabled()
-                && match.getStage() == com.alper.worldcup.entity.MatchStage.GROUP_STAGE
+                && match.getStage() == MatchStage.GROUP_STAGE
                 && !match.hasStarted(Instant.now());
     }
 
-    public static String statusLabel(Match match, Prediction prediction) {
+    public String statusLabel(Match match, Prediction prediction) {
         if (!match.isPredictionsEnabled()) {
             return "Not open yet";
         }

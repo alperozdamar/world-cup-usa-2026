@@ -39,8 +39,9 @@ public class PredictionController {
 
         model.addAttribute("matches", matches);
         model.addAttribute("predictions", predictions);
-        model.addAttribute("zoneId", zoneId);
+        model.addAttribute("zoneId", zoneId.getId());
         model.addAttribute("username", username);
+        model.addAttribute("displayName", userProfileService.getDisplayName(username));
         return "predictions/list";
     }
 
@@ -61,7 +62,12 @@ public class PredictionController {
 
     @GetMapping("/leaderboard")
     public String leaderboard(Model model) {
-        model.addAttribute("leaderboard", predictionService.getLeaderboard());
+        List<Object[]> leaderboard = predictionService.getLeaderboard();
+        List<String> usernames = leaderboard.stream()
+                .map(row -> (String) row[0])
+                .toList();
+        model.addAttribute("leaderboard", leaderboard);
+        model.addAttribute("displayNames", userProfileService.getDisplayNamesForUsernames(usernames));
         return "predictions/leaderboard";
     }
 }

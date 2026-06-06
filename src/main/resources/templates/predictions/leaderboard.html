@@ -5,7 +5,7 @@
 <div th:replace="~{fragments/layout :: navbar}"></div>
 <div class="container">
     <h2>Leaderboard</h2>
-    <p class="text-muted">Points will update once scoring rules are configured and match results are entered.</p>
+    <p class="text-muted">5 pts exact · 2 pts correct outcome · +1 goal-diff bonus · knockout multipliers apply</p>
 
     <table class="table table-striped">
         <thead class="table-dark">
@@ -18,7 +18,10 @@
         <tbody>
         <tr th:each="row, stat : ${leaderboard}">
             <td th:text="${stat.count}"></td>
-            <td th:text="${row[0]}"></td>
+            <td>
+                <span th:text="${displayNames[row[0]]}">Player</span>
+                <span class="small text-muted" th:text="'(' + ${row[0]} + ')'"></span>
+            </td>
             <td th:text="${row[1]}"></td>
         </tr>
         <tr th:if="${#lists.isEmpty(leaderboard)}">

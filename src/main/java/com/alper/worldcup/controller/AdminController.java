@@ -36,7 +36,7 @@ public class AdminController {
         List<Match> matches = matchRepository.findAllWithTeams();
         ZoneId zoneId = userProfileService.getUserZoneId(principal.getName());
         model.addAttribute("matches", matches);
-        model.addAttribute("zoneId", zoneId);
+        model.addAttribute("zoneId", zoneId.getId());
         return "admin/scores";
     }
 
