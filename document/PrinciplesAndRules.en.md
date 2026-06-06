@@ -70,6 +70,21 @@ Maximum **5 points per group** if both 1st and 2nd are correct. Admin enters off
 
 ---
 
+## Scoring — final prediction (champion & runner-up) (implemented)
+
+Locked **before tournament kickoff** (first group-stage match). Enter picks at `/predictions/final`.
+
+| Pick | Points | Lock |
+|------|--------|------|
+| **Correct champion** | **10** | Before tournament kickoff |
+| **Correct runner-up** | **5** | Same |
+| **Finalist, wrong place** | **3** per slot | e.g. picked champion, they finished runner-up |
+| **Wrong pick** (not in final) | **0** | |
+
+Maximum **15 points** if both champion and runner-up are correct. Example: final is Turkey (champion) vs Spain (runner-up); you pick Spain champion and Turkey runner-up → 3 + 3 = 6 points. Admin enters the official final at `/admin/final-result` after the final is played.
+
+---
+
 ## Proposed scoring — other extras (not yet implemented)
 
 | Pick | Points | Lock |
@@ -77,7 +92,6 @@ Maximum **5 points per group** if both 1st and 2nd are correct. Admin enters off
 | **Knockout match winner** (not score) | 3 | Kickoff |
 | **Reach semi-final** (pre–Round of 32) | 5 | Before Round of 32 |
 | **Reach final** | 8 | Before Round of 32 |
-| **Tournament champion** | 10–12 | Before opening match |
 
 We **do not** recommend scoring “best third-place” qualifiers unless the whole group wants high complexity.
 
@@ -95,6 +109,7 @@ We **do not** recommend scoring “best third-place” qualifiers unless the who
 ## Player responsibilities
 
 - Enter group 1st/2nd picks **before each group's first match**
+- Enter final champion & runner-up **before tournament kickoff**
 - Enter and update match predictions **before kickoff**  
 - Set your **timezone** in profile so kickoff times are clear  
 - Do not share accounts  
@@ -103,7 +118,8 @@ We **do not** recommend scoring “best third-place” qualifiers unless the who
 ## Admin responsibilities
 
 - Enter actual match scores promptly after matches
-- Enter group 1st/2nd results after each group finishes  
+- Enter group 1st/2nd results after each group finishes
+- Enter the final champion and runner-up after the final is played  
 - Do not change a result once agreed unless FIFA correction  
 - Enable knockout / bracket picks only when teams are known
 
@@ -123,8 +139,8 @@ We **do not** recommend scoring “best third-place” qualifiers unless the who
 Please comment before we implement in code:
 
 - [x] Include group winner/runner-up picks yes/no? **Yes — implemented**
+- [x] Final champion & runner-up pick (10 / 5 / 3 pts)? **Yes — implemented**
 - [ ] Use knockout multiplier yes/no?  
-- [ ] Champion pick points: 10 or 12?  
 - [ ] Daily “round leader” +1 bonus yes/no?  
 - [ ] Global lock for all pre-tournament picks: opening match or per group?  
 

@@ -2,9 +2,12 @@ package com.alper.worldcup.controller;
 
 import com.alper.worldcup.entity.Match;
 import com.alper.worldcup.entity.Prediction;
+import com.alper.worldcup.entity.FinalPrediction;
+import com.alper.worldcup.entity.FinalResult;
 import com.alper.worldcup.entity.GroupResult;
 import com.alper.worldcup.entity.GroupStandingPrediction;
 import com.alper.worldcup.entity.Team;
+import com.alper.worldcup.service.FinalPredictionService;
 import com.alper.worldcup.service.GroupStandingPredictionService;
 import com.alper.worldcup.service.LeaderboardService;
 import com.alper.worldcup.service.PredictionService;
@@ -29,15 +32,18 @@ public class PredictionController {
 
     private final PredictionService predictionService;
     private final GroupStandingPredictionService groupStandingPredictionService;
+    private final FinalPredictionService finalPredictionService;
     private final LeaderboardService leaderboardService;
     private final UserProfileService userProfileService;
 
     public PredictionController(PredictionService predictionService,
                                 GroupStandingPredictionService groupStandingPredictionService,
+                                FinalPredictionService finalPredictionService,
                                 LeaderboardService leaderboardService,
                                 UserProfileService userProfileService) {
         this.predictionService = predictionService;
         this.groupStandingPredictionService = groupStandingPredictionService;
+        this.finalPredictionService = finalPredictionService;
         this.leaderboardService = leaderboardService;
         this.userProfileService = userProfileService;
     }
@@ -117,6 +123,41 @@ public class PredictionController {
             redirectAttributes.addFlashAttribute("errorMessage", ex.getMessage());
         }
         return "redirect:/predictions/groups";
+    }
+
+    @GetMapping("/final")
+    public String finalPrediction(Principal principal, Model model) {
+        String username = principal.getName();
+        ZoneId zoneId = userProfileService.getUserZoneId(username);
+        FinalPrediction prediction = finalPredictionService.getPredictionForUser(username).orElse(null);
+        FinalResult finalResult = finalPredictionService.getFinalResult().orElse(null);
+
+        model.addAttribute("teams", finalPredictionService.getAllTeams());
+        model.addAttribute("prediction", prediction);
+        model.addAttribute("finalResult", finalResult);
+        model.addAttribute("editable", finalPredictionService.isEditable());
+        model.addAttribute("statusLabel", finalPredictionService.statusLabel(prediction));
+        model.addAttribute("lockKickoffLabel", finalPredictionService.getTournamentStartKickoff()
+                .map(kickoff -> kickoff.atZone(zoneId).format(java.time.format.DateTimeFormatter
+                        .ofPattern("EEE, MMM d yyyy HH:mm z")))
+                .orElse(null));
+        model.addAttribute("zoneId", zoneId.getId());
+        return "predictions/final";
+    }
+
+    @PostMapping("/final/save")
+    public String saveFinalPrediction(Principal principal,
+                                      @RequestParam Integer championTeamId,
+                                      @RequestParam Integer runnerUpTeamId,
+                                      RedirectAttributes redirectAttributes) {
+        try {
+            finalPredictionService.savePrediction(
+                    principal.getName(), championTeamId, runnerUpTeamId);
+            redirectAttributes.addFlashAttribute("successMessage", "Final prediction saved.");
+        } catch (Exception ex) {
+            redirectAttributes.addFlashAttribute("errorMessage", ex.getMessage());
+        }
+        return "redirect:/predictions/final";
     }
 
     @GetMapping("/leaderboard")

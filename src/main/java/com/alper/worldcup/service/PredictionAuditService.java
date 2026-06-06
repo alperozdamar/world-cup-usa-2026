@@ -1,7 +1,9 @@
 package com.alper.worldcup.service;
 
+import com.alper.worldcup.dao.FinalPredictionAuditRepository;
 import com.alper.worldcup.dao.GroupStandingPredictionAuditRepository;
 import com.alper.worldcup.dao.PredictionAuditRepository;
+import com.alper.worldcup.entity.FinalPredictionAudit;
 import com.alper.worldcup.entity.GroupStandingPredictionAudit;
 import com.alper.worldcup.entity.PredictionAudit;
 import com.alper.worldcup.entity.PredictionAuditAction;
@@ -17,11 +19,14 @@ public class PredictionAuditService {
 
     private final PredictionAuditRepository predictionAuditRepository;
     private final GroupStandingPredictionAuditRepository groupStandingPredictionAuditRepository;
+    private final FinalPredictionAuditRepository finalPredictionAuditRepository;
 
     public PredictionAuditService(PredictionAuditRepository predictionAuditRepository,
-                                    GroupStandingPredictionAuditRepository groupStandingPredictionAuditRepository) {
+                                    GroupStandingPredictionAuditRepository groupStandingPredictionAuditRepository,
+                                    FinalPredictionAuditRepository finalPredictionAuditRepository) {
         this.predictionAuditRepository = predictionAuditRepository;
         this.groupStandingPredictionAuditRepository = groupStandingPredictionAuditRepository;
+        this.finalPredictionAuditRepository = finalPredictionAuditRepository;
     }
 
     @Transactional
@@ -66,6 +71,24 @@ public class PredictionAuditService {
         groupStandingPredictionAuditRepository.save(audit);
     }
 
+    @Transactional
+    public void recordFinalPredictionChange(String username,
+                                            String championTeamName,
+                                            String runnerUpTeamName,
+                                            PredictionAuditAction action,
+                                            String previousChampionTeamName,
+                                            String previousRunnerUpTeamName) {
+        FinalPredictionAudit audit = new FinalPredictionAudit();
+        audit.setUsername(username);
+        audit.setChampionTeamName(championTeamName);
+        audit.setRunnerUpTeamName(runnerUpTeamName);
+        audit.setPreviousChampionTeamName(previousChampionTeamName);
+        audit.setPreviousRunnerUpTeamName(previousRunnerUpTeamName);
+        audit.setAction(action);
+        audit.setRecordedAt(Instant.now());
+        finalPredictionAuditRepository.save(audit);
+    }
+
     @Transactional(readOnly = true)
     public List<AuditEntryView> getCombinedAuditTrail(String username) {
         List<AuditEntryView> entries = new ArrayList<>();
@@ -95,6 +118,20 @@ public class PredictionAuditService {
                     audit.getAction(),
                     "Group",
                     audit.getGroupLabel(),
+                    audit.getChangeLabel()));
+        }
+
+        List<FinalPredictionAudit> finalAudits = username == null || username.isBlank()
+                ? finalPredictionAuditRepository.findAllByOrderByRecordedAtDesc()
+                : finalPredictionAuditRepository.findByUsernameOrderByRecordedAtDesc(username);
+
+        for (FinalPredictionAudit audit : finalAudits) {
+            entries.add(new AuditEntryView(
+                    audit.getRecordedAt(),
+                    audit.getUsername(),
+                    audit.getAction(),
+                    "Final",
+                    audit.getSubjectLabel(),
                     audit.getChangeLabel()));
         }
 

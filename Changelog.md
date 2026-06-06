@@ -11,6 +11,7 @@ All notable changes to this project will be documented in this file.
   - WC-0014 - Group teams loaded from fixtures; +1 pt for qualifying team in wrong place
   - WC-0015 - Group prediction audit trail and tournament kickoff countdown in header
   - WC-0016 - Distinct admin page styling and clearer Group Results warning
+  - WC-0017 - Final prediction page (champion/runner-up), admin final result, audit, rules, leaderboard
 
 ## [v0.0.2-PRERELEASE]
   - WC-0005 - Implemented approved scoring rules (5/2/+1, knockout multipliers) in PointsServiceImpl

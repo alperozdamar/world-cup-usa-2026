@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Admin - Final Result')}"></head>
+<body class="admin-page">
+<div th:replace="~{fragments/layout :: navbar-admin}"></div>
+<div class="container">
+    <h2>Final Result</h2>
+    <div class="alert alert-warning py-2">
+        <strong>After the final only.</strong> Enter the official champion and runner-up once the
+        tournament final is played. Players use
+        <a th:href="@{/predictions/final}">Final Prediction</a> for their pre-tournament picks.
+    </div>
+    <p class="text-muted">
+        Player points update automatically (10 pts champion, 5 pts runner-up, 3 pts per finalist
+        in wrong place).
+    </p>
+
+    <div th:if="${successMessage}" class="alert alert-success" th:text="${successMessage}"></div>
+    <div th:if="${errorMessage}" class="alert alert-danger" th:text="${errorMessage}"></div>
+
+    <div class="card" style="max-width: 32rem;">
+        <div class="card-body">
+            <div th:if="${finalResult != null}" class="small text-success mb-3">
+                Saved:
+                <span th:text="${finalResult.championTeam.name}"></span> (champion),
+                <span th:text="${finalResult.runnerUpTeam.name}"></span> (runner-up)
+            </div>
+            <form th:if="${!#lists.isEmpty(teams)}"
+                  th:action="@{/admin/final-result/save}" method="post">
+                <div class="mb-3">
+                    <label class="form-label">Champion</label>
+                    <select name="championTeamId" class="form-select" required>
+                        <option value="" disabled th:selected="${finalResult == null}">Select team</option>
+                        <option th:each="team : ${teams}"
+                                th:value="${team.id}"
+                                th:text="${team.name}"
+                                th:selected="${finalResult != null and finalResult.championTeam.id == team.id}"></option>
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Runner-up</label>
+                    <select name="runnerUpTeamId" class="form-select" required>
+                        <option value="" disabled th:selected="${finalResult == null}">Select team</option>
+                        <option th:each="team : ${teams}"
+                                th:value="${team.id}"
+                                th:text="${team.name}"
+                                th:selected="${finalResult != null and finalResult.runnerUpTeam.id == team.id}"></option>
+                    </select>
+                </div>
+                <button type="submit" class="btn btn-primary">Save result</button>
+            </form>
+            <p th:if="${#lists.isEmpty(teams)}" class="text-danger small mb-0">
+                No teams found — fixtures may not be loaded.
+            </p>
+        </div>
+    </div>
+</div>
+<div th:replace="~{fragments/layout :: footer}"></div>
+</body>
+</html>

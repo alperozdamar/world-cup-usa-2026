@@ -6,7 +6,7 @@
 <div class="container">
     <h2>Prediction Audit</h2>
     <p class="text-muted">
-        History of every match score and group 1st/2nd prediction entered or updated. Times shown in
+        History of every match score, group 1st/2nd, and final prediction entered or updated. Times shown in
         <strong th:text="${zoneId}">America/New_York</strong>.
     </p>
 
@@ -48,7 +48,8 @@
                 </td>
                 <td>
                     <span class="badge"
-                          th:classappend="${audit.type() == 'Group'} ? ' bg-warning text-dark' : ' bg-primary'"
+                          th:classappend="${audit.type() == 'Group'} ? ' bg-warning text-dark' :
+                                          (${audit.type() == 'Final'} ? ' bg-danger' : ' bg-primary')"
                           th:text="${audit.type()}"></span>
                 </td>
                 <td>

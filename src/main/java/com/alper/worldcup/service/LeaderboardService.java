@@ -1,5 +1,6 @@
 package com.alper.worldcup.service;
 
+import com.alper.worldcup.dao.FinalPredictionRepository;
 import com.alper.worldcup.dao.GroupStandingPredictionRepository;
 import com.alper.worldcup.dao.PredictionRepository;
 import java.util.ArrayList;
@@ -15,11 +16,14 @@ public class LeaderboardService {
 
     private final PredictionRepository predictionRepository;
     private final GroupStandingPredictionRepository groupStandingPredictionRepository;
+    private final FinalPredictionRepository finalPredictionRepository;
 
     public LeaderboardService(PredictionRepository predictionRepository,
-                              GroupStandingPredictionRepository groupStandingPredictionRepository) {
+                              GroupStandingPredictionRepository groupStandingPredictionRepository,
+                              FinalPredictionRepository finalPredictionRepository) {
         this.predictionRepository = predictionRepository;
         this.groupStandingPredictionRepository = groupStandingPredictionRepository;
+        this.finalPredictionRepository = finalPredictionRepository;
     }
 
     @Transactional(readOnly = true)
@@ -30,6 +34,9 @@ public class LeaderboardService {
             totals.merge((String) row[0], ((Number) row[1]).longValue(), Long::sum);
         }
         for (Object[] row : groupStandingPredictionRepository.findLeaderboardTotals()) {
+            totals.merge((String) row[0], ((Number) row[1]).longValue(), Long::sum);
+        }
+        for (Object[] row : finalPredictionRepository.findLeaderboardTotals()) {
             totals.merge((String) row[0], ((Number) row[1]).longValue(), Long::sum);
         }
 

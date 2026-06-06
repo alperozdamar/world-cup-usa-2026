@@ -70,6 +70,21 @@ Her iki tahmin de doğruysa grup başına en fazla **5 puan**. Admin, grup aşam
 
 ---
 
+## Puanlama — final tahmini (şampiyon ve ikinci) (uygulandı)
+
+**Turnuva başlangıcından önce** kilitlenir (ilk grup maçı). Tahminler: `/predictions/final`
+
+| Tahmin | Puan | Kilit |
+|--------|------|--------|
+| **Doğru şampiyon** | **10** | Turnuva başlangıcından önce |
+| **Doğru ikinci** | **5** | Aynı |
+| **Finalist, yanlış sıra** | **3** (slot başına) | örn. şampiyon dedin, ikinci bitirdi |
+| **Yanlış tahmin** (finalde değil) | **0** | |
+
+Her iki tahmin de doğruysa en fazla **15 puan**. Örnek: final Türkiye (şampiyon) – İspanya (ikinci); sen İspanya şampiyon, Türkiye ikinci dedin → 3 + 3 = 6 puan. Admin final sonrası `/admin/final-result` üzerinden resmi sonucu girer.
+
+---
+
 ## Önerilen puanlama — diğer ekstralar (henüz uygulanmadı)
 
 | Tahmin | Puan | Kilit |
@@ -77,7 +92,6 @@ Her iki tahmin de doğruysa grup başına en fazla **5 puan**. Admin, grup aşam
 | **Eleme maçı galibi** (skor değil) | 3 | Başlama vuruşu |
 | **Yarı finale çıkma** (Son 32 öncesi) | 5 | Son 32 öncesi |
 | **Finale çıkma** | 8 | Son 32 öncesi |
-| **Turnuva şampiyonu** | 10–12 | Açılış maçından önce |
 
 “En iyi üçüncüler” tahminini, grup özellikle istemedikçe önermiyoruz (karmaşık).
 
@@ -95,6 +109,7 @@ Her iki tahmin de doğruysa grup başına en fazla **5 puan**. Admin, grup aşam
 ## Oyuncu sorumlulukları
 
 - Grup 1./2. tahminlerini **her grubun ilk maçından önce** gir
+- Final şampiyon ve ikinci tahminini **turnuva başlamadan önce** gir
 - Maç skoru tahminlerini **başlama vuruşundan önce** gir ve güncelle  
 - Profilde **saat dilimini** ayarla  
 - Hesap paylaşma  
@@ -103,7 +118,8 @@ Her iki tahmin de doğruysa grup başına en fazla **5 puan**. Admin, grup aşam
 ## Admin sorumlulukları
 
 - Maçlar bitince skorları zamanında gir
-- Grup 1./2. sonuçlarını grup bittikten sonra gir  
+- Grup 1./2. sonuçlarını grup bittikten sonra gir
+- Final şampiyon ve ikinciyi final oynandıktan sonra gir  
 - FIFA düzeltmesi yoksa sonucu değiştirme  
 - Knockout / bracket tahminlerini sadece takımlar belli olunca aç
 
@@ -123,8 +139,8 @@ Her iki tahmin de doğruysa grup başına en fazla **5 puan**. Admin, grup aşam
 Koda geçmeden önce lütfen yorumlayın:
 
 - [x] Grup birincisi / ikincisi tahminleri olsun mu? **Evet — uygulandı**
+- [x] Final şampiyon / ikinci tahmini (10 / 5 / 3 puan)? **Evet — uygulandı**
 - [ ] Eleme turu çarpanı kullanılsın mı?  
-- [ ] Şampiyon tahmini: 10 mu 12 puan mı?  
 - [ ] Günlük “tur lideri” +1 bonus olsun mu?  
 - [ ] Ön turnuva tahminleri: tek kilit (açılış) mi, grup grup mı?  
 

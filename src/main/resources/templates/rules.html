@@ -5,7 +5,7 @@
 <div th:replace="~{fragments/layout :: navbar}"></div>
 <div class="container">
     <h2>Scoring Rules</h2>
-    <p class="text-muted">Approved by the group · match scores + group 1st/2nd picks</p>
+    <p class="text-muted">Approved by the group · match scores + group 1st/2nd picks + final prediction</p>
 
     <div class="card mb-4">
         <div class="card-header">Per match</div>
@@ -48,6 +48,29 @@
     </div>
 
     <div class="card mb-4">
+        <div class="card-header">Final prediction (champion &amp; runner-up)</div>
+        <div class="card-body">
+            <table class="table mb-0">
+                <thead>
+                <tr><th>Pick</th><th>Points</th><th>Lock</th></tr>
+                </thead>
+                <tbody>
+                <tr><td>Correct champion</td><td><strong>10</strong></td><td>Before tournament kickoff</td></tr>
+                <tr><td>Correct runner-up</td><td><strong>5</strong></td><td>Before tournament kickoff</td></tr>
+                <tr><td>Finalist picked in wrong place (champion ↔ runner-up)</td><td><strong>3</strong></td><td>Per team slot</td></tr>
+                <tr><td>Wrong pick (team not in the final)</td><td><strong>0</strong></td><td>—</td></tr>
+                </tbody>
+            </table>
+            <p class="small text-muted mt-3 mb-0">
+                Max 15 points if both places are exact.
+                Example: final is Turkey (champion) vs Spain (runner-up). You pick Spain champion and Turkey
+                runner-up → 3 + 3 = 6 points (both finalists, wrong slots).
+                Enter your pick on <a th:href="@{/predictions/final}">Final Prediction</a>.
+            </p>
+        </div>
+    </div>
+
+    <div class="card mb-4">
         <div class="card-header">Knockout multiplier</div>
         <div class="card-body">
             <table class="table mb-0">
@@ -65,8 +88,9 @@
     <ul>
         <li>Match score predictions lock at kickoff (UTC).</li>
         <li>Group 1st/2nd predictions lock before each group's first match.</li>
+        <li>Final prediction locks at tournament kickoff (first group-stage match).</li>
         <li>No negative points.</li>
-        <li>Admin enters official match scores and group results after play ends.</li>
+        <li>Admin enters official match scores, group results, and the final result after play ends.</li>
     </ul>
 </div>
 <div th:replace="~{fragments/layout :: footer}"></div>

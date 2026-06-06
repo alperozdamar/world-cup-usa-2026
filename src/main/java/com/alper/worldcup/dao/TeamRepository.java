@@ -10,6 +10,8 @@ public interface TeamRepository extends JpaRepository<Team, Integer> {
 
     Optional<Team> findByName(String name);
 
+    List<Team> findAllByOrderByNameAsc();
+
     List<Team> findByGroupNameOrderByNameAsc(String groupName);
 
     @Query("SELECT DISTINCT t.groupName FROM Team t WHERE t.groupName IS NOT NULL ORDER BY t.groupName")

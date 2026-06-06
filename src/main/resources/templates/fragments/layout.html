@@ -54,6 +54,7 @@
                 <a class="nav-link" th:href="@{/profile/settings}">Profile</a>
                 <a class="nav-link" sec:authorize="hasRole('ADMIN')" th:href="@{/admin/scores}">Admin Scores</a>
                 <a class="nav-link" sec:authorize="hasRole('ADMIN')" th:href="@{/admin/group-results}">Group Results</a>
+                <a class="nav-link" sec:authorize="hasRole('ADMIN')" th:href="@{/admin/final-result}">Final Result</a>
                 <a class="nav-link" sec:authorize="hasRole('ADMIN')" th:href="@{/admin/audit}">Audit</a>
                 <span class="nav-link text-white-50" sec:authentication="name">user</span>
                 <form th:action="@{/logout}" method="post" class="d-inline">
@@ -81,6 +82,7 @@
                 <a class="nav-link" th:href="@{/profile/settings}">Profile</a>
                 <a class="nav-link active-admin" th:href="@{/admin/scores}">Admin Scores</a>
                 <a class="nav-link active-admin" th:href="@{/admin/group-results}">Group Results</a>
+                <a class="nav-link active-admin" th:href="@{/admin/final-result}">Final Result</a>
                 <a class="nav-link active-admin" th:href="@{/admin/audit}">Audit</a>
                 <span class="nav-link text-white-50" sec:authentication="name">user</span>
                 <form th:action="@{/logout}" method="post" class="d-inline">

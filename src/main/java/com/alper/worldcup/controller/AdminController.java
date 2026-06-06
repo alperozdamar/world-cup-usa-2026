@@ -4,6 +4,7 @@ import com.alper.worldcup.dao.MatchRepository;
 import com.alper.worldcup.entity.Match;
 import com.alper.worldcup.entity.UserProfile;
 import com.alper.worldcup.service.AuditEntryView;
+import com.alper.worldcup.service.FinalPredictionService;
 import com.alper.worldcup.service.GroupStandingPredictionService;
 import com.alper.worldcup.service.PredictionAuditService;
 import com.alper.worldcup.service.PredictionService;
@@ -31,17 +32,20 @@ public class AdminController {
     private final MatchRepository matchRepository;
     private final PredictionService predictionService;
     private final GroupStandingPredictionService groupStandingPredictionService;
+    private final FinalPredictionService finalPredictionService;
     private final PredictionAuditService predictionAuditService;
     private final UserProfileService userProfileService;
 
     public AdminController(MatchRepository matchRepository,
                            PredictionService predictionService,
                            GroupStandingPredictionService groupStandingPredictionService,
+                           FinalPredictionService finalPredictionService,
                            PredictionAuditService predictionAuditService,
                            UserProfileService userProfileService) {
         this.matchRepository = matchRepository;
         this.predictionService = predictionService;
         this.groupStandingPredictionService = groupStandingPredictionService;
+        this.finalPredictionService = finalPredictionService;
         this.predictionAuditService = predictionAuditService;
         this.userProfileService = userProfileService;
     }
@@ -97,6 +101,27 @@ public class AdminController {
             redirectAttributes.addFlashAttribute("errorMessage", ex.getMessage());
         }
         return "redirect:/admin/group-results";
+    }
+
+    @GetMapping("/final-result")
+    public String finalResult(Model model) {
+        model.addAttribute("teams", finalPredictionService.getAllTeams());
+        model.addAttribute("finalResult", finalPredictionService.getFinalResult().orElse(null));
+        return "admin/final-result";
+    }
+
+    @PostMapping("/final-result/save")
+    public String saveFinalResult(@RequestParam Integer championTeamId,
+                                  @RequestParam Integer runnerUpTeamId,
+                                  RedirectAttributes redirectAttributes) {
+        try {
+            finalPredictionService.saveFinalResult(championTeamId, runnerUpTeamId);
+            redirectAttributes.addFlashAttribute("successMessage",
+                    "Final result saved and player points updated.");
+        } catch (Exception ex) {
+            redirectAttributes.addFlashAttribute("errorMessage", ex.getMessage());
+        }
+        return "redirect:/admin/final-result";
     }
 
     @GetMapping("/audit")

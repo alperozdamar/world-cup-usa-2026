@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Final Prediction')}"></head>
+<body>
+<div th:replace="~{fragments/layout :: navbar}"></div>
+<div class="container">
+    <div class="mb-3">
+        <a th:href="@{/predictions/list}" class="text-decoration-none">&larr; Match score predictions</a>
+        ·
+        <a th:href="@{/predictions/groups}" class="text-decoration-none">Group 1st &amp; 2nd</a>
+    </div>
+
+    <h2>Final Prediction</h2>
+    <p class="text-muted mb-0">
+        Pick the champion and runner-up before the tournament starts.
+        Times shown in <strong th:text="${zoneId}">America/New_York</strong>.
+    </p>
+    <p class="text-muted small mb-0 mt-1">
+        <strong>10 pts</strong> correct champion · <strong>5 pts</strong> correct runner-up ·
+        <strong>3 pts</strong> per finalist picked in the wrong place (max 15 if both exact).
+    </p>
+    <p th:if="${lockKickoffLabel != null}" class="text-muted small mb-0 mt-1">
+        Locks at tournament kickoff: <strong th:text="${lockKickoffLabel}"></strong>
+    </p>
+
+    <div th:if="${successMessage}" class="alert alert-success mt-3" th:text="${successMessage}"></div>
+    <div th:if="${errorMessage}" class="alert alert-danger mt-3" th:text="${errorMessage}"></div>
+
+    <div th:if="${finalResult != null}" class="alert alert-info mt-3">
+        Official final result:
+        <strong th:text="${finalResult.championTeam.name}"></strong> (champion),
+        <strong th:text="${finalResult.runnerUpTeam.name}"></strong> (runner-up).
+        <span th:if="${prediction != null and prediction.points != null}">
+            Your score: <strong th:text="${prediction.points}"></strong> pts
+        </span>
+    </div>
+
+    <div class="card mt-3" style="max-width: 32rem;">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <span>Your pick</span>
+            <span class="badge"
+                  th:classappend="${statusLabel == 'Scored'} ? ' bg-success' :
+                                  (${statusLabel == 'Saved'} ? ' bg-primary' :
+                                  (${statusLabel == 'Locked'} ? ' bg-secondary' :
+                                  (${statusLabel == 'Missed'} ? ' bg-danger' : ' bg-warning text-dark')))"
+                  th:text="${statusLabel}">Open</span>
+        </div>
+        <div class="card-body">
+            <div th:if="${prediction != null and !editable}" class="mb-3">
+                Champion: <strong th:text="${prediction.championTeam.name}"></strong><br>
+                Runner-up: <strong th:text="${prediction.runnerUpTeam.name}"></strong>
+            </div>
+            <form th:if="${editable and !#lists.isEmpty(teams)}"
+                  th:action="@{/predictions/final/save}" method="post">
+                <div class="mb-3">
+                    <label class="form-label">Champion</label>
+                    <select name="championTeamId" class="form-select" required>
+                        <option value="" disabled th:selected="${prediction == null}">Select team</option>
+                        <option th:each="team : ${teams}"
+                                th:value="${team.id}"
+                                th:text="${team.name}"
+                                th:selected="${prediction != null and prediction.championTeam.id == team.id}"></option>
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Runner-up</label>
+                    <select name="runnerUpTeamId" class="form-select" required>
+                        <option value="" disabled th:selected="${prediction == null}">Select team</option>
+                        <option th:each="team : ${teams}"
+                                th:value="${team.id}"
+                                th:text="${team.name}"
+                                th:selected="${prediction != null and prediction.runnerUpTeam.id == team.id}"></option>
+                    </select>
+                </div>
+                <button type="submit" class="btn btn-primary">Save prediction</button>
+            </form>
+            <p th:if="${!editable and prediction == null}" class="text-danger mb-0">
+                Locked — you did not enter a final prediction before kickoff.
+            </p>
+            <p th:if="${#lists.isEmpty(teams)}" class="text-warning mb-0">
+                No teams loaded yet. Fixtures import on startup from <code>data/fixtures.txt</code>.
+            </p>
+        </div>
+    </div>
+</div>
+<div th:replace="~{fragments/layout :: footer}"></div>
+</body>
+</html>
