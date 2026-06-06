@@ -11,7 +11,10 @@
 <body>
 <nav th:fragment="navbar" class="navbar navbar-expand-lg navbar-dark bg-primary mb-4">
     <div class="container">
-        <a class="navbar-brand" th:href="@{/predictions/list}">World Cup 2026</a>
+        <a class="navbar-brand d-flex align-items-center gap-2" th:href="@{/predictions/list}">
+            <img th:src="@{/images/ataturk.png}" alt="Ataturk" class="navbar-brand-icon">
+            World Cup 2026
+        </a>
         <div class="navbar-nav ms-auto">
             <a class="nav-link" th:href="@{/predictions/list}">My Predictions</a>
             <a class="nav-link" th:href="@{/predictions/leaderboard}">Leaderboard</a>
