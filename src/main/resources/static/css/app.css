@@ -9,3 +9,9 @@ body {
 .navbar-brand {
     font-weight: 700;
 }
+
+.app-footer {
+    margin-top: 3rem;
+    padding: 1.25rem 0;
+    border-top: 1px solid #dee2e6;
+}

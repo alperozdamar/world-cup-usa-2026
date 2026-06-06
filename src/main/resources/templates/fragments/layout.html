@@ -26,5 +26,14 @@
         </div>
     </div>
 </nav>
+<footer th:fragment="footer" class="app-footer">
+    <div class="container text-center">
+        <small class="text-muted">
+            &copy; <span th:text="${#temporals.year(#temporals.createNow())}">2026</span> Alper Ozdamar
+            <span class="mx-1">&middot;</span>
+            v<span th:text="${appVersion}">0.0.0</span>
+        </small>
+    </div>
+</footer>
 </body>
 </html>
