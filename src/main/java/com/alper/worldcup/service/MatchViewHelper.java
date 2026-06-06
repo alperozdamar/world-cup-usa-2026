@@ -29,6 +29,10 @@ public class MatchViewHelper {
         return zdt.format(TIME_FORMAT);
     }
 
+    public String formatKickoffUtcIso(Match match) {
+        return match.getKickoffUtc().toString();
+    }
+
     public String formatRecordedAt(Instant instant, String timezoneId) {
         return instant.atZone(ZoneId.of(timezoneId)).format(RECORDED_AT_FORMAT);
     }
@@ -37,6 +41,10 @@ public class MatchViewHelper {
         return match.isPredictionsEnabled()
                 && match.getStage() == MatchStage.GROUP_STAGE
                 && !match.hasStarted(Instant.now());
+    }
+
+    public boolean hasStarted(Match match) {
+        return match.hasStarted(Instant.now());
     }
 
     public String statusLabel(Match match, Prediction prediction) {

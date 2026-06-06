@@ -27,38 +27,58 @@
         return value + " " + (value === 1 ? singular : singular + "s");
     }
 
-    function updateCountdown() {
-        const element = document.getElementById("tournament-countdown");
+    function formatRemainingTime(remainingMs) {
+        if (remainingMs <= 0) {
+            return null;
+        }
+
+        let ms = remainingMs;
+        const days = Math.floor(ms / 86400000);
+        ms %= 86400000;
+        const hours = Math.floor(ms / 3600000);
+        ms %= 3600000;
+        const minutes = Math.floor(ms / 60000);
+
+        return formatCountdownUnit(days, "day") + " "
+            + formatCountdownUnit(hours, "hour") + " "
+            + formatCountdownUnit(minutes, "minute");
+    }
+
+    function updateCountdownElement(element, startedLabel) {
         if (!element || !element.dataset.kickoff) {
             return;
         }
 
         const kickoff = new Date(element.dataset.kickoff);
-        let remainingMs = kickoff.getTime() - Date.now();
-
         if (Number.isNaN(kickoff.getTime())) {
             element.textContent = "—";
             return;
         }
 
-        if (remainingMs <= 0) {
-            element.textContent = "Tournament started!";
-            return;
-        }
-
-        const days = Math.floor(remainingMs / 86400000);
-        remainingMs %= 86400000;
-        const hours = Math.floor(remainingMs / 3600000);
-        remainingMs %= 3600000;
-        const minutes = Math.floor(remainingMs / 60000);
-
-        element.textContent = formatCountdownUnit(days, "day") + " "
-            + formatCountdownUnit(hours, "hour") + " "
-            + formatCountdownUnit(minutes, "minute");
+        const label = formatRemainingTime(kickoff.getTime() - Date.now());
+        element.textContent = label != null ? label : (startedLabel || "Started");
     }
 
-    updateClocks();
-    updateCountdown();
+    function updateCountdown() {
+        updateCountdownElement(document.getElementById("tournament-countdown"), "Tournament started!");
+    }
+
+    function updateMatchLockCountdowns() {
+        document.querySelectorAll(".match-lock-countdown").forEach(function (element) {
+            updateCountdownElement(element, "Started");
+        });
+    }
+
+    function refreshAll() {
+        updateClocks();
+        updateCountdown();
+        updateMatchLockCountdowns();
+    }
+
+    refreshAll();
     setInterval(updateClocks, 1000);
-    setInterval(updateCountdown, 60000);
+    setInterval(function () {
+        updateCountdown();
+        updateMatchLockCountdowns();
+    }, 60000);
 })();
