@@ -26,19 +26,22 @@ public class ProfileController {
 
     @GetMapping("/settings")
     public String settings(Principal principal, Model model) {
-        model.addAttribute("timezoneId", userProfileService.getUserZoneId(principal.getName()).getId());
+        String username = principal.getName();
+        model.addAttribute("timezoneId", userProfileService.getUserZoneId(username).getId());
         model.addAttribute("timezones", userProfileService.getCommonTimezones());
-        model.addAttribute("displayName", userProfileService.getDisplayName(principal.getName()));
+        model.addAttribute("displayName", userProfileService.getDisplayName(username));
+        model.addAttribute("email", userProfileService.getEmail(username));
         return "profile/settings";
     }
 
     @PostMapping("/settings")
     public String saveSettings(Principal principal,
                                @RequestParam String timezoneId,
+                               @RequestParam(required = false) String email,
                                RedirectAttributes redirectAttributes) {
         try {
-            userProfileService.saveTimezone(principal.getName(), timezoneId);
-            redirectAttributes.addFlashAttribute("successMessage", "Timezone updated.");
+            userProfileService.saveProfileSettings(principal.getName(), timezoneId, email);
+            redirectAttributes.addFlashAttribute("successMessage", "Profile updated.");
         } catch (Exception ex) {
             redirectAttributes.addFlashAttribute("errorMessage", ex.getMessage());
         }

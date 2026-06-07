@@ -19,6 +19,9 @@ public class UserProfile {
     @Column(name = "display_name", length = 100)
     private String displayName;
 
+    @Column(length = 255)
+    private String email;
+
     public UserProfile() {
     }
 
@@ -50,5 +53,13 @@ public class UserProfile {
 
     public void setDisplayName(String displayName) {
         this.displayName = displayName;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
     }
 }

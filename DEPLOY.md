@@ -190,3 +190,25 @@ docker start world-cup-usa-2026       # start again
 ```
 
 Redeploy: push to `main` or re-run the **Deploy to EC2** job in GitHub Actions.
+
+---
+
+## Optional — daily reminder emails
+
+Reminders go to users with an email on their profile (Profile → Settings, or set manually in `user_profiles.email`).
+
+On EC2, pass SMTP settings as container env vars (example with Gmail):
+
+```bash
+-e APP_MAIL_ENABLED=true \
+-e APP_BASE_URL=http://54.242.205.198:8090 \
+-e APP_MAIL_FROM="World Cup 2026 <you@gmail.com>" \
+-e SPRING_MAIL_HOST=smtp.gmail.com \
+-e SPRING_MAIL_PORT=587 \
+-e SPRING_MAIL_USERNAME=you@gmail.com \
+-e SPRING_MAIL_PASSWORD=your-app-password \
+-e SPRING_MAIL_PROPERTIES_MAIL_SMTP_AUTH=true \
+-e SPRING_MAIL_PROPERTIES_MAIL_SMTP_STARTTLS_ENABLE=true
+```
+
+Default schedule: **14:00 UTC** daily (`app.reminder.cron`). Emails are sent only for **missing** group 1st/2nd picks (while group is still open) and **missing final pick** (before tournament kickoff).

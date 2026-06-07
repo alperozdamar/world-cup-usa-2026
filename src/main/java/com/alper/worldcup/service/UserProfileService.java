@@ -56,13 +56,28 @@ public class UserProfileService {
                 .toList();
     }
 
+    @Transactional(readOnly = true)
+    public String getEmail(String username) {
+        return userProfileRepository.findById(username)
+                .map(UserProfile::getEmail)
+                .orElse(null);
+    }
+
     @Transactional
-    public void saveTimezone(String username, String timezoneId) {
+    public void saveProfileSettings(String username, String timezoneId, String email) {
         ZoneId.of(timezoneId);
+        String normalizedEmail = normalizeEmail(email);
+
         UserProfile profile = userProfileRepository.findById(username)
                 .orElse(new UserProfile(username, timezoneId, null));
         profile.setTimezoneId(timezoneId);
+        profile.setEmail(normalizedEmail);
         userProfileRepository.save(profile);
+    }
+
+    @Transactional
+    public void saveTimezone(String username, String timezoneId) {
+        saveProfileSettings(username, timezoneId, getEmail(username));
     }
 
     @Transactional
@@ -74,6 +89,17 @@ public class UserProfileService {
             profile.setTimezoneId(timezoneId);
         }
         userProfileRepository.save(profile);
+    }
+
+    private String normalizeEmail(String email) {
+        if (email == null || email.isBlank()) {
+            return null;
+        }
+        String trimmed = email.trim();
+        if (!trimmed.contains("@") || trimmed.startsWith("@") || trimmed.endsWith("@")) {
+            throw new IllegalArgumentException("Enter a valid email address, or leave blank to remove it.");
+        }
+        return trimmed;
     }
 
     public List<String> getCommonTimezones() {
