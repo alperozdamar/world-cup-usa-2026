@@ -44,6 +44,8 @@
             <p class="mb-0" th:text="${comment.content}">Comment text</p>
         </div>
     </div>
+
+    <div class="mt-4" style="max-width: 520px;" th:replace="~{fragments/layout :: support-panel}"></div>
 </div>
 <div th:replace="~{fragments/layout :: footer}"></div>
 </body>

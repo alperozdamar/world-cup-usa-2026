@@ -17,13 +17,16 @@ public class LeaderboardService {
     private final PredictionRepository predictionRepository;
     private final GroupStandingPredictionRepository groupStandingPredictionRepository;
     private final FinalPredictionRepository finalPredictionRepository;
+    private final UserProfileService userProfileService;
 
     public LeaderboardService(PredictionRepository predictionRepository,
                               GroupStandingPredictionRepository groupStandingPredictionRepository,
-                              FinalPredictionRepository finalPredictionRepository) {
+                              FinalPredictionRepository finalPredictionRepository,
+                              UserProfileService userProfileService) {
         this.predictionRepository = predictionRepository;
         this.groupStandingPredictionRepository = groupStandingPredictionRepository;
         this.finalPredictionRepository = finalPredictionRepository;
+        this.userProfileService = userProfileService;
     }
 
     @Transactional(readOnly = true)
@@ -47,5 +50,31 @@ public class LeaderboardService {
 
         leaderboard.sort(Comparator.<Object[]>comparingLong(row -> ((Number) row[1]).longValue()).reversed());
         return leaderboard;
+    }
+
+    @Transactional(readOnly = true)
+    public List<LeaderboardTickerEntry> getTickerEntries() {
+        Map<String, Long> totals = new HashMap<>();
+        for (Object[] row : getLeaderboard()) {
+            totals.put((String) row[0], ((Number) row[1]).longValue());
+        }
+
+        List<LeaderboardTickerEntry> entries = userProfileService.getAllProfiles().stream()
+                .map(profile -> new LeaderboardTickerEntry(
+                        0,
+                        profile.getUsername(),
+                        userProfileService.getDisplayName(profile.getUsername()),
+                        totals.getOrDefault(profile.getUsername(), 0L)))
+                .sorted(Comparator
+                        .comparingLong(LeaderboardTickerEntry::points).reversed()
+                        .thenComparing(LeaderboardTickerEntry::displayName, String.CASE_INSENSITIVE_ORDER))
+                .toList();
+
+        List<LeaderboardTickerEntry> ranked = new ArrayList<>(entries.size());
+        for (int i = 0; i < entries.size(); i++) {
+            LeaderboardTickerEntry entry = entries.get(i);
+            ranked.add(new LeaderboardTickerEntry(i + 1, entry.username(), entry.displayName(), entry.points()));
+        }
+        return ranked;
     }
 }

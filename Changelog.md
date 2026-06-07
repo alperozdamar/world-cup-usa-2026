@@ -14,6 +14,9 @@ All notable changes to this project will be documented in this file.
   - WC-0017 - Final prediction page (champion/runner-up), admin final result, audit, rules, leaderboard
   - WC-0018 - Per-match "Locks in" countdown on predictions list (minute granularity)
   - WC-0019 - Other players' predictions page with kickoff/tournament visibility rules
+  - WC-0020 - Collapsible Support footer (Venmo QR) plus panel on Profile and Feedback
+  - WC-0021 - Scrolling standings ticker in header (ESPN-style, all player pages)
+  - WC-0022 - Upcoming matches (next 5) merged into header ticker with NEXT label
 
 ## [v0.0.2-PRERELEASE]
   - WC-0005 - Implemented approved scoring rules (5/2/+1, knockout multipliers) in PointsServiceImpl

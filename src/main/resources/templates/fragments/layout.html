@@ -38,8 +38,38 @@
         </div>
     </div>
 </div>
+<div th:fragment="leaderboard-ticker" class="leaderboard-ticker-bar"
+     th:if="${!#lists.isEmpty(leaderboardTicker) or !#lists.isEmpty(upcomingMatchTicker)}">
+    <a th:href="@{/predictions/leaderboard}" class="leaderboard-ticker-label">Standings</a>
+    <div class="leaderboard-ticker-viewport">
+        <div class="leaderboard-ticker-track">
+            <div class="leaderboard-ticker-segment" th:replace="~{fragments/layout :: leaderboard-ticker-items}"></div>
+            <div class="leaderboard-ticker-segment" aria-hidden="true"
+                 th:replace="~{fragments/layout :: leaderboard-ticker-items}"></div>
+        </div>
+    </div>
+</div>
+<div th:fragment="leaderboard-ticker-items">
+    <span th:each="entry : ${leaderboardTicker}"
+          class="leaderboard-ticker-item"
+          th:classappend="${entry.rank == 1} ? ' leaderboard-ticker-item-leader' : ''">
+        <span class="leaderboard-ticker-rank" th:text="${entry.rank + '.'}">1.</span>
+        <span class="leaderboard-ticker-name" th:text="${entry.displayName}">Player</span>
+        <span class="leaderboard-ticker-points" th:text="${entry.points + ' pts'}">0 pts</span>
+        <span class="leaderboard-ticker-sep" aria-hidden="true">◆</span>
+    </span>
+    <span th:if="${!#lists.isEmpty(upcomingMatchTicker)}" class="leaderboard-ticker-next-marker">NEXT</span>
+    <a th:each="match : ${upcomingMatchTicker}"
+       th:href="@{/predictions/list}"
+       class="leaderboard-ticker-item leaderboard-ticker-item-match">
+        <span class="leaderboard-ticker-match-label" th:text="${match.label}">Mexico vs South Africa</span>
+        <span class="leaderboard-ticker-kickoff" th:text="${match.kickoffLabel}">Thu Jun 11 · 15:00 EDT</span>
+        <span class="leaderboard-ticker-sep" aria-hidden="true">◆</span>
+    </a>
+</div>
 <div th:fragment="navbar">
     <div th:replace="~{fragments/layout :: world-clocks}"></div>
+    <div th:replace="~{fragments/layout :: leaderboard-ticker}"></div>
     <nav class="navbar navbar-expand-lg navbar-dark bg-primary mb-4">
         <div class="container">
             <a class="navbar-brand d-flex align-items-center gap-2" th:href="@{/predictions/list}">
@@ -68,6 +98,7 @@
 </div>
 <div th:fragment="navbar-admin">
     <div th:replace="~{fragments/layout :: world-clocks}"></div>
+    <div th:replace="~{fragments/layout :: leaderboard-ticker}"></div>
     <nav class="navbar navbar-expand-lg navbar-dark admin-navbar mb-0">
         <div class="container">
             <a class="navbar-brand d-flex align-items-center gap-2" th:href="@{/predictions/list}">
@@ -99,13 +130,43 @@
     <script th:src="@{/js/world-clocks.js}" defer></script>
 </div>
 <footer th:fragment="footer" class="app-footer">
-    <div class="container text-center">
-        <small class="text-muted">
-            &copy; <span th:text="${#temporals.year(#temporals.createNow())}">2026</span> Alper Ozdamar
-            <span class="mx-1">&middot;</span>
-            v<span th:text="${appVersion}">0.0.0</span>
-        </small>
+    <div class="container">
+        <details class="support-footer-toggle">
+            <summary class="support-footer-summary">Support the app</summary>
+            <div th:replace="~{fragments/layout :: support-content(compact=true)}"></div>
+        </details>
+        <div class="text-center">
+            <small class="text-muted">
+                &copy; <span th:text="${#temporals.year(#temporals.createNow())}">2026</span> Alper Ozdamar
+                <span class="mx-1">&middot;</span>
+                v<span th:text="${appVersion}">0.0.0</span>
+            </small>
+        </div>
     </div>
 </footer>
+<div th:fragment="support-panel" class="support-panel card">
+    <div class="card-body">
+        <div th:replace="~{fragments/layout :: support-content(compact=false)}"></div>
+    </div>
+</div>
+<div th:fragment="support-content(compact)" class="support-content" th:classappend="${compact} ? ' support-content-compact' : ''">
+    <p class="support-title mb-1">Support the app &#9829;</p>
+    <p class="support-subtitle text-muted mb-3">Hosting &amp; upkeep &mdash; totally optional.</p>
+    <div class="support-body">
+        <a href="https://venmo.com/u/Alper-Ozdamar" target="_blank" rel="noopener noreferrer"
+           class="support-venmo-qr-link" aria-label="Open Venmo profile for @Alper-Ozdamar">
+            <img th:src="@{/images/venmo.png}" alt="Venmo QR code for @Alper-Ozdamar" class="support-venmo-qr">
+        </a>
+        <div class="support-text small">
+            <p class="mb-1">
+                <strong>US:</strong>
+                Venmo
+                <a href="https://venmo.com/u/Alper-Ozdamar" target="_blank" rel="noopener noreferrer">@Alper-Ozdamar</a>
+            </p>
+            <p class="mb-1 text-muted support-scan-hint">Scan the QR or tap it to open Venmo.</p>
+            <p class="mb-0 text-muted">International: ask me for Wise / Revolut / IBAN.</p>
+        </div>
+    </div>
+</div>
 </body>
 </html>
