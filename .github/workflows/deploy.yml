@@ -63,6 +63,20 @@ jobs:
     env:
       REPO: world-cup-usa-2026
     steps:
+      - name: Validate mail secrets
+        run: |
+          if [ "${{ secrets.APP_MAIL_ENABLED }}" = "true" ]; then
+            missing=""
+            [ -z "${{ secrets.APP_BASE_URL }}" ] && missing="$missing APP_BASE_URL"
+            [ -z "${{ secrets.APP_MAIL_FROM }}" ] && missing="$missing APP_MAIL_FROM"
+            [ -z "${{ secrets.SPRING_MAIL_USERNAME }}" ] && missing="$missing SPRING_MAIL_USERNAME"
+            [ -z "${{ secrets.SPRING_MAIL_PASSWORD }}" ] && missing="$missing SPRING_MAIL_PASSWORD"
+            if [ -n "$missing" ]; then
+              echo "APP_MAIL_ENABLED=true but missing secrets:$missing"
+              exit 1
+            fi
+          fi
+
       - name: Deploy to EC2 via SSH
         uses: appleboy/ssh-action@v1.0.3
         with:
@@ -74,15 +88,35 @@ jobs:
             docker pull ${{ secrets.DOCKERHUB_USERNAME }}/${{ env.REPO }}:latest
             docker stop ${{ env.REPO }} 2>/dev/null || true
             docker rm ${{ env.REPO }} 2>/dev/null || true
-            docker run -d --name ${{ env.REPO }} \
-              --restart unless-stopped \
-              --memory=384m \
-              --link mysql-standalone:mysql \
-              -p 8090:8090 \
-              -e JAVA_TOOL_OPTIONS='-Xmx256m -Xms128m' \
-              -e SPRING_DATASOURCE_URL='jdbc:mysql://mysql:3306/worldcup?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true' \
-              -e SPRING_DATASOURCE_USERNAME=root \
-              -e SPRING_DATASOURCE_PASSWORD='${{ secrets.MYSQL_ROOT_PASSWORD }}' \
-              ${{ secrets.DOCKERHUB_USERNAME }}/${{ env.REPO }}:latest
+
+            run_app() {
+              docker run -d --name ${{ env.REPO }} \
+                --restart unless-stopped \
+                --memory=384m \
+                --link mysql-standalone:mysql \
+                -p 8090:8090 \
+                -e JAVA_TOOL_OPTIONS='-Xmx256m -Xms128m' \
+                -e SPRING_DATASOURCE_URL='jdbc:mysql://mysql:3306/worldcup?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true' \
+                -e SPRING_DATASOURCE_USERNAME=root \
+                -e SPRING_DATASOURCE_PASSWORD='${{ secrets.MYSQL_ROOT_PASSWORD }}' \
+                "$@" \
+                ${{ secrets.DOCKERHUB_USERNAME }}/${{ env.REPO }}:latest
+            }
+
+            if [ "${{ secrets.APP_MAIL_ENABLED }}" = "true" ] && [ -n "${{ secrets.SPRING_MAIL_PASSWORD }}" ]; then
+              run_app \
+                -e APP_MAIL_ENABLED=true \
+                -e APP_BASE_URL='${{ secrets.APP_BASE_URL }}' \
+                -e APP_MAIL_FROM='${{ secrets.APP_MAIL_FROM }}' \
+                -e SPRING_MAIL_HOST=smtp.gmail.com \
+                -e SPRING_MAIL_PORT=587 \
+                -e SPRING_MAIL_USERNAME='${{ secrets.SPRING_MAIL_USERNAME }}' \
+                -e SPRING_MAIL_PASSWORD='${{ secrets.SPRING_MAIL_PASSWORD }}' \
+                -e SPRING_MAIL_PROPERTIES_MAIL_SMTP_AUTH=true \
+                -e SPRING_MAIL_PROPERTIES_MAIL_SMTP_STARTTLS_ENABLE=true
+            else
+              run_app -e APP_MAIL_ENABLED=false
+            fi
+
             sleep 20
             docker ps --filter name=${{ env.REPO }}

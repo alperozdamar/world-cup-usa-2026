@@ -87,6 +87,18 @@ Repo: **alperozdamar/world-cup-usa-2026** → Settings → Secrets and variables
 | `EC2_SSH_KEY` | Full private key contents (`develop.alper4_KeyPair.pem`) |
 | `MYSQL_ROOT_PASSWORD` | `password` |
 
+**Optional — daily reminder emails** (omit all of these to leave mail disabled; deploy still succeeds):
+
+| Secret | Value |
+|--------|--------|
+| `APP_MAIL_ENABLED` | `true` |
+| `APP_BASE_URL` | `http://54.242.205.198:8090` |
+| `APP_MAIL_FROM` | `World Cup 2026 <alper.ozdamar@gmail.com>` |
+| `SPRING_MAIL_USERNAME` | `alper.ozdamar@gmail.com` |
+| `SPRING_MAIL_PASSWORD` | Gmail **App Password** (16 characters — not your login password) |
+
+When `APP_MAIL_ENABLED` is `true`, all five mail secrets above must be set or the deploy job fails validation. Gmail SMTP host/port are configured in the workflow. To turn mail off later, delete `APP_MAIL_ENABLED` or set it to anything other than `true`.
+
 You can copy `DOCKERHUB_*`, `EC2_*` from the **my-finance-watcher** repo secrets if already set.
 
 ### 5. SSH key access
@@ -197,18 +209,8 @@ Redeploy: push to `main` or re-run the **Deploy to EC2** job in GitHub Actions.
 
 Reminders go to users with an email on their profile (Profile → Settings, or set manually in `user_profiles.email`).
 
-On EC2, pass SMTP settings as container env vars (example with Gmail):
+**Recommended:** add the optional mail secrets in [step 4](#4-github-repository-secrets). Every deploy to `main` passes them to the container automatically.
 
-```bash
--e APP_MAIL_ENABLED=true \
--e APP_BASE_URL=http://54.242.205.198:8090 \
--e APP_MAIL_FROM="World Cup 2026 <you@gmail.com>" \
--e SPRING_MAIL_HOST=smtp.gmail.com \
--e SPRING_MAIL_PORT=587 \
--e SPRING_MAIL_USERNAME=you@gmail.com \
--e SPRING_MAIL_PASSWORD=your-app-password \
--e SPRING_MAIL_PROPERTIES_MAIL_SMTP_AUTH=true \
--e SPRING_MAIL_PROPERTIES_MAIL_SMTP_STARTTLS_ENABLE=true
-```
+**Manual fallback** (only if you are not using GitHub secrets): SSH to EC2 and add the `-e APP_MAIL_*` / `-e SPRING_MAIL_*` flags to `docker run` as in older deploy notes.
 
 Default schedule: **14:00 UTC** daily (`app.reminder.cron`). Emails are sent only for **missing** group 1st/2nd picks (while group is still open) and **missing final pick** (before tournament kickoff).
