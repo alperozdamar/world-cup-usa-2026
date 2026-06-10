@@ -19,6 +19,9 @@ All notable changes to this project will be documented in this file.
   - WC-0022 - Upcoming matches (next 5) merged into header ticker with NEXT label
   - WC-0023 - Daily email reminders for missing group/final picks; email on profile
   - WC-0024 - Host's Picks page for fairness and transparency: non-admin users can view pool host predictions before kickoff/tournament start while others' picks stay hidden until normal reveal rules
+  - WC-0025 - GitHub Actions deploy passes optional mail secrets so SMTP config survives redeploys
+  - WC-0026 - Player profile photos on My Predictions sidebar and Leaderboard
+  - WC-0027 - Favorite club badges (Beşiktaş, Fenerbahçe, Galatasaray) on profile card and Leaderboard
 
 ## [v0.0.2-PRERELEASE]
   - WC-0005 - Implemented approved scoring rules (5/2/+1, knockout multipliers) in PointsServiceImpl
