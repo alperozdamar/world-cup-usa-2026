@@ -22,6 +22,7 @@ All notable changes to this project will be documented in this file.
   - WC-0025 - GitHub Actions deploy passes optional mail secrets so SMTP config survives redeploys
   - WC-0026 - Player profile photos on My Predictions sidebar and Leaderboard
   - WC-0027 - Favorite club badges (Beşiktaş, Fenerbahçe, Galatasaray) on profile card and Leaderboard
+  - WC-0028 - The Bird Watch fun stats page (8 categories, top 3 each, Crystal Ball hidden until champion known)
 
 ## [v0.0.2-PRERELEASE]
   - WC-0005 - Implemented approved scoring rules (5/2/+1, knockout multipliers) in PointsServiceImpl

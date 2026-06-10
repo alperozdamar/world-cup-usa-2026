@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<div th:fragment="bird-watch-section">
+    <section id="bird-watch" class="bird-watch-section mt-5 pt-4 border-top">
+        <h3 class="h4 mb-1">The Bird Watch</h3>
+        <p class="text-muted mb-1">
+            Fun pool stats — who picks early, who flip-flops, who gets lucky, and who sees the future.
+        </p>
+        <p class="text-muted small mb-4">
+            As of <strong th:text="${computedAtLabel}">now</strong>.
+            Top 3 per category. Most stats require at least 3 match picks.
+        </p>
+
+        <div class="row g-4">
+            <div th:each="category : ${categories}" class="col-md-6 col-lg-4">
+                <div class="bird-watch-card h-100" th:classappend="${category.pending} ? ' bird-watch-card-pending' : ''">
+                    <h4 class="h5 bird-watch-title" th:text="${category.title}">Category</h4>
+                    <p class="bird-watch-explanation small text-muted" th:text="${category.explanation}"></p>
+
+                    <div th:if="${category.pending}" class="alert alert-secondary py-2 small mb-0"
+                         th:text="${category.pendingMessage}"></div>
+
+                    <ul th:if="${!category.pending and !#lists.isEmpty(category.leaders)}"
+                        class="list-group list-group-flush bird-watch-leaders">
+                        <li th:each="leader, stat : ${category.leaders}"
+                            class="list-group-item d-flex align-items-center gap-2 px-0">
+                            <span class="bird-watch-rank" th:text="${stat.count} + '.'">1.</span>
+                            <div th:replace="~{fragments/layout :: player-club-badge-inline(username=${leader.username})}"></div>
+                            <div th:replace="~{fragments/layout :: player-avatar(username=${leader.username}, displayName=${leader.displayName}, size='sm')}"></div>
+                            <div class="flex-grow-1 min-width-0">
+                                <div class="fw-semibold text-truncate" th:text="${leader.displayName}">Player</div>
+                                <div class="small text-muted" th:text="${leader.statLabel}">stat</div>
+                            </div>
+                        </li>
+                    </ul>
+
+                    <p th:if="${!category.pending and #lists.isEmpty(category.leaders)}"
+                       class="text-muted small mb-0">
+                        No qualifying players yet — need more picks or scored matches.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+</div>
+</html>

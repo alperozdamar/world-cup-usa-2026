@@ -7,6 +7,7 @@ import com.alper.worldcup.entity.FinalResult;
 import com.alper.worldcup.entity.GroupResult;
 import com.alper.worldcup.entity.GroupStandingPrediction;
 import com.alper.worldcup.entity.Team;
+import com.alper.worldcup.service.BirdWatchService;
 import com.alper.worldcup.service.FinalPredictionService;
 import com.alper.worldcup.service.GroupStandingPredictionService;
 import com.alper.worldcup.service.HostPredictionService;
@@ -17,6 +18,8 @@ import com.alper.worldcup.service.UserAccountService;
 import com.alper.worldcup.service.UserProfileService;
 import java.security.Principal;
 import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -39,6 +42,7 @@ public class PredictionController {
     private final PeerPredictionService peerPredictionService;
     private final HostPredictionService hostPredictionService;
     private final LeaderboardService leaderboardService;
+    private final BirdWatchService birdWatchService;
     private final UserProfileService userProfileService;
     private final UserAccountService userAccountService;
 
@@ -48,6 +52,7 @@ public class PredictionController {
                                 PeerPredictionService peerPredictionService,
                                 HostPredictionService hostPredictionService,
                                 LeaderboardService leaderboardService,
+                                BirdWatchService birdWatchService,
                                 UserProfileService userProfileService,
                                 UserAccountService userAccountService) {
         this.predictionService = predictionService;
@@ -56,6 +61,7 @@ public class PredictionController {
         this.peerPredictionService = peerPredictionService;
         this.hostPredictionService = hostPredictionService;
         this.leaderboardService = leaderboardService;
+        this.birdWatchService = birdWatchService;
         this.userProfileService = userProfileService;
         this.userAccountService = userAccountService;
     }
@@ -208,13 +214,22 @@ public class PredictionController {
     }
 
     @GetMapping("/leaderboard")
-    public String leaderboard(Model model) {
+    public String leaderboard(Principal principal, Model model) {
         List<Object[]> leaderboard = leaderboardService.getLeaderboard();
         List<String> usernames = leaderboard.stream()
                 .map(row -> (String) row[0])
                 .toList();
+        ZoneId zoneId = userProfileService.getUserZoneId(principal.getName());
         model.addAttribute("leaderboard", leaderboard);
         model.addAttribute("displayNames", userProfileService.getDisplayNamesForUsernames(usernames));
+        model.addAttribute("categories", birdWatchService.buildCategories());
+        model.addAttribute("computedAtLabel", ZonedDateTime.now(zoneId)
+                .format(DateTimeFormatter.ofPattern("EEE, MMM d yyyy HH:mm z")));
         return "predictions/leaderboard";
+    }
+
+    @GetMapping("/bird-watch")
+    public String birdWatch() {
+        return "redirect:/predictions/leaderboard#bird-watch";
     }
 }
