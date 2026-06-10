@@ -4,130 +4,172 @@
 <body>
 <div th:replace="~{fragments/layout :: navbar}"></div>
 <div class="container">
-    <h2>Host&rsquo;s Picks</h2>
-    <p class="text-muted mb-0">
-        Early transparency into the pool host&rsquo;s predictions
-        <span th:if="${!#lists.isEmpty(hostDisplayNames)}">
-            (<strong th:text="${#strings.listJoin(hostDisplayNames, ', ')}"></strong>)
-        </span>.
-        Other players&rsquo; picks stay hidden until kickoff or tournament start — see
-        <a th:href="@{/predictions/others}">Others&rsquo; Picks</a>.
-    </p>
-
-    <section class="mt-4">
-        <h4 class="h5">Match scores</h4>
-        <p class="text-muted small">Shown as soon as the host enters them, even before kickoff.</p>
-
-        <div th:if="${#lists.isEmpty(matchViews)}" class="alert alert-secondary py-2">
-            The host hasn&rsquo;t entered any match predictions yet.
+    <div class="row g-4">
+        <div class="col-md-3 col-lg-2 d-none d-md-block">
+            <div th:each="hostUsername : ${hostUsernames}"
+                 class="player-profile-card sticky-top mb-3"
+                 style="top: 1rem;">
+                <div th:replace="~{fragments/layout :: player-avatar(username=${hostUsername}, displayName=${hostDisplayNamesByUsername[hostUsername]}, size='lg')}"></div>
+                <h5 class="mb-0" th:text="${hostDisplayNamesByUsername[hostUsername]}">Host</h5>
+                <p class="text-muted small mb-0" th:text="'@' + ${hostUsername}">@host</p>
+                <div th:replace="~{fragments/layout :: player-club-badge(username=${hostUsername})}"></div>
+            </div>
         </div>
 
-        <div th:each="matchView : ${matchViews}" class="card mb-3">
-            <div class="card-header">
-                <strong th:text="${matchView.match.homeDisplayName} + ' vs ' + ${matchView.match.awayDisplayName}"></strong>
-                <span class="text-muted ms-2">
-                    · Group <span th:text="${matchView.match.groupName}"></span>
-                    · <span th:text="${@matchViewHelper.formatKickoffDate(matchView.match, zoneId)}"></span>
-                    <span th:text="${@matchViewHelper.formatKickoffTime(matchView.match, zoneId)}"></span>
-                </span>
-                <span th:if="${matchView.match.scoreEntered}" class="ms-2 badge bg-success">
-                    Final: <span th:text="${matchView.match.homeScoreActual} + '-' + ${matchView.match.awayScoreActual}"></span>
-                </span>
+        <div class="col-md-9 col-lg-10">
+            <div th:each="hostUsername : ${hostUsernames}"
+                 class="d-md-none d-flex align-items-center gap-3 mb-3">
+                <div th:replace="~{fragments/layout :: player-avatar(username=${hostUsername}, displayName=${hostDisplayNamesByUsername[hostUsername]}, size='md')}"></div>
+                <div>
+                    <h2 class="h4 mb-0" th:text="${hostDisplayNamesByUsername[hostUsername]}">Host</h2>
+                    <p class="text-muted small mb-0" th:text="'@' + ${hostUsername}">@host</p>
+                    <div th:replace="~{fragments/layout :: player-club-badge(username=${hostUsername})}"></div>
+                </div>
             </div>
-            <div class="card-body p-0">
-                <div class="table-responsive">
-                    <table class="table table-sm table-striped mb-0 align-middle">
-                        <thead>
+
+            <div class="d-none d-md-block">
+                <h2>Host&rsquo;s Picks</h2>
+            </div>
+            <p class="text-muted mb-0">
+                Early transparency into the pool host&rsquo;s predictions.
+                Other players&rsquo; picks stay hidden until kickoff or tournament start — see
+                <a th:href="@{/predictions/others}">Others&rsquo; Picks</a>.
+            </p>
+
+            <section class="mt-4">
+                <h4 class="h5">Match scores</h4>
+                <p class="text-muted small">Shown as soon as the host enters them, even before kickoff.</p>
+
+                <div th:if="${#lists.isEmpty(matchViews)}" class="alert alert-secondary py-2">
+                    The host hasn&rsquo;t entered any match predictions yet.
+                </div>
+
+                <div th:each="matchView : ${matchViews}" class="card mb-3">
+                    <div class="card-header">
+                        <strong th:text="${matchView.match.homeDisplayName} + ' vs ' + ${matchView.match.awayDisplayName}"></strong>
+                        <span class="text-muted ms-2">
+                            · Group <span th:text="${matchView.match.groupName}"></span>
+                            · <span th:text="${@matchViewHelper.formatKickoffDate(matchView.match, zoneId)}"></span>
+                            <span th:text="${@matchViewHelper.formatKickoffTime(matchView.match, zoneId)}"></span>
+                        </span>
+                        <span th:if="${matchView.match.scoreEntered}" class="ms-2 badge bg-success">
+                            Final: <span th:text="${matchView.match.homeScoreActual} + '-' + ${matchView.match.awayScoreActual}"></span>
+                        </span>
+                    </div>
+                    <div class="card-body p-0">
+                        <div class="table-responsive">
+                            <table class="table table-sm table-striped mb-0 align-middle">
+                                <thead>
+                                <tr>
+                                    <th>Host</th>
+                                    <th>Prediction</th>
+                                    <th th:if="${matchView.match.scoreEntered}">Points</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                <tr th:each="pick : ${matchView.predictions}">
+                                    <td>
+                                        <div class="leaderboard-player-cell">
+                                            <div th:replace="~{fragments/layout :: player-club-badge-inline(username=${pick.username})}"></div>
+                                            <div th:replace="~{fragments/layout :: player-avatar(username=${pick.username}, displayName=${pick.displayName}, size='sm')}"></div>
+                                            <div>
+                                                <span th:text="${pick.displayName}"></span>
+                                                <span class="small text-muted" th:text="'(' + ${pick.username} + ')'"></span>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td th:text="${pick.homeGuess} + ' - ' + ${pick.awayGuess}"></td>
+                                    <td th:if="${matchView.match.scoreEntered}">
+                                        <span th:if="${pick.points != null}" th:text="${pick.points}"></span>
+                                        <span th:if="${pick.points == null}" class="text-muted">—</span>
+                                    </td>
+                                </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="mt-4">
+                <h4 class="h5">Group 1st &amp; 2nd</h4>
+                <p class="text-muted small">Visible before tournament kickoff.</p>
+
+                <div th:if="${#lists.isEmpty(groupRows)}" class="alert alert-secondary py-2">
+                    The host hasn&rsquo;t entered any group predictions yet.
+                </div>
+                <div th:if="${!#lists.isEmpty(groupRows)}" class="table-responsive">
+                    <table class="table table-sm table-striped align-middle">
+                        <thead class="table-dark">
                         <tr>
                             <th>Host</th>
-                            <th>Prediction</th>
-                            <th th:if="${matchView.match.scoreEntered}">Points</th>
+                            <th th:each="groupName : ${groupNames}" th:text="'Group ' + ${groupName}"></th>
                         </tr>
                         </thead>
                         <tbody>
-                        <tr th:each="pick : ${matchView.predictions}">
+                        <tr th:each="row : ${groupRows}">
                             <td>
-                                <span th:text="${pick.displayName}"></span>
-                                <span class="small text-muted" th:text="'(' + ${pick.username} + ')'"></span>
+                                <div class="leaderboard-player-cell">
+                                    <div th:replace="~{fragments/layout :: player-club-badge-inline(username=${row.username})}"></div>
+                                    <div th:replace="~{fragments/layout :: player-avatar(username=${row.username}, displayName=${row.displayName}, size='sm')}"></div>
+                                    <div>
+                                        <span th:text="${row.displayName}"></span>
+                                        <span class="small text-muted" th:text="'(' + ${row.username} + ')'"></span>
+                                    </div>
+                                </div>
                             </td>
-                            <td th:text="${pick.homeGuess} + ' - ' + ${pick.awayGuess}"></td>
-                            <td th:if="${matchView.match.scoreEntered}">
-                                <span th:if="${pick.points != null}" th:text="${pick.points}"></span>
-                                <span th:if="${pick.points == null}" class="text-muted">—</span>
+                            <td th:each="groupName : ${groupNames}">
+                                <span th:with="pick=${row.picksByGroup.get(groupName)}">
+                                    <span th:if="${pick != null}">
+                                        <span th:text="${pick.firstTeamName}"></span> (1st)<br>
+                                        <span th:text="${pick.secondTeamName}"></span> (2nd)
+                                    </span>
+                                    <span th:if="${pick == null}" class="text-muted">—</span>
+                                </span>
                             </td>
                         </tr>
                         </tbody>
                     </table>
                 </div>
-            </div>
-        </div>
-    </section>
+            </section>
 
-    <section class="mt-4">
-        <h4 class="h5">Group 1st &amp; 2nd</h4>
-        <p class="text-muted small">Visible before tournament kickoff.</p>
+            <section class="mt-4 mb-4">
+                <h4 class="h5">Final (champion &amp; runner-up)</h4>
+                <p class="text-muted small">Visible before tournament kickoff.</p>
 
-        <div th:if="${#lists.isEmpty(groupRows)}" class="alert alert-secondary py-2">
-            The host hasn&rsquo;t entered any group predictions yet.
+                <div th:if="${#lists.isEmpty(finalRows)}" class="alert alert-secondary py-2">
+                    The host hasn&rsquo;t entered a final prediction yet.
+                </div>
+                <div th:if="${!#lists.isEmpty(finalRows)}" class="table-responsive">
+                    <table class="table table-sm table-striped align-middle">
+                        <thead class="table-dark">
+                        <tr>
+                            <th>Host</th>
+                            <th>Champion</th>
+                            <th>Runner-up</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr th:each="row : ${finalRows}">
+                            <td>
+                                <div class="leaderboard-player-cell">
+                                    <div th:replace="~{fragments/layout :: player-club-badge-inline(username=${row.username})}"></div>
+                                    <div th:replace="~{fragments/layout :: player-avatar(username=${row.username}, displayName=${row.displayName}, size='sm')}"></div>
+                                    <div>
+                                        <span th:text="${row.displayName}"></span>
+                                        <span class="small text-muted" th:text="'(' + ${row.username} + ')'"></span>
+                                    </div>
+                                </div>
+                            </td>
+                            <td th:text="${row.championName}"></td>
+                            <td th:text="${row.runnerUpName}"></td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
         </div>
-        <div th:if="${!#lists.isEmpty(groupRows)}" class="table-responsive">
-            <table class="table table-sm table-striped align-middle">
-                <thead class="table-dark">
-                <tr>
-                    <th>Host</th>
-                    <th th:each="groupName : ${groupNames}" th:text="'Group ' + ${groupName}"></th>
-                </tr>
-                </thead>
-                <tbody>
-                <tr th:each="row : ${groupRows}">
-                    <td>
-                        <span th:text="${row.displayName}"></span>
-                        <span class="small text-muted" th:text="'(' + ${row.username} + ')'"></span>
-                    </td>
-                    <td th:each="groupName : ${groupNames}">
-                        <span th:with="pick=${row.picksByGroup.get(groupName)}">
-                            <span th:if="${pick != null}">
-                                <span th:text="${pick.firstTeamName}"></span> (1st)<br>
-                                <span th:text="${pick.secondTeamName}"></span> (2nd)
-                            </span>
-                            <span th:if="${pick == null}" class="text-muted">—</span>
-                        </span>
-                    </td>
-                </tr>
-                </tbody>
-            </table>
-        </div>
-    </section>
-
-    <section class="mt-4 mb-4">
-        <h4 class="h5">Final (champion &amp; runner-up)</h4>
-        <p class="text-muted small">Visible before tournament kickoff.</p>
-
-        <div th:if="${#lists.isEmpty(finalRows)}" class="alert alert-secondary py-2">
-            The host hasn&rsquo;t entered a final prediction yet.
-        </div>
-        <div th:if="${!#lists.isEmpty(finalRows)}" class="table-responsive">
-            <table class="table table-sm table-striped align-middle">
-                <thead class="table-dark">
-                <tr>
-                    <th>Host</th>
-                    <th>Champion</th>
-                    <th>Runner-up</th>
-                </tr>
-                </thead>
-                <tbody>
-                <tr th:each="row : ${finalRows}">
-                    <td>
-                        <span th:text="${row.displayName}"></span>
-                        <span class="small text-muted" th:text="'(' + ${row.username} + ')'"></span>
-                    </td>
-                    <td th:text="${row.championName}"></td>
-                    <td th:text="${row.runnerUpName}"></td>
-                </tr>
-                </tbody>
-            </table>
-        </div>
-    </section>
+    </div>
 </div>
 <div th:replace="~{fragments/layout :: footer}"></div>
 </body>

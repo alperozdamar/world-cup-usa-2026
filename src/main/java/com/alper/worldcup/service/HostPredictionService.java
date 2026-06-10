@@ -43,6 +43,11 @@ public class HostPredictionService {
     }
 
     @Transactional(readOnly = true)
+    public List<String> getHostUsernames() {
+        return userAccountService.findAdminUsernames();
+    }
+
+    @Transactional(readOnly = true)
     public List<String> getHostDisplayNames() {
         return userAccountService.findAdminUsernames().stream()
                 .map(userProfileService::getDisplayName)

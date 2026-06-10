@@ -179,8 +179,11 @@ public class PredictionController {
         }
 
         ZoneId zoneId = userProfileService.getUserZoneId(principal.getName());
+        List<String> hostUsernames = hostPredictionService.getHostUsernames();
         model.addAttribute("zoneId", zoneId.getId());
+        model.addAttribute("hostUsernames", hostUsernames);
         model.addAttribute("hostDisplayNames", hostPredictionService.getHostDisplayNames());
+        model.addAttribute("hostDisplayNamesByUsername", userProfileService.getDisplayNamesForUsernames(hostUsernames));
         model.addAttribute("matchViews", hostPredictionService.getHostMatchPredictions());
         model.addAttribute("groupNames", groupStandingPredictionService.getGroupNames());
         model.addAttribute("groupRows", hostPredictionService.getHostGroupPredictions());
