@@ -36,4 +36,11 @@ public interface MatchRepository extends JpaRepository<Match, Integer> {
     @Query("SELECT MIN(m.kickoffUtc) FROM Match m "
             + "WHERE m.stage = com.alper.worldcup.entity.MatchStage.GROUP_STAGE")
     Optional<Instant> findTournamentStartKickoff();
+
+    @Query("SELECT m FROM Match m JOIN FETCH m.homeTeam JOIN FETCH m.awayTeam "
+            + "WHERE m.stage = com.alper.worldcup.entity.MatchStage.GROUP_STAGE "
+            + "AND m.predictionsEnabled = true "
+            + "AND m.kickoffUtc > :now AND m.kickoffUtc <= :cutoff "
+            + "ORDER BY m.kickoffUtc")
+    List<Match> findOpenGroupStageMatchesKickingOffBetween(Instant now, Instant cutoff);
 }

@@ -1,9 +1,11 @@
 spring.datasource.url=jdbc:mysql://localhost:3306/worldcup?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
 
-# Optional — daily prediction reminder emails
+# Optional — prediction reminder emails
 # app.base-url=http://localhost:8090
 # app.mail.enabled=true
 # app.mail.from=World Cup 2026 <you@gmail.com>
+# app.reminder.cron=0 0 * * * *
+# app.reminder.match.cron=0 0 * * * *
 # spring.mail.host=smtp.gmail.com
 # spring.mail.port=587
 # spring.mail.username=you@gmail.com
