@@ -18,6 +18,7 @@ All notable changes to this project will be documented in this file.
   - WC-0021 - Scrolling standings ticker in header (ESPN-style, all player pages)
   - WC-0022 - Upcoming matches (next 5) merged into header ticker with NEXT label
   - WC-0023 - Daily email reminders for missing group/final picks; email on profile
+  - WC-0024 - Host's Picks page for fairness and transparency: non-admin users can view pool host predictions before kickoff/tournament start while others' picks stay hidden until normal reveal rules
 
 ## [v0.0.2-PRERELEASE]
   - WC-0005 - Implemented approved scoring rules (5/2/+1, knockout multipliers) in PointsServiceImpl

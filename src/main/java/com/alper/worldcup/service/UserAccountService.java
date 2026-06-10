@@ -1,5 +1,6 @@
 package com.alper.worldcup.service;
 
+import java.util.List;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -21,6 +22,12 @@ public class UserAccountService {
         this.jdbcTemplate = jdbcTemplate;
         this.userDetailsService = userDetailsService;
         this.passwordEncoder = passwordEncoder;
+    }
+
+    public List<String> findAdminUsernames() {
+        return jdbcTemplate.queryForList(
+                "SELECT username FROM authorities WHERE authority = 'ROLE_ADMIN' ORDER BY username",
+                String.class);
     }
 
     @Transactional

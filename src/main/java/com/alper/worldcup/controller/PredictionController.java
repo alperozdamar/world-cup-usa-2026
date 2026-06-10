@@ -9,9 +9,11 @@ import com.alper.worldcup.entity.GroupStandingPrediction;
 import com.alper.worldcup.entity.Team;
 import com.alper.worldcup.service.FinalPredictionService;
 import com.alper.worldcup.service.GroupStandingPredictionService;
+import com.alper.worldcup.service.HostPredictionService;
 import com.alper.worldcup.service.LeaderboardService;
 import com.alper.worldcup.service.PeerPredictionService;
 import com.alper.worldcup.service.PredictionService;
+import com.alper.worldcup.service.UserAccountService;
 import com.alper.worldcup.service.UserProfileService;
 import java.security.Principal;
 import java.time.ZoneId;
@@ -35,21 +37,27 @@ public class PredictionController {
     private final GroupStandingPredictionService groupStandingPredictionService;
     private final FinalPredictionService finalPredictionService;
     private final PeerPredictionService peerPredictionService;
+    private final HostPredictionService hostPredictionService;
     private final LeaderboardService leaderboardService;
     private final UserProfileService userProfileService;
+    private final UserAccountService userAccountService;
 
     public PredictionController(PredictionService predictionService,
                                 GroupStandingPredictionService groupStandingPredictionService,
                                 FinalPredictionService finalPredictionService,
                                 PeerPredictionService peerPredictionService,
+                                HostPredictionService hostPredictionService,
                                 LeaderboardService leaderboardService,
-                                UserProfileService userProfileService) {
+                                UserProfileService userProfileService,
+                                UserAccountService userAccountService) {
         this.predictionService = predictionService;
         this.groupStandingPredictionService = groupStandingPredictionService;
         this.finalPredictionService = finalPredictionService;
         this.peerPredictionService = peerPredictionService;
+        this.hostPredictionService = hostPredictionService;
         this.leaderboardService = leaderboardService;
         this.userProfileService = userProfileService;
+        this.userAccountService = userAccountService;
     }
 
     @GetMapping("/list")
@@ -162,6 +170,22 @@ public class PredictionController {
             redirectAttributes.addFlashAttribute("errorMessage", ex.getMessage());
         }
         return "redirect:/predictions/final";
+    }
+
+    @GetMapping("/host")
+    public String host(Principal principal, Model model) {
+        if (userAccountService.findAdminUsernames().contains(principal.getName())) {
+            return "redirect:/predictions/list";
+        }
+
+        ZoneId zoneId = userProfileService.getUserZoneId(principal.getName());
+        model.addAttribute("zoneId", zoneId.getId());
+        model.addAttribute("hostDisplayNames", hostPredictionService.getHostDisplayNames());
+        model.addAttribute("matchViews", hostPredictionService.getHostMatchPredictions());
+        model.addAttribute("groupNames", groupStandingPredictionService.getGroupNames());
+        model.addAttribute("groupRows", hostPredictionService.getHostGroupPredictions());
+        model.addAttribute("finalRows", hostPredictionService.getHostFinalPredictions());
+        return "predictions/host";
     }
 
     @GetMapping("/others")
