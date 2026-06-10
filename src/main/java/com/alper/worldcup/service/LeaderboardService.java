@@ -18,15 +18,18 @@ public class LeaderboardService {
     private final GroupStandingPredictionRepository groupStandingPredictionRepository;
     private final FinalPredictionRepository finalPredictionRepository;
     private final UserProfileService userProfileService;
+    private final PoolMemberRegistry poolMemberRegistry;
 
     public LeaderboardService(PredictionRepository predictionRepository,
                               GroupStandingPredictionRepository groupStandingPredictionRepository,
                               FinalPredictionRepository finalPredictionRepository,
-                              UserProfileService userProfileService) {
+                              UserProfileService userProfileService,
+                              PoolMemberRegistry poolMemberRegistry) {
         this.predictionRepository = predictionRepository;
         this.groupStandingPredictionRepository = groupStandingPredictionRepository;
         this.finalPredictionRepository = finalPredictionRepository;
         this.userProfileService = userProfileService;
+        this.poolMemberRegistry = poolMemberRegistry;
     }
 
     @Transactional(readOnly = true)
@@ -45,7 +48,9 @@ public class LeaderboardService {
 
         List<Object[]> leaderboard = new ArrayList<>();
         for (Map.Entry<String, Long> entry : totals.entrySet()) {
-            leaderboard.add(new Object[]{entry.getKey(), entry.getValue()});
+            if (poolMemberRegistry.isMember(entry.getKey())) {
+                leaderboard.add(new Object[]{entry.getKey(), entry.getValue()});
+            }
         }
 
         leaderboard.sort(Comparator.<Object[]>comparingLong(row -> ((Number) row[1]).longValue()).reversed());
@@ -59,7 +64,7 @@ public class LeaderboardService {
             totals.put((String) row[0], ((Number) row[1]).longValue());
         }
 
-        List<LeaderboardTickerEntry> entries = userProfileService.getAllProfiles().stream()
+        List<LeaderboardTickerEntry> entries = userProfileService.getPoolProfiles().stream()
                 .map(profile -> new LeaderboardTickerEntry(
                         0,
                         profile.getUsername(),

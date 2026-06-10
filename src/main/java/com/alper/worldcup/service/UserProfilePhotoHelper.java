@@ -8,6 +8,7 @@ import org.springframework.stereotype.Component;
 public class UserProfilePhotoHelper {
 
     private static final String PHOTO_PATH = "classpath:static/images/%s.png";
+    private static final String GROUP2_PHOTO_PATH = "classpath:static/images/group2/%s.png";
 
     private final ResourceLoader resourceLoader;
 
@@ -16,17 +17,41 @@ public class UserProfilePhotoHelper {
     }
 
     public boolean hasPhoto(String username) {
-        if (username == null || username.isBlank()) {
-            return false;
-        }
-        Resource resource = resourceLoader.getResource(PHOTO_PATH.formatted(username.toLowerCase()));
-        return resource.exists();
+        return resolvePhotoPath(username) != null;
     }
 
     public String photoUrl(String username) {
-        if (!hasPhoto(username)) {
+        String normalized = normalizeUsername(username);
+        if (normalized == null) {
             return null;
         }
-        return "/images/" + username.toLowerCase() + ".png";
+        if (resourceLoader.getResource(PHOTO_PATH.formatted(normalized)).exists()) {
+            return "/images/" + normalized + ".png";
+        }
+        if (resourceLoader.getResource(GROUP2_PHOTO_PATH.formatted(normalized)).exists()) {
+            return "/images/group2/" + normalized + ".png";
+        }
+        return null;
+    }
+
+    private String resolvePhotoPath(String username) {
+        String normalized = normalizeUsername(username);
+        if (normalized == null) {
+            return null;
+        }
+        if (resourceLoader.getResource(PHOTO_PATH.formatted(normalized)).exists()) {
+            return PHOTO_PATH.formatted(normalized);
+        }
+        if (resourceLoader.getResource(GROUP2_PHOTO_PATH.formatted(normalized)).exists()) {
+            return GROUP2_PHOTO_PATH.formatted(normalized);
+        }
+        return null;
+    }
+
+    private static String normalizeUsername(String username) {
+        if (username == null || username.isBlank()) {
+            return null;
+        }
+        return username.toLowerCase();
     }
 }

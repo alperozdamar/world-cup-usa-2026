@@ -23,6 +23,7 @@ All notable changes to this project will be documented in this file.
   - WC-0026 - Player profile photos on My Predictions sidebar and Leaderboard
   - WC-0027 - Favorite club badges (Beşiktaş, Fenerbahçe, Galatasaray) on profile card and Leaderboard
   - WC-0028 - The Bird Watch fun stats page (8 categories, top 3 each, Crystal Ball hidden until champion known)
+  - WC-0029 - Second friend pool (Group 2) on separate EC2: bootstrap profile, player photos in `images/group2/`, club badges, display names; pool membership filters ticker, leaderboard, and related views
 
 ## [v0.0.2-PRERELEASE]
   - WC-0005 - Implemented approved scoring rules (5/2/+1, knockout multipliers) in PointsServiceImpl

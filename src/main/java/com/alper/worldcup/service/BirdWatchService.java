@@ -38,6 +38,7 @@ public class BirdWatchService {
     private final FinalPredictionRepository finalPredictionRepository;
     private final FinalResultRepository finalResultRepository;
     private final UserProfileService userProfileService;
+    private final PoolMemberRegistry poolMemberRegistry;
     private final PointsServiceImpl pointsService;
 
     public BirdWatchService(PredictionAuditRepository predictionAuditRepository,
@@ -47,6 +48,7 @@ public class BirdWatchService {
                             FinalPredictionRepository finalPredictionRepository,
                             FinalResultRepository finalResultRepository,
                             UserProfileService userProfileService,
+                            PoolMemberRegistry poolMemberRegistry,
                             PointsServiceImpl pointsService) {
         this.predictionAuditRepository = predictionAuditRepository;
         this.groupStandingPredictionAuditRepository = groupStandingPredictionAuditRepository;
@@ -55,6 +57,7 @@ public class BirdWatchService {
         this.finalPredictionRepository = finalPredictionRepository;
         this.finalResultRepository = finalResultRepository;
         this.userProfileService = userProfileService;
+        this.poolMemberRegistry = poolMemberRegistry;
         this.pointsService = pointsService;
     }
 
@@ -317,6 +320,7 @@ public class BirdWatchService {
                                                 Comparator<Duration> comparator,
                                                 java.util.function.Function<Duration, String> formatter) {
         return values.entrySet().stream()
+                .filter(entry -> poolMemberRegistry.isMember(entry.getKey()))
                 .sorted(Map.Entry.<String, Duration>comparingByValue(comparator)
                         .thenComparing(entry -> userProfileService.getDisplayName(entry.getKey()),
                                 String.CASE_INSENSITIVE_ORDER))
@@ -329,6 +333,7 @@ public class BirdWatchService {
                                              Comparator<Long> comparator,
                                              java.util.function.Function<Long, String> formatter) {
         return values.entrySet().stream()
+                .filter(entry -> poolMemberRegistry.isMember(entry.getKey()))
                 .sorted(Map.Entry.<String, Long>comparingByValue(comparator)
                         .thenComparing(entry -> userProfileService.getDisplayName(entry.getKey()),
                                 String.CASE_INSENSITIVE_ORDER))

@@ -109,7 +109,7 @@ public class PeerPredictionService {
     }
 
     private List<PeerGroupRowView> buildGroupRows(Map<String, Map<String, PeerGroupPickView>> picksByUser) {
-        List<UserProfile> profiles = userProfileService.getAllProfiles();
+        List<UserProfile> profiles = userProfileService.getPoolProfiles();
         List<PeerGroupRowView> rows = new ArrayList<>();
 
         for (UserProfile profile : profiles) {

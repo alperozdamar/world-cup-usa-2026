@@ -33,6 +33,15 @@ class UserClubBadgeHelperTest {
     }
 
     @Test
+    void returnsClubsForGroup2Players() {
+        assertEquals("Fenerbahçe", helper.clubName("emre"));
+        assertEquals("/images/fb.png", helper.imagePath("emre"));
+        assertEquals("Galatasaray", helper.clubName("can"));
+        assertEquals("/images/gs.png", helper.imagePath("caglar"));
+        assertEquals("/images/gs.png", helper.imagePath("ozcan"));
+    }
+
+    @Test
     void returnsNothingForUnknownUser() {
         assertFalse(helper.hasClubBadge("unknown"));
         assertNull(helper.clubName("unknown"));

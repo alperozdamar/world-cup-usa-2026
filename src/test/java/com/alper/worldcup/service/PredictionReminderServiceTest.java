@@ -40,7 +40,8 @@ class PredictionReminderServiceTest {
         when(userProfileService.getDisplayName("gonenc")).thenReturn("Gonenc");
 
         PredictionReminderService service = new PredictionReminderService(
-                null, groupStandingPredictionService, finalPredictionService, userProfileService);
+                null, groupStandingPredictionService, finalPredictionService, userProfileService,
+                new PoolMemberRegistry("default"));
 
         PredictionReminderContent content = service.buildReminderForUser("gonenc", "gonenc@example.com");
 
@@ -58,7 +59,8 @@ class PredictionReminderServiceTest {
         when(userProfileService.getDisplayName("gonenc")).thenReturn("Gonenc");
 
         PredictionReminderService service = new PredictionReminderService(
-                null, groupStandingPredictionService, finalPredictionService, userProfileService);
+                null, groupStandingPredictionService, finalPredictionService, userProfileService,
+                new PoolMemberRegistry("default"));
 
         PredictionReminderContent content = service.buildReminderForUser("gonenc", "gonenc@example.com");
 

@@ -11,7 +11,7 @@
 <body>
 <div th:fragment="player-avatar(username, displayName, size)">
     <img th:if="${@userProfilePhotoHelper.hasPhoto(username)}"
-         th:src="@{'/images/' + ${username} + '.png'}"
+         th:src="${@userProfilePhotoHelper.photoUrl(username)}"
          th:alt="${displayName != null ? displayName : username} + ' profile photo'"
          th:class="${size == 'lg'} ? 'player-profile-photo-lg' : (${size == 'md'} ? 'player-avatar-md' : 'player-avatar-sm')">
     <span th:unless="${@userProfilePhotoHelper.hasPhoto(username)}"

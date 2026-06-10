@@ -1,5 +1,7 @@
 package com.alper.worldcup.config;
 
+import com.alper.worldcup.service.PoolMember;
+import com.alper.worldcup.service.PoolMemberRegistry;
 import com.alper.worldcup.service.UserAccountService;
 import com.alper.worldcup.service.UserProfileService;
 import org.springframework.beans.factory.annotation.Value;
@@ -13,32 +15,17 @@ public class UserBootstrapConfig {
     @Bean
     CommandLineRunner bootstrapUsers(UserAccountService userAccountService,
                                      UserProfileService userProfileService,
+                                     PoolMemberRegistry poolMemberRegistry,
+                                     @Value("${app.user-bootstrap.enabled:true}") boolean enabled,
                                      @Value("${app.fixture-timezone:America/New_York}") String defaultTimezone) {
         return args -> {
-            seedPlayer(userAccountService, userProfileService, defaultTimezone,
-                    "alper", "Alper Ozdamar", true);
-            seedPlayer(userAccountService, userProfileService, defaultTimezone,
-                    "gonenc", "Gonenc Gorgulu", false);
-            seedPlayer(userAccountService, userProfileService, defaultTimezone,
-                    "tcan", "Tayyip Can", false);
-            seedPlayer(userAccountService, userProfileService, defaultTimezone,
-                    "kubilay", "Kubilay Kahraman", false);
-            seedPlayer(userAccountService, userProfileService, defaultTimezone,
-                    "ali", "Ali Sahin", false);
-            seedPlayer(userAccountService, userProfileService, defaultTimezone,
-                    "sadik", "Sadik Demirdogen", false);
-            seedPlayer(userAccountService, userProfileService, defaultTimezone,
-                    "adem", "Adem Sari", false);
+            if (!enabled) {
+                return;
+            }
+            for (PoolMember member : poolMemberRegistry.getMembers()) {
+                userAccountService.ensureUser(member.username(), "123", member.admin());
+                userProfileService.ensureProfile(member.username(), member.displayName(), defaultTimezone);
+            }
         };
-    }
-
-    private void seedPlayer(UserAccountService userAccountService,
-                            UserProfileService userProfileService,
-                            String defaultTimezone,
-                            String username,
-                            String displayName,
-                            boolean admin) {
-        userAccountService.ensureUser(username, "123", admin);
-        userProfileService.ensureProfile(username, displayName, defaultTimezone);
     }
 }

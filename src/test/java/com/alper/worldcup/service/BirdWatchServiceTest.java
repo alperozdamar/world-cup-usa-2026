@@ -58,6 +58,7 @@ class BirdWatchServiceTest {
                 finalPredictionRepository,
                 finalResultRepository,
                 userProfileService,
+                new PoolMemberRegistry("default"),
                 new PointsServiceImpl());
     }
 

@@ -16,11 +16,14 @@ import org.springframework.transaction.annotation.Transactional;
 public class UserProfileService {
 
     private final UserProfileRepository userProfileRepository;
+    private final PoolMemberRegistry poolMemberRegistry;
     private final String defaultTimezone;
 
     public UserProfileService(UserProfileRepository userProfileRepository,
+                              PoolMemberRegistry poolMemberRegistry,
                               @Value("${app.fixture-timezone:America/New_York}") String defaultTimezone) {
         this.userProfileRepository = userProfileRepository;
+        this.poolMemberRegistry = poolMemberRegistry;
         this.defaultTimezone = defaultTimezone;
     }
 
@@ -53,6 +56,13 @@ public class UserProfileService {
         return userProfileRepository.findAll().stream()
                 .sorted(Comparator.comparing(profile ->
                         profile.getDisplayName() != null ? profile.getDisplayName() : profile.getUsername()))
+                .toList();
+    }
+
+    @Transactional(readOnly = true)
+    public List<UserProfile> getPoolProfiles() {
+        return getAllProfiles().stream()
+                .filter(profile -> poolMemberRegistry.isMember(profile.getUsername()))
                 .toList();
     }
 

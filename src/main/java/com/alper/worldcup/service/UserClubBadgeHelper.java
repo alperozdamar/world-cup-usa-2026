@@ -17,7 +17,11 @@ public class UserClubBadgeHelper {
             Map.entry("ali", new ClubBadge("Fenerbahçe", "/images/fb.png")),
             Map.entry("sadik", new ClubBadge("Fenerbahçe", "/images/fb.png")),
             Map.entry("gonenc", new ClubBadge("Galatasaray", "/images/gs.png")),
-            Map.entry("adem", new ClubBadge("Galatasaray", "/images/gs.png")));
+            Map.entry("adem", new ClubBadge("Galatasaray", "/images/gs.png")),
+            Map.entry("emre", new ClubBadge("Fenerbahçe", "/images/fb.png")),
+            Map.entry("can", new ClubBadge("Galatasaray", "/images/gs.png")),
+            Map.entry("caglar", new ClubBadge("Galatasaray", "/images/gs.png")),
+            Map.entry("ozcan", new ClubBadge("Galatasaray", "/images/gs.png")));
 
     public boolean hasClubBadge(String username) {
         return username != null && CLUB_BY_USERNAME.containsKey(username.toLowerCase());

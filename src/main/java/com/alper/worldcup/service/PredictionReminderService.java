@@ -16,15 +16,18 @@ public class PredictionReminderService {
     private final GroupStandingPredictionService groupStandingPredictionService;
     private final FinalPredictionService finalPredictionService;
     private final UserProfileService userProfileService;
+    private final PoolMemberRegistry poolMemberRegistry;
 
     public PredictionReminderService(UserProfileRepository userProfileRepository,
                                        GroupStandingPredictionService groupStandingPredictionService,
                                        FinalPredictionService finalPredictionService,
-                                       UserProfileService userProfileService) {
+                                       UserProfileService userProfileService,
+                                       PoolMemberRegistry poolMemberRegistry) {
         this.userProfileRepository = userProfileRepository;
         this.groupStandingPredictionService = groupStandingPredictionService;
         this.finalPredictionService = finalPredictionService;
         this.userProfileService = userProfileService;
+        this.poolMemberRegistry = poolMemberRegistry;
     }
 
     @Transactional(readOnly = true)
@@ -32,6 +35,9 @@ public class PredictionReminderService {
         List<PredictionReminderContent> reminders = new ArrayList<>();
 
         for (UserProfile profile : userProfileRepository.findAllWithEmail()) {
+            if (!poolMemberRegistry.isMember(profile.getUsername())) {
+                continue;
+            }
             PredictionReminderContent content = buildReminderForUser(profile.getUsername(), profile.getEmail());
             if (content.hasReminders()) {
                 reminders.add(content);

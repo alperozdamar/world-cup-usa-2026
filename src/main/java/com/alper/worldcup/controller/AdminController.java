@@ -130,12 +130,12 @@ public class AdminController {
                         Model model) {
         List<AuditEntryView> audits = predictionAuditService.getCombinedAuditTrail(username);
         Map<String, String> displayNames = new HashMap<>();
-        for (UserProfile profile : userProfileService.getAllProfiles()) {
+        for (UserProfile profile : userProfileService.getPoolProfiles()) {
             displayNames.put(profile.getUsername(), userProfileService.getDisplayName(profile.getUsername()));
         }
 
         model.addAttribute("audits", audits);
-        model.addAttribute("players", userProfileService.getAllProfiles());
+        model.addAttribute("players", userProfileService.getPoolProfiles());
         model.addAttribute("displayNames", displayNames);
         model.addAttribute("selectedUsername", username != null ? username : "");
         model.addAttribute("zoneId", userProfileService.getUserZoneId(principal.getName()).getId());

@@ -48,9 +48,26 @@ class UserProfilePhotoHelperTest {
     }
 
     @Test
+    void returnsGroup2PhotoUrlWhenResourceExists() {
+        Resource defaultResource = org.mockito.Mockito.mock(Resource.class);
+        Resource group2Resource = org.mockito.Mockito.mock(Resource.class);
+        when(resourceLoader.getResource(eq("classpath:static/images/caglar.png"))).thenReturn(defaultResource);
+        when(defaultResource.exists()).thenReturn(false);
+        when(resourceLoader.getResource(eq("classpath:static/images/group2/caglar.png"))).thenReturn(group2Resource);
+        when(group2Resource.exists()).thenReturn(true);
+
+        assertTrue(helper.hasPhoto("caglar"));
+        assertEquals("/images/group2/caglar.png", helper.photoUrl("caglar"));
+    }
+
+    @Test
     void returnsNullWhenPhotoMissing() {
-        when(resourceLoader.getResource(eq("classpath:static/images/unknown.png"))).thenReturn(resource);
-        when(resource.exists()).thenReturn(false);
+        Resource defaultResource = org.mockito.Mockito.mock(Resource.class);
+        Resource group2Resource = org.mockito.Mockito.mock(Resource.class);
+        when(resourceLoader.getResource(eq("classpath:static/images/unknown.png"))).thenReturn(defaultResource);
+        when(defaultResource.exists()).thenReturn(false);
+        when(resourceLoader.getResource(eq("classpath:static/images/group2/unknown.png"))).thenReturn(group2Resource);
+        when(group2Resource.exists()).thenReturn(false);
 
         assertFalse(helper.hasPhoto("unknown"));
         assertNull(helper.photoUrl("unknown"));
