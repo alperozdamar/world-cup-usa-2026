@@ -15,6 +15,7 @@ import com.alper.worldcup.service.LeaderboardService;
 import com.alper.worldcup.service.PeerPredictionService;
 import com.alper.worldcup.service.PredictionService;
 import com.alper.worldcup.service.UserAccountService;
+import com.alper.worldcup.service.UserMatchStatsService;
 import com.alper.worldcup.service.UserProfileService;
 import java.security.Principal;
 import java.time.ZoneId;
@@ -45,6 +46,7 @@ public class PredictionController {
     private final BirdWatchService birdWatchService;
     private final UserProfileService userProfileService;
     private final UserAccountService userAccountService;
+    private final UserMatchStatsService userMatchStatsService;
 
     public PredictionController(PredictionService predictionService,
                                 GroupStandingPredictionService groupStandingPredictionService,
@@ -54,7 +56,8 @@ public class PredictionController {
                                 LeaderboardService leaderboardService,
                                 BirdWatchService birdWatchService,
                                 UserProfileService userProfileService,
-                                UserAccountService userAccountService) {
+                                UserAccountService userAccountService,
+                                UserMatchStatsService userMatchStatsService) {
         this.predictionService = predictionService;
         this.groupStandingPredictionService = groupStandingPredictionService;
         this.finalPredictionService = finalPredictionService;
@@ -64,6 +67,7 @@ public class PredictionController {
         this.birdWatchService = birdWatchService;
         this.userProfileService = userProfileService;
         this.userAccountService = userAccountService;
+        this.userMatchStatsService = userMatchStatsService;
     }
 
     @GetMapping("/list")
@@ -78,6 +82,7 @@ public class PredictionController {
         model.addAttribute("zoneId", zoneId.getId());
         model.addAttribute("username", username);
         model.addAttribute("displayName", userProfileService.getDisplayName(username));
+        model.addAttribute("matchStats", userMatchStatsService.getStats(username));
         return "predictions/list";
     }
 
@@ -207,6 +212,7 @@ public class PredictionController {
                         .ofPattern("EEE, MMM d yyyy HH:mm z")))
                 .orElse(null));
         model.addAttribute("matchViews", peerPredictionService.getVisibleMatchPredictions());
+        model.addAttribute("upcomingMatchView", peerPredictionService.getUpcomingMatchPrediction().orElse(null));
         model.addAttribute("groupNames", groupStandingPredictionService.getGroupNames());
         model.addAttribute("groupRows", peerPredictionService.getVisibleGroupPredictions());
         model.addAttribute("finalRows", peerPredictionService.getVisibleFinalPredictions());

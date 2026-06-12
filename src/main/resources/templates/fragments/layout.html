@@ -35,6 +35,17 @@
          th:title="${@userClubBadgeHelper.clubName(username)}"
          class="player-club-badge-inline-img">
 </div>
+<div th:fragment="player-match-stats(stats)" class="player-match-stats">
+    <div class="player-match-stat">
+        <span class="player-match-stat-value" th:text="${stats.exactScores()}">0</span>
+        <span class="player-match-stat-label">Exact scores</span>
+    </div>
+    <div class="player-match-stat">
+        <span class="player-match-stat-value" th:text="${stats.correctOutcomes()}">0</span>
+        <span class="player-match-stat-label">Correct W/D/L</span>
+    </div>
+    <p class="player-match-stat-note mb-0">Scored matches only · W/D/L includes exact scores</p>
+</div>
 <div th:fragment="world-clocks" class="world-clocks-bar">
     <div class="container">
         <div class="world-clocks-header">
@@ -56,10 +67,10 @@
                     <span id="clock-los-angeles" class="world-clock-time">--:--:--</span>
                 </div>
             </div>
-            <div class="tournament-countdown-wrap" th:if="${tournamentKickoffUtc != null and !#strings.isEmpty(tournamentKickoffUtc)}">
-                <span class="tournament-countdown-label">Kickoff in</span>
+            <div class="tournament-countdown-wrap" th:if="${nextMatchKickoffUtc != null and !#strings.isEmpty(nextMatchKickoffUtc)}">
+                <span class="tournament-countdown-label">Next match in</span>
                 <span id="tournament-countdown" class="tournament-countdown-time"
-                      th:attr="data-kickoff=${tournamentKickoffUtc}">—</span>
+                      th:attr="data-kickoff=${nextMatchKickoffUtc}">—</span>
             </div>
         </div>
     </div>

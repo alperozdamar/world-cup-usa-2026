@@ -16,6 +16,7 @@ import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -27,17 +28,20 @@ public class PeerPredictionService {
     private final GroupStandingPredictionRepository groupStandingPredictionRepository;
     private final FinalPredictionRepository finalPredictionRepository;
     private final UserProfileService userProfileService;
+    private final PoolMemberRegistry poolMemberRegistry;
 
     public PeerPredictionService(MatchRepository matchRepository,
                                  PredictionRepository predictionRepository,
                                  GroupStandingPredictionRepository groupStandingPredictionRepository,
                                  FinalPredictionRepository finalPredictionRepository,
-                                 UserProfileService userProfileService) {
+                                 UserProfileService userProfileService,
+                                 PoolMemberRegistry poolMemberRegistry) {
         this.matchRepository = matchRepository;
         this.predictionRepository = predictionRepository;
         this.groupStandingPredictionRepository = groupStandingPredictionRepository;
         this.finalPredictionRepository = finalPredictionRepository;
         this.userProfileService = userProfileService;
+        this.poolMemberRegistry = poolMemberRegistry;
     }
 
     @Transactional(readOnly = true)
@@ -50,25 +54,45 @@ public class PeerPredictionService {
     @Transactional(readOnly = true)
     public List<PeerMatchView> getVisibleMatchPredictions() {
         Instant now = Instant.now();
-        List<PeerMatchView> views = new ArrayList<>();
 
-        for (Match match : matchRepository.findByStageWithTeams(MatchStage.GROUP_STAGE)) {
-            if (!match.hasStarted(now)) {
-                continue;
-            }
+        return matchRepository.findByStageWithTeams(MatchStage.GROUP_STAGE).stream()
+                .filter(match -> match.hasStarted(now))
+                .map(match -> new PeerMatchView(match, loadPredictions(match), false))
+                .sorted(Comparator.comparing((PeerMatchView view) -> view.match().getKickoffUtc()).reversed())
+                .toList();
+    }
 
-            List<PeerPlayerMatchPrediction> predictions = predictionRepository.findByMatchId(match.getId()).stream()
-                    .map(prediction -> PeerPlayerMatchPrediction.from(
-                            prediction,
-                            userProfileService.getDisplayName(prediction.getUsername())))
-                    .sorted(Comparator.comparing(PeerPlayerMatchPrediction::displayName,
-                            String.CASE_INSENSITIVE_ORDER))
-                    .toList();
+    @Transactional(readOnly = true)
+    public Optional<PeerMatchView> getUpcomingMatchPrediction() {
+        Instant now = Instant.now();
 
-            views.add(new PeerMatchView(match, predictions));
-        }
+        return matchRepository.findByStageWithTeams(MatchStage.GROUP_STAGE).stream()
+                .filter(match -> match.getKickoffUtc().isAfter(now))
+                .filter(Match::isPredictionsEnabled)
+                .min(Comparator.comparing(Match::getKickoffUtc))
+                .map(match -> new PeerMatchView(match, loadHiddenPredictions(match), true));
+    }
 
-        return views;
+    private List<PeerPlayerMatchPrediction> loadPredictions(Match match) {
+        return predictionRepository.findByMatchId(match.getId()).stream()
+                .filter(prediction -> poolMemberRegistry.isMember(prediction.getUsername()))
+                .map(prediction -> PeerPlayerMatchPrediction.from(
+                        prediction,
+                        userProfileService.getDisplayName(prediction.getUsername())))
+                .sorted(Comparator.comparing(PeerPlayerMatchPrediction::displayName,
+                        String.CASE_INSENSITIVE_ORDER))
+                .toList();
+    }
+
+    private List<PeerPlayerMatchPrediction> loadHiddenPredictions(Match match) {
+        return predictionRepository.findByMatchId(match.getId()).stream()
+                .filter(prediction -> poolMemberRegistry.isMember(prediction.getUsername()))
+                .map(prediction -> PeerPlayerMatchPrediction.hidden(
+                        prediction.getUsername(),
+                        userProfileService.getDisplayName(prediction.getUsername())))
+                .sorted(Comparator.comparing(PeerPlayerMatchPrediction::displayName,
+                        String.CASE_INSENSITIVE_ORDER))
+                .toList();
     }
 
     @Transactional(readOnly = true)

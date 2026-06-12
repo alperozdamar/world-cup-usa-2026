@@ -1,6 +1,7 @@
 package com.alper.worldcup.config;
 
 import com.alper.worldcup.dao.MatchRepository;
+import com.alper.worldcup.entity.MatchStage;
 import com.alper.worldcup.service.LeaderboardService;
 import com.alper.worldcup.service.LeaderboardTickerEntry;
 import com.alper.worldcup.service.UpcomingMatchTickerEntry;
@@ -40,10 +41,11 @@ public class GlobalModelAttributes {
         return appVersion;
     }
 
-    @ModelAttribute("tournamentKickoffUtc")
-    public String tournamentKickoffUtc() {
-        return matchRepository.findTournamentStartKickoff()
-                .map(Instant::toString)
+    @ModelAttribute("nextMatchKickoffUtc")
+    public String nextMatchKickoffUtc() {
+        return matchRepository.findFirstByStageAndPredictionsEnabledTrueAndKickoffUtcAfterOrderByKickoffUtcAsc(
+                        MatchStage.GROUP_STAGE, Instant.now())
+                .map(match -> match.getKickoffUtc().toString())
                 .orElse("");
     }
 

@@ -11,6 +11,7 @@
                 <h5 class="mb-0" th:text="${displayName}">Player</h5>
                 <p class="text-muted small mb-0" th:text="'@' + ${username}">@username</p>
                 <div th:replace="~{fragments/layout :: player-club-badge(username=${username})}"></div>
+                <div th:replace="~{fragments/layout :: player-match-stats(stats=${matchStats})}"></div>
             </div>
         </div>
 
@@ -21,6 +22,7 @@
                     <h2 class="h4 mb-0" th:text="${displayName}">Player</h2>
                     <p class="text-muted small mb-0" th:text="'@' + ${username}">@username</p>
                     <div th:replace="~{fragments/layout :: player-club-badge(username=${username})}"></div>
+                    <div th:replace="~{fragments/layout :: player-match-stats(stats=${matchStats})}"></div>
                 </div>
             </div>
 

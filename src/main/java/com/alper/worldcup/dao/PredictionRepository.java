@@ -21,4 +21,9 @@ public interface PredictionRepository extends JpaRepository<Prediction, Integer>
     @Query("SELECT p FROM Prediction p JOIN FETCH p.match m "
             + "WHERE m.homeScoreActual IS NOT NULL AND m.awayScoreActual IS NOT NULL")
     List<Prediction> findAllScoredWithMatch();
+
+    @Query("SELECT p FROM Prediction p JOIN FETCH p.match m "
+            + "WHERE p.username = :username "
+            + "AND m.homeScoreActual IS NOT NULL AND m.awayScoreActual IS NOT NULL")
+    List<Prediction> findScoredByUsernameWithMatch(String username);
 }

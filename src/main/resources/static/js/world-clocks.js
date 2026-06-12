@@ -60,7 +60,7 @@
     }
 
     function updateCountdown() {
-        updateCountdownElement(document.getElementById("tournament-countdown"), "Tournament started!");
+        updateCountdownElement(document.getElementById("tournament-countdown"), "Kickoff!");
     }
 
     function updateMatchLockCountdowns() {
@@ -80,5 +80,5 @@
     setInterval(function () {
         updateCountdown();
         updateMatchLockCountdowns();
-    }, 60000);
+    }, 1000);
 })();

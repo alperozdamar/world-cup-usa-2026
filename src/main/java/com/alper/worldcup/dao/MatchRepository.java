@@ -37,6 +37,9 @@ public interface MatchRepository extends JpaRepository<Match, Integer> {
             + "WHERE m.stage = com.alper.worldcup.entity.MatchStage.GROUP_STAGE")
     Optional<Instant> findTournamentStartKickoff();
 
+    Optional<Match> findFirstByStageAndPredictionsEnabledTrueAndKickoffUtcAfterOrderByKickoffUtcAsc(
+            MatchStage stage, Instant instant);
+
     @Query("SELECT m FROM Match m JOIN FETCH m.homeTeam JOIN FETCH m.awayTeam "
             + "WHERE m.stage = com.alper.worldcup.entity.MatchStage.GROUP_STAGE "
             + "AND m.predictionsEnabled = true "

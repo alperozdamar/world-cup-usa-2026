@@ -403,6 +403,42 @@ body.admin-page .leaderboard-ticker-bar {
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
 }
 
+.player-match-stats {
+    margin-top: 1rem;
+    padding-top: 0.85rem;
+    border-top: 1px solid #e9ecef;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.5rem 0.75rem;
+}
+
+.player-match-stat {
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+}
+
+.player-match-stat-value {
+    font-size: 1.35rem;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+    color: #0d6efd;
+    line-height: 1.1;
+}
+
+.player-match-stat-label {
+    font-size: 0.72rem;
+    color: #6c757d;
+    line-height: 1.2;
+}
+
+.player-match-stat-note {
+    grid-column: 1 / -1;
+    font-size: 0.68rem;
+    color: #adb5bd;
+    margin-top: 0.15rem;
+}
+
 .player-profile-photo-lg {
     width: 120px;
     height: 120px;
