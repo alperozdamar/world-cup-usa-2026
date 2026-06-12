@@ -34,27 +34,43 @@ public class LeaderboardService {
 
     @Transactional(readOnly = true)
     public List<Object[]> getLeaderboard() {
+        Map<String, Long> totals = buildPointTotals();
+
+        List<Object[]> leaderboard = new ArrayList<>();
+        for (var profile : userProfileService.getPoolProfiles()) {
+            leaderboard.add(new Object[]{
+                    profile.getUsername(),
+                    totals.getOrDefault(profile.getUsername(), 0L)});
+        }
+
+        leaderboard.sort(Comparator
+                .<Object[]>comparingLong(row -> ((Number) row[1]).longValue()).reversed()
+                .thenComparing(row -> userProfileService.getDisplayName((String) row[0]),
+                        String.CASE_INSENSITIVE_ORDER));
+        return leaderboard;
+    }
+
+    private Map<String, Long> buildPointTotals() {
         Map<String, Long> totals = new HashMap<>();
 
         for (Object[] row : predictionRepository.findLeaderboardTotals()) {
-            totals.merge((String) row[0], ((Number) row[1]).longValue(), Long::sum);
+            mergePoolTotal(totals, row);
         }
         for (Object[] row : groupStandingPredictionRepository.findLeaderboardTotals()) {
-            totals.merge((String) row[0], ((Number) row[1]).longValue(), Long::sum);
+            mergePoolTotal(totals, row);
         }
         for (Object[] row : finalPredictionRepository.findLeaderboardTotals()) {
-            totals.merge((String) row[0], ((Number) row[1]).longValue(), Long::sum);
+            mergePoolTotal(totals, row);
         }
 
-        List<Object[]> leaderboard = new ArrayList<>();
-        for (Map.Entry<String, Long> entry : totals.entrySet()) {
-            if (poolMemberRegistry.isMember(entry.getKey())) {
-                leaderboard.add(new Object[]{entry.getKey(), entry.getValue()});
-            }
-        }
+        return totals;
+    }
 
-        leaderboard.sort(Comparator.<Object[]>comparingLong(row -> ((Number) row[1]).longValue()).reversed());
-        return leaderboard;
+    private void mergePoolTotal(Map<String, Long> totals, Object[] row) {
+        String username = (String) row[0];
+        if (poolMemberRegistry.isMember(username)) {
+            totals.merge(username, ((Number) row[1]).longValue(), Long::sum);
+        }
     }
 
     @Transactional(readOnly = true)
