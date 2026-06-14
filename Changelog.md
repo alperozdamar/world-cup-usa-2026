@@ -30,6 +30,7 @@ All notable changes to this project will be documented in this file.
   - WC-0033 - Header countdown tracks next upcoming match (days/hours/minutes) instead of tournament start
   - WC-0034 - My Predictions sidebar shows exact score and correct W/D/L counts for scored matches
   - WC-0035 - Leaderboard player rows show exact scores, correct W/D/L, and missed match counts
+  - WC-0036 - Login "Keep me signed in for 30 days" with persistent remember-me across redeploys
 
 ## [v0.0.2-PRERELEASE]
   - WC-0005 - Implemented approved scoring rules (5/2/+1, knockout multipliers) in PointsServiceImpl

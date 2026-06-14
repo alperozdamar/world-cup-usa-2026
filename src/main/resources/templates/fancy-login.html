@@ -32,6 +32,7 @@
     </div>
     <div class="card-body p-4">
         <form th:action="@{/authenticateTheUser}" method="post">
+            <input type="hidden" th:if="${_csrf != null}" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
             <div th:if="${param.error}" class="alert alert-danger">Invalid username or password.</div>
             <div th:if="${param.logout}" class="alert alert-success">You have been logged out.</div>
             <div class="mb-3">
@@ -41,6 +42,10 @@
             <div class="mb-3">
                 <label class="form-label">Password</label>
                 <input type="password" name="password" class="form-control" required>
+            </div>
+            <div class="form-check mb-3">
+                <input class="form-check-input" type="checkbox" name="remember-me" id="remember-me" checked>
+                <label class="form-check-label" for="remember-me">Keep me signed in for 30 days</label>
             </div>
             <button type="submit" class="btn btn-success w-100">Sign In</button>
         </form>
