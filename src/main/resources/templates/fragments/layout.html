@@ -38,13 +38,20 @@
 <div th:fragment="player-match-stats(stats)" class="player-match-stats">
     <div class="player-match-stat">
         <span class="player-match-stat-value" th:text="${stats.exactScores()}">0</span>
-        <span class="player-match-stat-label">Exact scores</span>
+        <span class="player-match-stat-label">Exact score</span>
     </div>
     <div class="player-match-stat">
         <span class="player-match-stat-value" th:text="${stats.correctOutcomes()}">0</span>
-        <span class="player-match-stat-label">Correct W/D/L</span>
+        <span class="player-match-stat-label">Correct result</span>
     </div>
-    <p class="player-match-stat-note mb-0">Scored matches only · W/D/L includes exact scores</p>
+    <p class="player-match-stat-note mb-0">Scored matches only · results include exact scores</p>
+</div>
+<div th:fragment="match-stats-summary(stats)" class="leaderboard-match-stats small text-muted">
+    <span th:text="${stats.exactScores()} + ' ' + (${stats.exactScores()} == 1 ? 'exact score' : 'exact scores')">0 exact scores</span>
+    ·
+    <span th:text="${stats.correctOutcomes()} + ' ' + (${stats.correctOutcomes()} == 1 ? 'correct result' : 'correct results')">0 correct results</span>
+    ·
+    <span th:text="${stats.missedGames()} + ' ' + (${stats.missedGames()} == 1 ? 'miss' : 'misses')">0 misses</span>
 </div>
 <div th:fragment="world-clocks" class="world-clocks-bar">
     <div class="container">

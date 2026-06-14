@@ -3,6 +3,8 @@ package com.alper.worldcup.service;
 import com.alper.worldcup.dao.PredictionRepository;
 import com.alper.worldcup.entity.Match;
 import com.alper.worldcup.entity.Prediction;
+import java.util.HashMap;
+import java.util.Map;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -10,30 +12,56 @@ import org.springframework.transaction.annotation.Transactional;
 public class UserMatchStatsService {
 
     private final PredictionRepository predictionRepository;
+    private final PoolMemberRegistry poolMemberRegistry;
     private final PointsServiceImpl pointsService;
 
     public UserMatchStatsService(PredictionRepository predictionRepository,
+                                 PoolMemberRegistry poolMemberRegistry,
                                  PointsServiceImpl pointsService) {
         this.predictionRepository = predictionRepository;
+        this.poolMemberRegistry = poolMemberRegistry;
         this.pointsService = pointsService;
     }
 
     @Transactional(readOnly = true)
     public UserMatchStats getStats(String username) {
-        int exactScores = 0;
-        int correctOutcomes = 0;
-
+        StatsAccumulator accumulator = new StatsAccumulator();
         for (Prediction prediction : predictionRepository.findScoredByUsernameWithMatch(username)) {
-            Match match = prediction.getMatch();
-            if (isExactScore(prediction, match)) {
-                exactScores++;
-            }
-            if (hasCorrectOutcome(prediction, match)) {
-                correctOutcomes++;
+            accumulate(accumulator, prediction, prediction.getMatch());
+        }
+        return accumulator.toStats();
+    }
+
+    @Transactional(readOnly = true)
+    public Map<String, UserMatchStats> getStatsForPoolMembers() {
+        Map<String, StatsAccumulator> accumulators = new HashMap<>();
+        for (PoolMember member : poolMemberRegistry.getMembers()) {
+            accumulators.put(member.username(), new StatsAccumulator());
+        }
+
+        for (Prediction prediction : predictionRepository.findAllScoredWithMatch()) {
+            StatsAccumulator accumulator = accumulators.get(prediction.getUsername());
+            if (accumulator != null) {
+                accumulate(accumulator, prediction, prediction.getMatch());
             }
         }
 
-        return new UserMatchStats(exactScores, correctOutcomes);
+        Map<String, UserMatchStats> stats = HashMap.newHashMap(accumulators.size());
+        for (Map.Entry<String, StatsAccumulator> entry : accumulators.entrySet()) {
+            stats.put(entry.getKey(), entry.getValue().toStats());
+        }
+        return stats;
+    }
+
+    private void accumulate(StatsAccumulator accumulator, Prediction prediction, Match match) {
+        if (isExactScore(prediction, match)) {
+            accumulator.exactScores++;
+        }
+        if (hasCorrectOutcome(prediction, match)) {
+            accumulator.correctOutcomes++;
+        } else {
+            accumulator.missedGames++;
+        }
     }
 
     private boolean isExactScore(Prediction prediction, Match match) {
@@ -47,5 +75,15 @@ public class UserMatchStatsService {
                 prediction.getAwayScoreGuess(),
                 match.getHomeScoreActual(),
                 match.getAwayScoreActual()) > 0;
+    }
+
+    private static final class StatsAccumulator {
+        private int exactScores;
+        private int correctOutcomes;
+        private int missedGames;
+
+        private UserMatchStats toStats() {
+            return new UserMatchStats(exactScores, correctOutcomes, missedGames);
+        }
     }
 }

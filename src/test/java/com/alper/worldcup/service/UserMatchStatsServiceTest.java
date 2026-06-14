@@ -10,6 +10,7 @@ import com.alper.worldcup.entity.Prediction;
 import com.alper.worldcup.entity.Team;
 import java.time.Instant;
 import java.util.List;
+import java.util.Map;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -26,24 +27,47 @@ class UserMatchStatsServiceTest {
 
     @BeforeEach
     void setUp() {
-        service = new UserMatchStatsService(predictionRepository, new PointsServiceImpl());
+        service = new UserMatchStatsService(
+                predictionRepository,
+                new PoolMemberRegistry("default"),
+                new PointsServiceImpl());
     }
 
     @Test
-    void countsExactScoresAndCorrectOutcomesSeparately() {
+    void countsExactScoresCorrectOutcomesAndMissedGames() {
         when(predictionRepository.findScoredByUsernameWithMatch("alper"))
                 .thenReturn(List.of(
-                        prediction(1, 2, 2, 2, 2),
-                        prediction(2, 2, 1, 3, 1),
-                        prediction(3, 1, 1, 2, 1)));
+                        prediction("alper", 1, 2, 2, 2, 2),
+                        prediction("alper", 2, 2, 1, 3, 1),
+                        prediction("alper", 3, 1, 1, 2, 1)));
 
         UserMatchStats stats = service.getStats("alper");
 
         assertEquals(1, stats.exactScores());
         assertEquals(2, stats.correctOutcomes());
+        assertEquals(1, stats.missedGames());
     }
 
-    private Prediction prediction(int matchId, int guessHome, int guessAway, int actualHome, int actualAway) {
+    @Test
+    void buildsStatsForAllPoolMembers() {
+        when(predictionRepository.findAllScoredWithMatch()).thenReturn(List.of(
+                prediction("alper", 1, 2, 2, 2, 2),
+                prediction("gonenc", 2, 1, 1, 2, 1)));
+
+        Map<String, UserMatchStats> statsByUser = service.getStatsForPoolMembers();
+
+        assertEquals(1, statsByUser.get("alper").exactScores());
+        assertEquals(0, statsByUser.get("gonenc").exactScores());
+        assertEquals(1, statsByUser.get("gonenc").missedGames());
+        assertEquals(0, statsByUser.get("kubilay").exactScores());
+    }
+
+    private Prediction prediction(String username,
+                                  int matchId,
+                                  int guessHome,
+                                  int guessAway,
+                                  int actualHome,
+                                  int actualAway) {
         Match match = new Match();
         match.setId(matchId);
         match.setStage(MatchStage.GROUP_STAGE);
@@ -54,7 +78,7 @@ class UserMatchStatsServiceTest {
         match.setAwayScoreActual(actualAway);
 
         Prediction prediction = new Prediction();
-        prediction.setUsername("alper");
+        prediction.setUsername(username);
         prediction.setMatch(match);
         prediction.setHomeScoreGuess(guessHome);
         prediction.setAwayScoreGuess(guessAway);

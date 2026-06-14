@@ -228,6 +228,7 @@ public class PredictionController {
         ZoneId zoneId = userProfileService.getUserZoneId(principal.getName());
         model.addAttribute("leaderboard", leaderboard);
         model.addAttribute("displayNames", userProfileService.getDisplayNamesForUsernames(usernames));
+        model.addAttribute("matchStatsByUsername", userMatchStatsService.getStatsForPoolMembers());
         model.addAttribute("categories", birdWatchService.buildCategories());
         model.addAttribute("computedAtLabel", ZonedDateTime.now(zoneId)
                 .format(DateTimeFormatter.ofPattern("EEE, MMM d yyyy HH:mm z")));

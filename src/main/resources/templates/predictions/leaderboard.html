@@ -26,6 +26,7 @@
                     <div>
                         <span th:text="${displayNames[row[0]]}">Player</span>
                         <span class="small text-muted" th:text="'(' + ${row[0]} + ')'"></span>
+                        <div th:replace="~{fragments/layout :: match-stats-summary(stats=${matchStatsByUsername[row[0]]})}"></div>
                     </div>
                 </div>
             </td>
