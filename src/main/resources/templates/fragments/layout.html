@@ -45,6 +45,15 @@
         <span class="player-match-stat-value" th:text="${stats.correctOutcomes()}">0</span>
         <span class="player-match-stat-label">Correct result</span>
     </div>
+    <div class="player-match-stat">
+        <span class="player-match-stat-value" th:text="${stats.missedGames()}">0</span>
+        <span class="player-match-stat-label">Misses</span>
+    </div>
+    <div class="player-match-stat">
+        <span class="player-match-stat-value"
+              th:text="${stats.successRatePercent() != null ? stats.successRatePercent() + '%' : '—'}">—</span>
+        <span class="player-match-stat-label">Success rate</span>
+    </div>
     <p class="player-match-stat-note mb-0">Scored matches only · results include exact scores</p>
 </div>
 <div th:fragment="match-stats-summary(stats)" class="leaderboard-match-stats small text-muted">
@@ -53,6 +62,10 @@
     <span th:text="${stats.correctOutcomes()} + ' ' + (${stats.correctOutcomes()} == 1 ? 'correct result' : 'correct results')">0 correct results</span>
     ·
     <span th:text="${stats.missedGames()} + ' ' + (${stats.missedGames()} == 1 ? 'miss' : 'misses')">0 misses</span>
+    ·
+    <span th:if="${stats.successRatePercent() != null}"
+          th:text="${stats.successRatePercent()} + '% success rate'">45% success rate</span>
+    <span th:unless="${stats.successRatePercent() != null}">no scored matches yet</span>
 </div>
 <div th:fragment="world-clocks" class="world-clocks-bar">
     <div class="container">
