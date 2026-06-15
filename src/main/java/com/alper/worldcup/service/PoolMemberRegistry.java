@@ -43,6 +43,7 @@ public class PoolMemberRegistry {
                 new PoolMember("kubilay", "Kubilay Kahraman", false),
                 new PoolMember("ali", "Ali Sahin", false),
                 new PoolMember("sadik", "Sadik Demirdogen", false),
-                new PoolMember("adem", "Adem Sari", false));
+                new PoolMember("adem", "Adem Sari", false),
+                new PoolMember("irem", "Irem Kahraman", false));
     }
 }

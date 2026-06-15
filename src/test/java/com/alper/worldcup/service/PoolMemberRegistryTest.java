@@ -13,9 +13,10 @@ class PoolMemberRegistryTest {
         PoolMemberRegistry registry = new PoolMemberRegistry("default");
 
         assertTrue(registry.isMember("gonenc"));
+        assertTrue(registry.isMember("irem"));
         assertTrue(registry.isMember("alper"));
         assertFalse(registry.isMember("emre"));
-        assertEquals(7, registry.getMembers().size());
+        assertEquals(8, registry.getMembers().size());
     }
 
     @Test
