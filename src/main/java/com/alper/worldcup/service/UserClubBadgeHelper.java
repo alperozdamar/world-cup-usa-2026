@@ -14,6 +14,7 @@ public class UserClubBadgeHelper {
             Map.entry("alper", new ClubBadge("Beşiktaş", "/images/bjk.gif")),
             Map.entry("tcan", new ClubBadge("Beşiktaş", "/images/bjk.gif")),
             Map.entry("kubilay", new ClubBadge("Beşiktaş", "/images/bjk.gif")),
+            Map.entry("irem", new ClubBadge("Beşiktaş", "/images/bjk.gif")),
             Map.entry("ali", new ClubBadge("Fenerbahçe", "/images/fb.png")),
             Map.entry("sadik", new ClubBadge("Fenerbahçe", "/images/fb.png")),
             Map.entry("gonenc", new ClubBadge("Galatasaray", "/images/gs.png")),

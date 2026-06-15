@@ -12,12 +12,14 @@ class UserClubBadgeHelperTest {
     private final UserClubBadgeHelper helper = new UserClubBadgeHelper();
 
     @Test
-    void returnsBesiktasForAlperTcanKubilay() {
+    void returnsBesiktasForAlperTcanKubilayIrem() {
         assertTrue(helper.hasClubBadge("alper"));
         assertEquals("Beşiktaş", helper.clubName("alper"));
         assertEquals("/images/bjk.gif", helper.imagePath("alper"));
         assertEquals("/images/bjk.gif", helper.imagePath("tcan"));
         assertEquals("/images/bjk.gif", helper.imagePath("kubilay"));
+        assertEquals("Beşiktaş", helper.clubName("irem"));
+        assertEquals("/images/bjk.gif", helper.imagePath("irem"));
     }
 
     @Test
