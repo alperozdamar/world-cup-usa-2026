@@ -10,22 +10,28 @@ if [[ -z "$INPUT" ]]; then
 fi
 
 CURRENT_VERSION=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)
+BASE_VERSION="${CURRENT_VERSION%%-*}"
+SUFFIX=""
+if [[ "$CURRENT_VERSION" == *-* ]]; then
+  SUFFIX="-${CURRENT_VERSION#*-}"
+fi
+
+IFS='.' read -r MAJOR MINOR PATCH <<<"$BASE_VERSION"
 
 if [[ "$INPUT" == "major" || "$INPUT" == "minor" || "$INPUT" == "patch" ]]; then
-  IFS='.' read -r MAJOR MINOR PATCH <<<"$CURRENT_VERSION"
   case "$INPUT" in
     major)
-      NEW_VERSION="$((MAJOR + 1)).0.0"
+      NEW_VERSION="$((MAJOR + 1)).0.0${SUFFIX}"
       ;;
     minor)
-      NEW_VERSION="$MAJOR.$((MINOR + 1)).0"
+      NEW_VERSION="$MAJOR.$((MINOR + 1)).0${SUFFIX}"
       ;;
     patch)
-      NEW_VERSION="$MAJOR.$MINOR.$((PATCH + 1))"
+      NEW_VERSION="$MAJOR.$MINOR.$((PATCH + 1))${SUFFIX}"
       ;;
   esac
 else
-  if [[ "$INPUT" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+  if [[ "$INPUT" =~ ^[0-9]+\.[0-9]+\.[0-9]+(-[A-Za-z0-9.-]+)?$ ]]; then
     NEW_VERSION="$INPUT"
   else
     echo "Invalid version format: $INPUT"

@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Changelog')}"></head>
+<body>
+<div th:replace="~{fragments/layout :: navbar}"></div>
+<div class="container">
+    <h2>Changelog</h2>
+    <p class="text-muted">What&rsquo;s new in each release.</p>
+    <div class="changelog-content">
+        <pre th:text="${changelogText}">Changelog</pre>
+    </div>
+</div>
+<div th:replace="~{fragments/layout :: footer}"></div>
+</body>
+</html>

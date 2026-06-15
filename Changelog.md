@@ -2,6 +2,10 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v0.0.4-PRERELEASE]
+  - WC-0037 - Mobile-friendly header: hamburger nav on small screens, compact clocks/ticker, no wasted blue space on iPhone
+  - WC-0038 - Remember-me startup fix: persistent_logins table managed via SQL; no crash when table already exists
+
 ## [v0.0.3-PRERELEASE]
   - WC-0009 - Prediction audit table and admin Audit page with optional player filter
   - WC-0010 - Production deploy workflow (build on PR, deploy on main only) and DEPLOY.md

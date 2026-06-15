@@ -11,7 +11,9 @@ import java.security.Principal;
 import java.time.Instant;
 import java.util.Collections;
 import java.util.List;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.info.BuildProperties;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ModelAttribute;
 
@@ -26,6 +28,9 @@ public class GlobalModelAttributes {
     @Value("${app.version:unknown}")
     private String appVersion;
 
+    @Autowired(required = false)
+    private BuildProperties buildProperties;
+
     public GlobalModelAttributes(MatchRepository matchRepository,
                                  LeaderboardService leaderboardService,
                                  UpcomingMatchTickerService upcomingMatchTickerService,
@@ -38,7 +43,14 @@ public class GlobalModelAttributes {
 
     @ModelAttribute("appVersion")
     public String appVersion() {
-        return appVersion;
+        if (buildProperties != null && buildProperties.getVersion() != null) {
+            return buildProperties.getVersion();
+        }
+        String version = appVersion;
+        if (version.startsWith("@") && version.endsWith("@")) {
+            return "dev";
+        }
+        return version;
     }
 
     @ModelAttribute("nextMatchKickoffUtc")
