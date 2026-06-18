@@ -7,6 +7,7 @@ import com.alper.worldcup.entity.MatchStage;
 import com.alper.worldcup.entity.Prediction;
 import com.alper.worldcup.entity.PredictionAuditAction;
 import java.time.Instant;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -33,7 +34,17 @@ public class PredictionService {
 
     @Transactional(readOnly = true)
     public List<Match> getGroupStageMatches() {
-        return matchRepository.findByStageWithTeams(MatchStage.GROUP_STAGE);
+        return sortGroupStageMatchesForList(
+                matchRepository.findByStageWithTeams(MatchStage.GROUP_STAGE),
+                Instant.now());
+    }
+
+    static List<Match> sortGroupStageMatchesForList(List<Match> matches, Instant now) {
+        return matches.stream()
+                .sorted(Comparator
+                        .comparing((Match match) -> match.hasStarted(now))
+                        .thenComparing(Match::getKickoffUtc))
+                .toList();
     }
 
     @Transactional(readOnly = true)
