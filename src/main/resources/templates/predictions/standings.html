@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Group Standings')}"></head>
+<body>
+<div th:replace="~{fragments/layout :: navbar}"></div>
+<div class="container">
+    <div class="mb-3">
+        <a th:href="@{/predictions/list}" class="text-decoration-none">&larr; Match predictions</a>
+        ·
+        <a th:href="@{/predictions/groups}" class="text-decoration-none">Group 1st &amp; 2nd picks</a>
+        ·
+        <a th:href="@{/predictions/knockout}" class="text-decoration-none">Knockout</a>
+    </div>
+
+    <h2>Group Standings</h2>
+    <p class="text-muted mb-4">
+        Live tables from admin match scores. Sorted by points, then goal difference, then goals scored.
+        Unplayed matches are not counted yet.
+    </p>
+
+    <div th:if="${#lists.isEmpty(groups)}" class="alert alert-info">
+        No groups loaded yet.
+    </div>
+
+    <div class="row g-4">
+        <div class="col-lg-6" th:each="group : ${groups}">
+            <div class="group-standings-card">
+                <h3 class="h5 group-standings-title" th:text="'Group ' + ${group.groupName()}">Group A</h3>
+                <div class="table-responsive">
+                    <table class="table table-sm group-standings-table mb-0">
+                        <thead>
+                        <tr>
+                            <th scope="col">#</th>
+                            <th scope="col">Team</th>
+                            <th scope="col" class="text-center">MP</th>
+                            <th scope="col" class="text-center">W</th>
+                            <th scope="col" class="text-center">D</th>
+                            <th scope="col" class="text-center">L</th>
+                            <th scope="col" class="text-center">GF</th>
+                            <th scope="col" class="text-center">GA</th>
+                            <th scope="col" class="text-center">GD</th>
+                            <th scope="col" class="text-center">Pts</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr th:each="row : ${group.rows()}"
+                            th:classappend="${row.rank() <= 2} ? ' group-standings-qualified' : ''">
+                            <td th:text="${row.rank()}">1</td>
+                            <td class="group-standings-team" th:text="${row.team().name}">Mexico</td>
+                            <td class="text-center" th:text="${row.played()}">0</td>
+                            <td class="text-center" th:text="${row.won()}">0</td>
+                            <td class="text-center" th:text="${row.drawn()}">0</td>
+                            <td class="text-center" th:text="${row.lost()}">0</td>
+                            <td class="text-center" th:text="${row.goalsFor()}">0</td>
+                            <td class="text-center" th:text="${row.goalsAgainst()}">0</td>
+                            <td class="text-center"
+                                th:text="${row.goalDifference() > 0 ? '+' + row.goalDifference() : row.goalDifference()}">0</td>
+                            <td class="text-center fw-semibold" th:text="${row.points()}">0</td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <p class="group-standings-note small text-muted mb-0">
+                    Top two rows highlighted (qualification zone).
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+<div th:replace="~{fragments/layout :: footer}"></div>
+</body>
+</html>

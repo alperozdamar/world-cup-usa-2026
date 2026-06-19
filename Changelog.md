@@ -6,6 +6,8 @@ All notable changes to this project will be documented in this file.
   - WC-0039 - Changelog page (/changelog) linked from footer version; Maven build-info for accurate version display
   - WC-0040 - Success rate % and misses on leaderboard stats and My Predictions profile card
   - WC-0041 - Group Stage Predictions: upcoming/open matches first, locked/started matches at the bottom
+  - WC-0042 - Group Standings page (/predictions/standings): live tables from admin-entered scores (MP/W/D/L/GF/GA/GD/Pts), top two highlighted; linked from Group Stage, Knockout, and My Predictions
+  - WC-0043 - Knockout predictions page (/predictions/knockout): bracket overview with 90′ score picks; draw picks include penalty shootout and team to advance; local dev bootstrap for UI testing
 
 ## [v0.0.4-PRERELEASE]
   - WC-0037 - Mobile-friendly header: hamburger nav on small screens, compact clocks/ticker, no wasted blue space on iPhone

@@ -10,6 +10,7 @@ import com.alper.worldcup.entity.Team;
 import com.alper.worldcup.service.BirdWatchService;
 import com.alper.worldcup.service.FinalPredictionService;
 import com.alper.worldcup.service.GroupStandingPredictionService;
+import com.alper.worldcup.service.GroupStandingsService;
 import com.alper.worldcup.service.HostPredictionService;
 import com.alper.worldcup.service.KnockoutRoundView;
 import com.alper.worldcup.service.KnockoutService;
@@ -43,6 +44,7 @@ public class PredictionController {
 
     private final PredictionService predictionService;
     private final GroupStandingPredictionService groupStandingPredictionService;
+    private final GroupStandingsService groupStandingsService;
     private final FinalPredictionService finalPredictionService;
     private final PeerPredictionService peerPredictionService;
     private final HostPredictionService hostPredictionService;
@@ -56,6 +58,7 @@ public class PredictionController {
 
     public PredictionController(PredictionService predictionService,
                                 GroupStandingPredictionService groupStandingPredictionService,
+                                GroupStandingsService groupStandingsService,
                                 FinalPredictionService finalPredictionService,
                                 PeerPredictionService peerPredictionService,
                                 HostPredictionService hostPredictionService,
@@ -68,6 +71,7 @@ public class PredictionController {
                                 Environment environment) {
         this.predictionService = predictionService;
         this.groupStandingPredictionService = groupStandingPredictionService;
+        this.groupStandingsService = groupStandingsService;
         this.finalPredictionService = finalPredictionService;
         this.peerPredictionService = peerPredictionService;
         this.hostPredictionService = hostPredictionService;
@@ -109,6 +113,12 @@ public class PredictionController {
             redirectAttributes.addFlashAttribute("errorMessage", ex.getMessage());
         }
         return "redirect:/predictions/list";
+    }
+
+    @GetMapping("/standings")
+    public String standings(Model model) {
+        model.addAttribute("groups", groupStandingsService.getAllGroupStandings());
+        return "predictions/standings";
     }
 
     @GetMapping("/knockout")

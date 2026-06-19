@@ -740,3 +740,42 @@ body.admin-page .leaderboard-ticker-bar {
     border-radius: 0.375rem;
     padding: 0.75rem 1rem;
 }
+
+.group-standings-card {
+    background: #fff;
+    border: 1px solid #dee2e6;
+    border-radius: 0.5rem;
+    padding: 1rem 1rem 0.75rem;
+    height: 100%;
+}
+
+.group-standings-title {
+    margin-bottom: 0.75rem;
+    font-weight: 700;
+}
+
+.group-standings-table thead th {
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    color: #6c757d;
+    border-bottom-width: 1px;
+}
+
+.group-standings-table td,
+.group-standings-table th {
+    vertical-align: middle;
+}
+
+.group-standings-team {
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.group-standings-qualified {
+    background: rgba(13, 110, 253, 0.06);
+}
+
+.group-standings-note {
+    margin-top: 0.5rem;
+}
