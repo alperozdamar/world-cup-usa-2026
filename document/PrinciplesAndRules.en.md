@@ -1,7 +1,7 @@
 # World Cup 2026 — Principles & Rules (Draft)
 
-**Status:** For review by the group before implementation in the app.  
-**Version:** Draft 1.0 · June 2026
+**Status:** Approved for group play · knockout extras documented on Rules page (scoring in code pending).  
+**Version:** Draft 1.1 · June 2026
 
 ---
 
@@ -38,7 +38,7 @@ Same rules for every match unless noted.
 
 **Maximum per match (recommended cap):** 6 points (5 exact, or 2 + 1 goal-diff bonus).
 
-### Knockout round multiplier (optional)
+### Knockout round multiplier (implemented)
 
 Multiply match points by round so late games still matter:
 
@@ -51,7 +51,31 @@ Multiply match points by round so late games still matter:
 | Third place | ×1.5 |
 | Final | ×2.0 |
 
-Round to nearest whole point after multiplying.
+Round to nearest whole point after multiplying. Applied to 90′ score base points and knockout extras below.
+
+---
+
+## Scoring — knockout stage predictions (documented on Rules page; penalty/advancer scoring not yet in code)
+
+Enter picks at `/predictions/knockout`. Predict **regular time (90′)** only — not extra time.
+
+**How to pick**
+- If your predicted 90′ score is **not** a draw, the leading team advances automatically.
+- If your predicted 90′ score **is** a draw, also pick **Penalty shootout?** (Yes/No) and **who advances** (winner after extra time / penalties in the real match).
+- Locks at kickoff (UTC), same as group stage. Opens when both teams are confirmed for that match.
+
+**90′ score** — same table as group stage (5 / 2 / +1 / 0, cap 6 base), then × round multiplier.
+
+**Knockout extras** — only when the **real** match is level at 90′:
+
+| Pick | Points | Notes |
+|------|--------|--------|
+| Correct **Penalty shootout?** (Yes / No) | **+1** | Only if you predicted a draw at 90′ |
+| Correct **team to advance** | **+2** | Wrong advancer = 0 |
+
+Example: pick 1–1, penalties Yes, Brazil advances. Actual 1–1, penalties Yes, Brazil advances → 5 + 1 + 2 = 8 base → ×1.5 in quarter-final = **12 points**. If actual is 2–1, only the 90′ score table applies.
+
+The bracket overview shows provisional team names from current group standings plus fixture slot codes (1A, 2F, W73, etc.).
 
 ---
 
@@ -85,15 +109,12 @@ Maximum **15 points** if both champion and runner-up are correct. Example: final
 
 ---
 
-## Proposed scoring — other extras (not yet implemented)
+## Not planned (for now)
 
-| Pick | Points | Lock |
-|------|--------|------|
-| **Knockout match winner** (not score) | 3 | Kickoff |
-| **Reach semi-final** (pre–Round of 32) | 5 | Before Round of 32 |
-| **Reach final** | 8 | Before Round of 32 |
-
-We **do not** recommend scoring “best third-place” qualifiers unless the whole group wants high complexity.
+| Pick | Reason |
+|------|--------|
+| **Reach semi-final / reach final** (pre–Round of 32) | Covered by final prediction and match-by-match picks |
+| **Best third-place** qualifiers | Too complex unless the whole group wants it |
 
 ---
 
@@ -110,18 +131,20 @@ We **do not** recommend scoring “best third-place” qualifiers unless the who
 
 - Enter group 1st/2nd picks **before each group's first match**
 - Enter final champion & runner-up **before tournament kickoff**
-- Enter and update match predictions **before kickoff**  
+- Enter and update group-stage and knockout match predictions **before kickoff**
+- For knockout draws at 90′, pick penalty shootout and advancer before kickoff
 - Set your **timezone** in profile so kickoff times are clear  
 - Do not share accounts  
 - Accept admin-entered results as final for scoring
 
 ## Admin responsibilities
 
-- Enter actual match scores promptly after matches
+- Enter actual **90′** match scores promptly after matches
+- For knockout matches level at 90′, record whether the match went to **penalties** and who **advanced**
 - Enter group 1st/2nd results after each group finishes
 - Enter the final champion and runner-up after the final is played  
 - Do not change a result once agreed unless FIFA correction  
-- Enable knockout / bracket picks only when teams are known
+- Enable knockout picks when teams are confirmed for each match
 
 ---
 
@@ -140,10 +163,11 @@ Please comment before we implement in code:
 
 - [x] Include group winner/runner-up picks yes/no? **Yes — implemented**
 - [x] Final champion & runner-up pick (10 / 5 / 3 pts)? **Yes — implemented**
-- [ ] Use knockout multiplier yes/no?  
+- [x] Use knockout multiplier? **Yes — implemented for 90′ score**
+- [x] Knockout penalty (+1) and advancer (+2) when level at 90′? **Yes — on Rules page; scoring in code pending**
 - [ ] Daily “round leader” +1 bonus yes/no?  
 - [ ] Global lock for all pre-tournament picks: opening match or per group?  
 
 ---
 
-*Once approved, these rules will be implemented in `PointsServiceImpl` and shown on a “Rules” page in the app.*
+*Group-stage and final scoring are in `PointsServiceImpl`. Knockout 90′ score uses the same logic with round multipliers. Penalty and advancer bonuses are documented on the Rules page and pending implementation.*

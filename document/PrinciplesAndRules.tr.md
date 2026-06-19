@@ -1,7 +1,7 @@
 # Dünya Kupası 2026 — İlkeler ve Kurallar (Taslak)
 
-**Durum:** Uygulamaya geçmeden önce arkadaş grubunun incelemesi için.  
-**Sürüm:** Taslak 1.0 · Haziran 2026
+**Durum:** Grup oyunu için onaylı · eleme ekstraları Kurallar sayfasında (puanlama kodu bekliyor).  
+**Sürüm:** Taslak 1.1 · Haziran 2026
 
 ---
 
@@ -38,7 +38,7 @@ Aksi yazılmadıkça her maç için aynı kurallar.
 
 **Maç başına üst sınır (öneri):** 6 puan (5 tam skor veya 2 + 1 averaj bonusu).
 
-### Eleme turu çarpanı (isteğe bağlı)
+### Eleme turu çarpanı (uygulandı)
 
 Geç turların daha değerli olması için maç puanını tura göre çarp:
 
@@ -51,7 +51,31 @@ Geç turların daha değerli olması için maç puanını tura göre çarp:
 | Üçüncülük | ×1,5 |
 | Final | ×2,0 |
 
-Çarpımdan sonra en yakın tam sayıya yuvarla.
+Çarpımdan sonra en yakın tam sayıya yuvarla. 90′ skor tabanı ve aşağıdaki eleme ekstralarına uygulanır.
+
+---
+
+## Puanlama — eleme aşaması tahminleri (Kurallar sayfasında; penaltı/ilerleyen puanlaması henüz kodda değil)
+
+Tahminler: `/predictions/knockout`. Sadece **normal süre (90′)** skoru — uzatma dahil değil.
+
+**Nasıl tahmin edilir**
+- 90′ tahminin **beraberlik değilse**, önde olan takım otomatik ilerler.
+- 90′ tahminin **beraberlikse**, ayrıca **Penaltı atışları?** (Evet/Hayır) ve **kim ilerler** (gerçek maçta uzatma/penaltı sonrası kazanan) seçilir.
+- Grup aşaması gibi başlama vuruşunda (UTC) kilitlenir. Her iki takım da netleşince açılır.
+
+**90′ skoru** — grup aşaması ile aynı tablo (5 / 2 / +1 / 0, taban en fazla 6), sonra × tur çarpanı.
+
+**Eleme ekstraları** — yalnızca **gerçek** maç 90′da **berabere** bittiğinde:
+
+| Tahmin | Puan | Not |
+|--------|------|-----|
+| Doğru **Penaltı atışları?** (Evet / Hayır) | **+1** | Sadece 90′da beraberlik tahmin ettiysen |
+| Doğru **ilerleyen takım** | **+2** | Yanlış takım = 0 |
+
+Örnek: 1–1, penaltı Evet, Brezilya ilerler. Gerçek 1–1, penaltı Evet, Brezilya ilerler → 5 + 1 + 2 = 8 taban → çeyrek finalde ×1,5 = **12 puan**. Gerçek skor 2–1 ise sadece 90′ skor tablosu geçerli.
+
+Bracket özeti, güncel grup puan durumundan ve fikstür slot kodlarından (1A, 2F, W73 vb.) takım adlarını gösterir.
 
 ---
 
@@ -85,15 +109,12 @@ Her iki tahmin de doğruysa en fazla **15 puan**. Örnek: final Türkiye (şampi
 
 ---
 
-## Önerilen puanlama — diğer ekstralar (henüz uygulanmadı)
+## Planlanmıyor (şimdilik)
 
-| Tahmin | Puan | Kilit |
-|--------|------|--------|
-| **Eleme maçı galibi** (skor değil) | 3 | Başlama vuruşu |
-| **Yarı finale çıkma** (Son 32 öncesi) | 5 | Son 32 öncesi |
-| **Finale çıkma** | 8 | Son 32 öncesi |
-
-“En iyi üçüncüler” tahminini, grup özellikle istemedikçe önermiyoruz (karmaşık).
+| Tahmin | Gerekçe |
+|--------|---------|
+| **Yarı finale / finale çıkma** (Son 32 öncesi) | Final tahmini ve maç maç tahminlerle karşılanıyor |
+| **En iyi üçüncüler** | Grup istemedikçe fazla karmaşık |
 
 ---
 
@@ -110,18 +131,20 @@ Her iki tahmin de doğruysa en fazla **15 puan**. Örnek: final Türkiye (şampi
 
 - Grup 1./2. tahminlerini **her grubun ilk maçından önce** gir
 - Final şampiyon ve ikinci tahminini **turnuva başlamadan önce** gir
-- Maç skoru tahminlerini **başlama vuruşundan önce** gir ve güncelle  
+- Grup ve eleme maç skoru tahminlerini **başlama vuruşundan önce** gir ve güncelle
+- Elemede 90′ beraberlik tahmininde penaltı ve ilerleyen takımı başlamadan önce seç
 - Profilde **saat dilimini** ayarla  
 - Hesap paylaşma  
 - Puanlama için admin skorlarını kabul et
 
 ## Admin sorumlulukları
 
-- Maçlar bitince skorları zamanında gir
+- Maçlar bitince **90′** skorlarını zamanında gir
+- Elemede 90′ beraberlikte **penaltı** olup olmadığını ve **kimin ilerlediğini** kaydet
 - Grup 1./2. sonuçlarını grup bittikten sonra gir
 - Final şampiyon ve ikinciyi final oynandıktan sonra gir  
 - FIFA düzeltmesi yoksa sonucu değiştirme  
-- Knockout / bracket tahminlerini sadece takımlar belli olunca aç
+- Eleme tahminlerini maç takımları netleşince aç
 
 ---
 
@@ -140,10 +163,11 @@ Koda geçmeden önce lütfen yorumlayın:
 
 - [x] Grup birincisi / ikincisi tahminleri olsun mu? **Evet — uygulandı**
 - [x] Final şampiyon / ikinci tahmini (10 / 5 / 3 puan)? **Evet — uygulandı**
-- [ ] Eleme turu çarpanı kullanılsın mı?  
+- [x] Eleme turu çarpanı kullanılsın mı? **Evet — 90′ skor için uygulandı**
+- [x] Eleme penaltı (+1) ve ilerleyen (+2), 90′ beraberlikte? **Evet — Kurallar sayfasında; kod bekliyor**
 - [ ] Günlük “tur lideri” +1 bonus olsun mu?  
 - [ ] Ön turnuva tahminleri: tek kilit (açılış) mi, grup grup mı?  
 
 ---
 
-*Onaylandıktan sonra bu kurallar `PointsServiceImpl` içinde uygulanacak ve uygulamada bir “Kurallar” sayfasında gösterilecek.*
+*Grup ve final puanlaması `PointsServiceImpl` içinde. Eleme 90′ skoru aynı mantık + tur çarpanı. Penaltı ve ilerleyen bonusları Kurallar sayfasında; kod uygulaması bekliyor.*

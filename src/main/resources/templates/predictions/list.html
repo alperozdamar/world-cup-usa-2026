@@ -52,32 +52,30 @@
             <div th:if="${successMessage}" class="alert alert-success" th:text="${successMessage}"></div>
             <div th:if="${errorMessage}" class="alert alert-danger" th:text="${errorMessage}"></div>
 
-            <div class="table-responsive">
-                <table class="table table-striped table-hover align-middle">
+            <div class="table-responsive predictions-list-wrap">
+                <table class="table table-striped table-hover align-middle predictions-list-table">
                     <thead class="table-dark">
                     <tr>
                         <th>Date</th>
                         <th>Time</th>
-                        <th>Group</th>
                         <th>Match</th>
                         <th>Your Guess</th>
-                        <th>Status</th>
-                        <th>Locks in</th>
+                        <th class="predictions-list-locks-col">Locks in</th>
                         <th></th>
+                        <th class="predictions-list-status-col">Status</th>
                     </tr>
                     </thead>
                     <tbody>
                     <tr th:each="match : ${matches}">
-                        <td th:text="${@matchViewHelper.formatKickoffDate(match, zoneId)}"></td>
-                        <td th:text="${@matchViewHelper.formatKickoffTime(match, zoneId)}"></td>
-                        <td th:text="'Group ' + ${match.groupName}"></td>
-                        <td>
+                        <td class="predictions-list-date" th:text="${@matchViewHelper.formatKickoffDate(match, zoneId)}"></td>
+                        <td class="predictions-list-time" th:text="${@matchViewHelper.formatKickoffTime(match, zoneId)}"></td>
+                        <td class="predictions-list-match">
                             <span th:text="${match.homeDisplayName}"></span>
                             vs
                             <span th:text="${match.awayDisplayName}"></span>
-                            <div class="small text-muted" th:text="${match.venue} + ', ' + ${match.city}"></div>
+                            <div class="small text-muted d-none d-md-block" th:text="${match.venue} + ', ' + ${match.city}"></div>
                         </td>
-                        <td>
+                        <td class="predictions-list-guess">
                             <span th:if="${predictions[match.id] != null}"
                                   th:text="${predictions[match.id].homeScoreGuess} + ' - ' + ${predictions[match.id].awayScoreGuess}"></span>
                             <span th:if="${predictions[match.id] == null}" class="text-muted">—</span>
@@ -85,38 +83,38 @@
                                 Actual:
                                 <span th:text="${match.homeScoreActual} + ' - ' + ${match.awayScoreActual}"></span>
                                 <span th:if="${predictions[match.id]?.points != null}">
-                                    · Points: <span th:text="${predictions[match.id].points}"></span>
+                                    · <span th:text="${predictions[match.id].points}"></span> pts
                                 </span>
                             </div>
                         </td>
-                        <td>
-                            <span class="badge"
-                                  th:classappend="${@matchViewHelper.isEditable(match)} ? ' bg-success' : ' bg-secondary'"
-                                  th:text="${@matchViewHelper.statusLabel(match, predictions[match.id])}">
-                            </span>
-                        </td>
-                        <td>
+                        <td class="predictions-list-locks-col">
                             <span th:if="${@matchViewHelper.isEditable(match)}"
-                                  class="match-lock-countdown small text-nowrap"
+                                  class="match-lock-countdown text-nowrap"
                                   th:attr="data-kickoff=${@matchViewHelper.formatKickoffUtcIso(match)}">…</span>
                             <span th:if="${!@matchViewHelper.isEditable(match) and @matchViewHelper.hasStarted(match)}"
                                   class="small text-muted">Started</span>
                             <span th:if="${!@matchViewHelper.isEditable(match) and !@matchViewHelper.hasStarted(match)}"
                                   class="small text-muted">—</span>
                         </td>
-                        <td>
+                        <td class="predictions-list-form-col">
                             <form th:if="${@matchViewHelper.isEditable(match)}"
-                                  th:action="@{/predictions/save}" method="post" class="d-flex gap-1">
+                                  th:action="@{/predictions/save}" method="post" class="d-flex gap-1 predictions-list-form">
                                 <input type="hidden" name="matchId" th:value="${match.id}">
-                                <input type="number" name="homeScore" min="0" max="20" class="form-control form-control-sm"
-                                       style="width:4rem" required
+                                <input type="number" name="homeScore" min="0" max="20" class="form-control form-control-sm predictions-score-input"
+                                       required
                                        th:value="${predictions[match.id]?.homeScoreGuess}">
-                                <span class="align-self-center">-</span>
-                                <input type="number" name="awayScore" min="0" max="20" class="form-control form-control-sm"
-                                       style="width:4rem" required
+                                <span class="align-self-center predictions-score-sep">-</span>
+                                <input type="number" name="awayScore" min="0" max="20" class="form-control form-control-sm predictions-score-input"
+                                       required
                                        th:value="${predictions[match.id]?.awayScoreGuess}">
-                                <button type="submit" class="btn btn-sm btn-primary">Save</button>
+                                <button type="submit" class="btn btn-sm btn-primary predictions-save-btn">Save</button>
                             </form>
+                        </td>
+                        <td class="predictions-list-status-col">
+                            <span class="badge predictions-status-badge"
+                                  th:classappend="${@matchViewHelper.isEditable(match)} ? ' bg-success' : ' bg-secondary'"
+                                  th:text="${@matchViewHelper.statusLabel(match, predictions[match.id])}">
+                            </span>
                         </td>
                     </tr>
                     </tbody>

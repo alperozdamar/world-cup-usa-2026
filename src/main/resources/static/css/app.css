@@ -795,3 +795,94 @@ body.admin-page .leaderboard-ticker-bar {
 .group-standings-note {
     margin-top: 0.5rem;
 }
+
+.predictions-score-input {
+    width: 4rem;
+}
+
+@media (max-width: 767.98px) {
+    .predictions-list-table {
+        font-size: 0.82rem;
+    }
+
+    .predictions-list-table thead th {
+        font-size: 0.68rem;
+        padding: 0.35rem 0.3rem;
+        white-space: nowrap;
+    }
+
+    .predictions-list-table tbody td {
+        padding: 0.4rem 0.3rem;
+        vertical-align: middle;
+    }
+
+    .predictions-list-date,
+    .predictions-list-time {
+        font-size: 0.72rem;
+        white-space: nowrap;
+    }
+
+    .predictions-list-match {
+        min-width: 6.5rem;
+        max-width: 8.5rem;
+        line-height: 1.25;
+    }
+
+    .predictions-list-guess {
+        white-space: nowrap;
+    }
+
+    .predictions-list-locks-col {
+        font-size: 0.65rem;
+        white-space: nowrap;
+        padding-left: 0.15rem !important;
+        padding-right: 0.15rem !important;
+    }
+
+    .predictions-list-table .match-lock-countdown {
+        font-size: 0.65rem;
+        font-variant-numeric: tabular-nums;
+        color: #6c757d;
+    }
+
+    .predictions-list-form-col {
+        padding-left: 0.15rem !important;
+        padding-right: 0.15rem !important;
+    }
+
+    .predictions-list-form {
+        gap: 0.15rem !important;
+    }
+
+    .predictions-score-input {
+        width: 2.35rem;
+        min-width: 2.35rem;
+        padding-left: 0.25rem;
+        padding-right: 0.25rem;
+        font-size: 0.78rem;
+    }
+
+    .predictions-score-sep {
+        font-size: 0.75rem;
+    }
+
+    .predictions-save-btn {
+        padding: 0.2rem 0.35rem;
+        font-size: 0.72rem;
+    }
+
+    .predictions-list-status-col {
+        text-align: right;
+        white-space: nowrap;
+        padding-left: 0.2rem !important;
+    }
+
+    .predictions-list-table thead .predictions-list-status-col {
+        text-align: right;
+    }
+
+    .predictions-status-badge {
+        font-size: 0.62rem;
+        font-weight: 600;
+    }
+}

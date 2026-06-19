@@ -9,6 +9,8 @@ All notable changes to this project will be documented in this file.
   - WC-0042 - Group Standings page (/predictions/standings): live tables from admin-entered scores (MP/W/D/L/GF/GA/GD/Pts), top two highlighted; linked from Group Stage, Knockout, and My Predictions
   - WC-0043 - Knockout predictions page (/predictions/knockout): bracket overview with 90′ score picks; draw picks include penalty shootout and team to advance; local dev bootstrap for UI testing
   - WC-0044 - Knockout bracket overview: Round of 32 team names from current group standings; fixture slot codes (1A, 2F, W73, etc.) shown beside each team; placeholders restored from fixtures on startup
+  - WC-0045 - Rules page: knockout stage section (90′ score, +1 penalty shootout, +2 correct advancer when level at 90′, round multipliers)
+  - WC-0046 - Group Stage Predictions mobile layout: Group column removed; Status rightmost; smaller Locks in countdown; compact score inputs
 
 ## [v0.0.4-PRERELEASE]
   - WC-0037 - Mobile-friendly header: hamburger nav on small screens, compact clocks/ticker, no wasted blue space on iPhone
