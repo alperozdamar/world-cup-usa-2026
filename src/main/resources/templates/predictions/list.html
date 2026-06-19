@@ -60,9 +60,9 @@
                         <th>Time</th>
                         <th>Match</th>
                         <th>Your Guess</th>
-                        <th class="predictions-list-locks-col">Locks in</th>
                         <th></th>
                         <th class="predictions-list-status-col">Status</th>
+                        <th class="predictions-list-locks-col">Locks in</th>
                     </tr>
                     </thead>
                     <tbody>
@@ -87,15 +87,6 @@
                                 </span>
                             </div>
                         </td>
-                        <td class="predictions-list-locks-col">
-                            <span th:if="${@matchViewHelper.isEditable(match)}"
-                                  class="match-lock-countdown text-nowrap"
-                                  th:attr="data-kickoff=${@matchViewHelper.formatKickoffUtcIso(match)}">…</span>
-                            <span th:if="${!@matchViewHelper.isEditable(match) and @matchViewHelper.hasStarted(match)}"
-                                  class="small text-muted">Started</span>
-                            <span th:if="${!@matchViewHelper.isEditable(match) and !@matchViewHelper.hasStarted(match)}"
-                                  class="small text-muted">—</span>
-                        </td>
                         <td class="predictions-list-form-col">
                             <form th:if="${@matchViewHelper.isEditable(match)}"
                                   th:action="@{/predictions/save}" method="post" class="d-flex gap-1 predictions-list-form">
@@ -115,6 +106,15 @@
                                   th:classappend="${@matchViewHelper.isEditable(match)} ? ' bg-success' : ' bg-secondary'"
                                   th:text="${@matchViewHelper.statusLabel(match, predictions[match.id])}">
                             </span>
+                        </td>
+                        <td class="predictions-list-locks-col">
+                            <span th:if="${@matchViewHelper.isEditable(match)}"
+                                  class="match-lock-countdown text-nowrap"
+                                  th:attr="data-kickoff=${@matchViewHelper.formatKickoffUtcIso(match)}">…</span>
+                            <span th:if="${!@matchViewHelper.isEditable(match) and @matchViewHelper.hasStarted(match)}"
+                                  class="small text-muted">Started</span>
+                            <span th:if="${!@matchViewHelper.isEditable(match) and !@matchViewHelper.hasStarted(match)}"
+                                  class="small text-muted">—</span>
                         </td>
                     </tr>
                     </tbody>

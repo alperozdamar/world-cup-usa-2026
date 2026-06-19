@@ -835,8 +835,13 @@ body.admin-page .leaderboard-ticker-bar {
     .predictions-list-locks-col {
         font-size: 0.65rem;
         white-space: nowrap;
+        text-align: right;
         padding-left: 0.15rem !important;
         padding-right: 0.15rem !important;
+    }
+
+    .predictions-list-table thead .predictions-list-locks-col {
+        text-align: right;
     }
 
     .predictions-list-table .match-lock-countdown {
@@ -872,13 +877,8 @@ body.admin-page .leaderboard-ticker-bar {
     }
 
     .predictions-list-status-col {
-        text-align: right;
         white-space: nowrap;
         padding-left: 0.2rem !important;
-    }
-
-    .predictions-list-table thead .predictions-list-status-col {
-        text-align: right;
     }
 
     .predictions-status-badge {
