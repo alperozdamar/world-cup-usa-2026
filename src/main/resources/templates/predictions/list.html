@@ -59,8 +59,8 @@
                         <th>Date</th>
                         <th>Time</th>
                         <th>Match</th>
-                        <th>Your Guess</th>
                         <th></th>
+                        <th>Your Guess</th>
                         <th class="predictions-list-status-col">Status</th>
                         <th class="predictions-list-locks-col">Locks in</th>
                     </tr>
@@ -75,18 +75,6 @@
                             <span th:text="${match.awayDisplayName}"></span>
                             <div class="small text-muted d-none d-md-block" th:text="${match.venue} + ', ' + ${match.city}"></div>
                         </td>
-                        <td class="predictions-list-guess">
-                            <span th:if="${predictions[match.id] != null}"
-                                  th:text="${predictions[match.id].homeScoreGuess} + ' - ' + ${predictions[match.id].awayScoreGuess}"></span>
-                            <span th:if="${predictions[match.id] == null}" class="text-muted">—</span>
-                            <div th:if="${match.scoreEntered}" class="small text-success">
-                                Actual:
-                                <span th:text="${match.homeScoreActual} + ' - ' + ${match.awayScoreActual}"></span>
-                                <span th:if="${predictions[match.id]?.points != null}">
-                                    · <span th:text="${predictions[match.id].points}"></span> pts
-                                </span>
-                            </div>
-                        </td>
                         <td class="predictions-list-form-col">
                             <form th:if="${@matchViewHelper.isEditable(match)}"
                                   th:action="@{/predictions/save}" method="post" class="d-flex gap-1 predictions-list-form">
@@ -100,6 +88,18 @@
                                        th:value="${predictions[match.id]?.awayScoreGuess}">
                                 <button type="submit" class="btn btn-sm btn-primary predictions-save-btn">Save</button>
                             </form>
+                        </td>
+                        <td class="predictions-list-guess">
+                            <span th:if="${predictions[match.id] != null}"
+                                  th:text="${predictions[match.id].homeScoreGuess} + ' - ' + ${predictions[match.id].awayScoreGuess}"></span>
+                            <span th:if="${predictions[match.id] == null}" class="text-muted">—</span>
+                            <div th:if="${match.scoreEntered}" class="small text-success">
+                                Actual:
+                                <span th:text="${match.homeScoreActual} + ' - ' + ${match.awayScoreActual}"></span>
+                                <span th:if="${predictions[match.id]?.points != null}">
+                                    · <span th:text="${predictions[match.id].points}"></span> pts
+                                </span>
+                            </div>
                         </td>
                         <td class="predictions-list-status-col">
                             <span class="badge predictions-status-badge"
