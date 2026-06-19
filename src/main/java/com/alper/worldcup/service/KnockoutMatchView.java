@@ -7,5 +7,9 @@ public record KnockoutMatchView(
         Match match,
         Prediction prediction,
         boolean editable,
-        String statusLabel) {
+        String statusLabel,
+        String homeDisplayName,
+        String awayDisplayName,
+        String homeSlotLabel,
+        String awaySlotLabel) {
 }

@@ -31,13 +31,16 @@ public class KnockoutService {
     private final MatchRepository matchRepository;
     private final PredictionRepository predictionRepository;
     private final PredictionAuditService predictionAuditService;
+    private final KnockoutBracketResolver knockoutBracketResolver;
 
     public KnockoutService(MatchRepository matchRepository,
                            PredictionRepository predictionRepository,
-                           PredictionAuditService predictionAuditService) {
+                           PredictionAuditService predictionAuditService,
+                           KnockoutBracketResolver knockoutBracketResolver) {
         this.matchRepository = matchRepository;
         this.predictionRepository = predictionRepository;
         this.predictionAuditService = predictionAuditService;
+        this.knockoutBracketResolver = knockoutBracketResolver;
     }
 
     @Transactional(readOnly = true)
@@ -59,6 +62,9 @@ public class KnockoutService {
             }
         }
 
+        Map<Integer, KnockoutBracketResolver.ResolvedKnockoutSides> resolvedNames =
+                knockoutBracketResolver.resolveDisplayNames(matches);
+
         Map<MatchStage, List<KnockoutMatchView>> byStage = new LinkedHashMap<>();
         for (MatchStage stage : ROUND_ORDER) {
             byStage.put(stage, new ArrayList<>());
@@ -66,12 +72,19 @@ public class KnockoutService {
 
         for (Match match : matches) {
             Prediction prediction = predictions.get(match.getId());
+            KnockoutBracketResolver.ResolvedKnockoutSides resolved =
+                    resolvedNames.getOrDefault(match.getId(),
+                            new KnockoutBracketResolver.ResolvedKnockoutSides("TBD", "TBD", null, null));
             byStage.computeIfAbsent(match.getStage(), ignored -> new ArrayList<>())
                     .add(new KnockoutMatchView(
                             match,
                             prediction,
                             isEditable(match, now),
-                            statusLabel(match, prediction, now)));
+                            statusLabel(match, prediction, now),
+                            resolved.homeDisplayName(),
+                            resolved.awayDisplayName(),
+                            resolved.homeSlotLabel(),
+                            resolved.awaySlotLabel()));
         }
 
         List<KnockoutRoundView> rounds = new ArrayList<>();

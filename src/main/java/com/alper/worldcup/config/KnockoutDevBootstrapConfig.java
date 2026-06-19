@@ -1,9 +1,7 @@
 package com.alper.worldcup.config;
 
 import com.alper.worldcup.dao.MatchRepository;
-import com.alper.worldcup.dao.TeamRepository;
 import com.alper.worldcup.entity.Match;
-import com.alper.worldcup.entity.Team;
 import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,7 +21,6 @@ public class KnockoutDevBootstrapConfig {
     @Bean
     @Order(100)
     CommandLineRunner bootstrapKnockoutForLocalDev(MatchRepository matchRepository,
-                                                   TeamRepository teamRepository,
                                                    @Value("${app.knockout.dev-bootstrap:true}") boolean enabled) {
         return args -> {
             if (!enabled) {
@@ -34,39 +31,16 @@ public class KnockoutDevBootstrapConfig {
                 return;
             }
 
-            List<Team> teams = teamRepository.findAllByOrderByNameAsc();
-            if (teams.size() < 2) {
-                log.warn("Knockout dev bootstrap skipped: need at least 2 teams in database");
-                return;
-            }
-
-            int teamIndex = 0;
             int updated = 0;
             for (Match match : knockoutMatches) {
-                boolean changed = false;
-                if (match.getHomeTeam() == null) {
-                    match.setHomeTeam(teams.get(teamIndex % teams.size()));
-                    teamIndex++;
-                    match.setHomePlaceholder(null);
-                    changed = true;
-                }
-                if (match.getAwayTeam() == null) {
-                    match.setAwayTeam(teams.get(teamIndex % teams.size()));
-                    teamIndex++;
-                    match.setAwayPlaceholder(null);
-                    changed = true;
-                }
                 if (!match.isPredictionsEnabled()) {
                     match.setPredictionsEnabled(true);
-                    changed = true;
-                }
-                if (changed) {
                     matchRepository.save(match);
                     updated++;
                 }
             }
             if (updated > 0) {
-                log.info("Knockout dev bootstrap: assigned test teams and enabled predictions on {} matches",
+                log.info("Knockout dev bootstrap: enabled predictions on {} matches (display uses standings slots)",
                         updated);
             }
         };

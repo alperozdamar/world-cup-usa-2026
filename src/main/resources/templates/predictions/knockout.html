@@ -13,9 +13,14 @@
         <a th:href="@{/predictions/standings}" class="btn btn-outline-secondary btn-sm">Group Standings</a>
     </p>
 
+    <div th:if="${!knockoutDevPreview}" class="alert alert-info py-2 small">
+        Round of 32 names reflect <strong>current group standings</strong> from entered match scores.
+        Third-place and later-round slots update as results are confirmed.
+    </div>
+
     <div th:if="${knockoutDevPreview}" class="alert alert-warning py-2 small">
-        <strong>Local preview.</strong> Knockout teams are auto-assigned from your database for testing only.
-        Disable with <code>app.knockout.dev-bootstrap=false</code> or remove before production deploy.
+        <strong>Local preview.</strong> Bracket names come from current group standings and fixture slot codes (1A, 2F, W73, etc.).
+        Disable prediction toggles with <code>app.knockout.dev-bootstrap=false</code>.
     </div>
 
     <div th:if="${successMessage}" class="alert alert-success" th:text="${successMessage}"></div>
@@ -31,20 +36,28 @@
             <div th:each="round : ${rounds}" class="knockout-round">
                 <div class="knockout-round-title" th:text="${round.label()}">Round of 32</div>
                 <div th:each="matchView : ${round.matches()}"
-                     th:with="match=${matchView.match()}, prediction=${matchView.prediction()}"
+                     th:with="match=${matchView.match()}, prediction=${matchView.prediction()},
+                              homeName=${matchView.homeDisplayName()}, awayName=${matchView.awayDisplayName()},
+                              homeSlot=${matchView.homeSlotLabel()}, awaySlot=${matchView.awaySlotLabel()}"
                      class="knockout-bracket-card"
                      th:classappend="${prediction != null and prediction.advancingTeamGuess != null} ? ' knockout-bracket-card-picked' : ''"
                      th:attr="data-match-id=${match.id}">
                     <div class="knockout-bracket-team"
                          th:classappend="${prediction != null and prediction.advancingTeamGuess != null and prediction.advancingTeamGuess.id == match.homeTeam.id} ? ' knockout-bracket-team-advance' : ''">
-                        <span th:text="${match.homeDisplayName}">Home</span>
+                        <span class="knockout-team-label">
+                            <span th:text="${homeName}">Home</span>
+                            <span th:if="${homeSlot != null}" class="knockout-slot-label" th:text="${homeSlot}">1A</span>
+                        </span>
                         <span th:if="${prediction != null}"
                               class="knockout-bracket-score"
                               th:text="${prediction.homeScoreGuess}">0</span>
                     </div>
                     <div class="knockout-bracket-team"
                          th:classappend="${prediction != null and prediction.advancingTeamGuess != null and prediction.advancingTeamGuess.id == match.awayTeam.id} ? ' knockout-bracket-team-advance' : ''">
-                        <span th:text="${match.awayDisplayName}">Away</span>
+                        <span class="knockout-team-label">
+                            <span th:text="${awayName}">Away</span>
+                            <span th:if="${awaySlot != null}" class="knockout-slot-label" th:text="${awaySlot}">2F</span>
+                        </span>
                         <span th:if="${prediction != null}"
                               class="knockout-bracket-score"
                               th:text="${prediction.awayScoreGuess}">0</span>
@@ -64,16 +77,24 @@
         <h3 class="h4 border-bottom pb-2" th:text="${round.label()}">Round of 32</h3>
 
         <div th:each="matchView : ${round.matches()}"
-             th:with="match=${matchView.match()}, prediction=${matchView.prediction()}"
+             th:with="match=${matchView.match()}, prediction=${matchView.prediction()},
+                      homeName=${matchView.homeDisplayName()}, awayName=${matchView.awayDisplayName()},
+                      homeSlot=${matchView.homeSlotLabel()}, awaySlot=${matchView.awaySlotLabel()}"
              class="card mb-3 knockout-pick-card"
              th:id="${'match-' + match.id}">
             <div class="card-body">
                 <div class="d-flex flex-wrap justify-content-between align-items-start gap-2 mb-3">
                     <div>
                         <h4 class="h5 mb-1">
-                            <span th:text="${match.homeDisplayName}">Home</span>
+                            <span class="knockout-team-label">
+                                <span th:text="${homeName}">Home</span>
+                                <span th:if="${homeSlot != null}" class="knockout-slot-label" th:text="${homeSlot}">1A</span>
+                            </span>
                             vs
-                            <span th:text="${match.awayDisplayName}">Away</span>
+                            <span class="knockout-team-label">
+                                <span th:text="${awayName}">Away</span>
+                                <span th:if="${awaySlot != null}" class="knockout-slot-label" th:text="${awaySlot}">2F</span>
+                            </span>
                         </h4>
                         <div class="small text-muted">
                             <span th:text="${@matchViewHelper.formatKickoffDate(match, zoneId)}"></span>
@@ -108,7 +129,7 @@
                       th:action="@{/predictions/knockout/save}" method="post"
                       class="knockout-pick-form"
                       th:attr="data-home-team-id=${match.homeTeam.id}, data-away-team-id=${match.awayTeam.id},
-                               data-home-team-name=${match.homeDisplayName}, data-away-team-name=${match.awayDisplayName}">
+                               data-home-team-name=${homeName}, data-away-team-name=${awayName}">
                     <input type="hidden" th:if="${_csrf != null}" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
                     <input type="hidden" name="matchId" th:value="${match.id}">
 
@@ -153,7 +174,7 @@
                                            th:id="${'adv-home-' + match.id}"
                                            th:checked="${prediction?.advancingTeamGuess?.id == match.homeTeam.id}">
                                     <label class="form-check-label" th:for="${'adv-home-' + match.id}"
-                                           th:text="${match.homeDisplayName}">Home</label>
+                                           th:text="${homeName}">Home</label>
                                 </div>
                                 <div class="form-check">
                                     <input class="form-check-input knockout-advance-radio" type="radio"
@@ -161,7 +182,7 @@
                                            th:id="${'adv-away-' + match.id}"
                                            th:checked="${prediction?.advancingTeamGuess?.id == match.awayTeam.id}">
                                     <label class="form-check-label" th:for="${'adv-away-' + match.id}"
-                                           th:text="${match.awayDisplayName}">Away</label>
+                                           th:text="${awayName}">Away</label>
                                 </div>
                             </div>
                         </div>

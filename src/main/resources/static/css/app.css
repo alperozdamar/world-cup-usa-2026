@@ -715,6 +715,22 @@ body.admin-page .leaderboard-ticker-bar {
     color: #0d6efd;
 }
 
+.knockout-team-label {
+    display: inline-flex;
+    align-items: baseline;
+    gap: 0.35rem;
+}
+
+.knockout-slot-label {
+    font-size: 0.68em;
+    font-weight: 700;
+    color: #495057;
+    background: #eef1f4;
+    padding: 0.12em 0.4em;
+    border-radius: 0.25rem;
+    white-space: nowrap;
+}
+
 .knockout-bracket-score {
     font-variant-numeric: tabular-nums;
     color: #6c757d;
