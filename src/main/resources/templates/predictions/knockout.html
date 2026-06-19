@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Knockout Predictions')}"></head>
+<body>
+<div th:replace="~{fragments/layout :: navbar}"></div>
+<div class="container">
+    <h2>Knockout Stage</h2>
+    <p class="text-muted mb-2">
+        Regular time (90′) score, then who advances. Draw at 90′ → pick penalty shootout and the advancing team.
+    </p>
+    <p class="mb-3">
+        <a th:href="@{/predictions/list}" class="btn btn-outline-secondary btn-sm">Group Stage Predictions</a>
+    </p>
+
+    <div th:if="${knockoutDevPreview}" class="alert alert-warning py-2 small">
+        <strong>Local preview.</strong> Knockout teams are auto-assigned from your database for testing only.
+        Disable with <code>app.knockout.dev-bootstrap=false</code> or remove before production deploy.
+    </div>
+
+    <div th:if="${successMessage}" class="alert alert-success" th:text="${successMessage}"></div>
+    <div th:if="${errorMessage}" class="alert alert-danger" th:text="${errorMessage}"></div>
+
+    <div th:if="${#lists.isEmpty(rounds)}" class="alert alert-info">
+        No knockout matches loaded yet. Ensure fixtures are imported and restart with <code>local</code> profile.
+    </div>
+
+    <section th:if="${!#lists.isEmpty(rounds)}" class="knockout-bracket-section mb-4">
+        <h3 class="h5 mb-3">Bracket overview</h3>
+        <div class="knockout-bracket">
+            <div th:each="round : ${rounds}" class="knockout-round">
+                <div class="knockout-round-title" th:text="${round.label()}">Round of 32</div>
+                <div th:each="matchView : ${round.matches()}"
+                     th:with="match=${matchView.match()}, prediction=${matchView.prediction()}"
+                     class="knockout-bracket-card"
+                     th:classappend="${prediction != null and prediction.advancingTeamGuess != null} ? ' knockout-bracket-card-picked' : ''"
+                     th:attr="data-match-id=${match.id}">
+                    <div class="knockout-bracket-team"
+                         th:classappend="${prediction != null and prediction.advancingTeamGuess != null and prediction.advancingTeamGuess.id == match.homeTeam.id} ? ' knockout-bracket-team-advance' : ''">
+                        <span th:text="${match.homeDisplayName}">Home</span>
+                        <span th:if="${prediction != null}"
+                              class="knockout-bracket-score"
+                              th:text="${prediction.homeScoreGuess}">0</span>
+                    </div>
+                    <div class="knockout-bracket-team"
+                         th:classappend="${prediction != null and prediction.advancingTeamGuess != null and prediction.advancingTeamGuess.id == match.awayTeam.id} ? ' knockout-bracket-team-advance' : ''">
+                        <span th:text="${match.awayDisplayName}">Away</span>
+                        <span th:if="${prediction != null}"
+                              class="knockout-bracket-score"
+                              th:text="${prediction.awayScoreGuess}">0</span>
+                    </div>
+                    <div class="knockout-bracket-meta small text-muted"
+                         th:text="${@matchViewHelper.formatKickoffDate(match, zoneId)}">Date</div>
+                    <div th:if="${prediction != null and prediction.advancingTeamGuess != null}"
+                         class="knockout-bracket-advance small">
+                        → <span th:text="${prediction.advancingTeamGuess.name}">Winner</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section th:each="round : ${rounds}" class="mb-4">
+        <h3 class="h4 border-bottom pb-2" th:text="${round.label()}">Round of 32</h3>
+
+        <div th:each="matchView : ${round.matches()}"
+             th:with="match=${matchView.match()}, prediction=${matchView.prediction()}"
+             class="card mb-3 knockout-pick-card"
+             th:id="${'match-' + match.id}">
+            <div class="card-body">
+                <div class="d-flex flex-wrap justify-content-between align-items-start gap-2 mb-3">
+                    <div>
+                        <h4 class="h5 mb-1">
+                            <span th:text="${match.homeDisplayName}">Home</span>
+                            vs
+                            <span th:text="${match.awayDisplayName}">Away</span>
+                        </h4>
+                        <div class="small text-muted">
+                            <span th:text="${@matchViewHelper.formatKickoffDate(match, zoneId)}"></span>
+                            ·
+                            <span th:text="${@matchViewHelper.formatKickoffTime(match, zoneId)}"></span>
+                            <span th:if="${match.venue != null}">
+                                · <span th:text="${match.venue}"></span>
+                            </span>
+                        </div>
+                    </div>
+                    <span class="badge"
+                          th:classappend="${matchView.editable()} ? ' bg-success' : ' bg-secondary'"
+                          th:text="${matchView.statusLabel()}">Open</span>
+                </div>
+
+                <div th:if="${!matchView.editable() and prediction != null}" class="knockout-pick-summary">
+                    <p class="mb-1">
+                        <strong>Regular time (90′):</strong>
+                        <span th:text="${prediction.homeScoreGuess} + ' - ' + ${prediction.awayScoreGuess}">1 - 1</span>
+                    </p>
+                    <p class="mb-1" th:if="${prediction.penaltyShootoutGuess != null}">
+                        <strong>Penalty shootout:</strong>
+                        <span th:text="${prediction.penaltyShootoutGuess} ? 'Yes' : 'No'">No</span>
+                    </p>
+                    <p class="mb-0" th:if="${prediction.advancingTeamGuess != null}">
+                        <strong>Advances:</strong>
+                        <span th:text="${prediction.advancingTeamGuess.name}">Team</span>
+                    </p>
+                </div>
+
+                <form th:if="${matchView.editable()}"
+                      th:action="@{/predictions/knockout/save}" method="post"
+                      class="knockout-pick-form"
+                      th:attr="data-home-team-id=${match.homeTeam.id}, data-away-team-id=${match.awayTeam.id},
+                               data-home-team-name=${match.homeDisplayName}, data-away-team-name=${match.awayDisplayName}">
+                    <input type="hidden" th:if="${_csrf != null}" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+                    <input type="hidden" name="matchId" th:value="${match.id}">
+
+                    <div class="row g-3 align-items-end">
+                        <div class="col-md-4">
+                            <label class="form-label">Regular time (90′)</label>
+                            <div class="d-flex align-items-center gap-2">
+                                <input type="number" name="homeScore" min="0" max="20"
+                                       class="form-control knockout-score-home" style="width:4.5rem" required
+                                       th:value="${prediction?.homeScoreGuess}">
+                                <span>–</span>
+                                <input type="number" name="awayScore" min="0" max="20"
+                                       class="form-control knockout-score-away" style="width:4.5rem" required
+                                       th:value="${prediction?.awayScoreGuess}">
+                            </div>
+                        </div>
+
+                        <div class="col-md-8 knockout-draw-fields"
+                             th:classappend="${prediction != null and prediction.homeScoreGuess == prediction.awayScoreGuess} ? '' : ' d-none'">
+                            <label class="form-label">Penalty shootout?</label>
+                            <div class="d-flex flex-wrap gap-3 mb-2">
+                                <div class="form-check">
+                                    <input class="form-check-input knockout-penalty-yes" type="radio"
+                                           name="penaltyShootout" value="true"
+                                           th:id="${'pen-yes-' + match.id}"
+                                           th:checked="${prediction?.penaltyShootoutGuess == true}">
+                                    <label class="form-check-label" th:for="${'pen-yes-' + match.id}">Yes</label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input knockout-penalty-no" type="radio"
+                                           name="penaltyShootout" value="false"
+                                           th:id="${'pen-no-' + match.id}"
+                                           th:checked="${prediction?.penaltyShootoutGuess == false}">
+                                    <label class="form-check-label" th:for="${'pen-no-' + match.id}">No</label>
+                                </div>
+                            </div>
+                            <label class="form-label">Advances</label>
+                            <div class="d-flex flex-wrap gap-3">
+                                <div class="form-check">
+                                    <input class="form-check-input knockout-advance-radio" type="radio"
+                                           name="advancingTeamId" th:value="${match.homeTeam.id}"
+                                           th:id="${'adv-home-' + match.id}"
+                                           th:checked="${prediction?.advancingTeamGuess?.id == match.homeTeam.id}">
+                                    <label class="form-check-label" th:for="${'adv-home-' + match.id}"
+                                           th:text="${match.homeDisplayName}">Home</label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input knockout-advance-radio" type="radio"
+                                           name="advancingTeamId" th:value="${match.awayTeam.id}"
+                                           th:id="${'adv-away-' + match.id}"
+                                           th:checked="${prediction?.advancingTeamGuess?.id == match.awayTeam.id}">
+                                    <label class="form-check-label" th:for="${'adv-away-' + match.id}"
+                                           th:text="${match.awayDisplayName}">Away</label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-8 knockout-auto-advance"
+                             th:classappend="${prediction != null and prediction.homeScoreGuess != prediction.awayScoreGuess} ? '' : ' d-none'">
+                            <label class="form-label">Advances</label>
+                            <p class="knockout-auto-advance-label mb-2 text-primary fw-semibold">—</p>
+                            <input type="hidden" name="advancingTeamId" class="knockout-auto-advance-id"
+                                   th:value="${prediction?.advancingTeamGuess?.id}">
+                        </div>
+
+                        <div class="col-12">
+                            <button type="submit" class="btn btn-primary btn-sm">Save</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </section>
+</div>
+<div th:replace="~{fragments/layout :: footer}"></div>
+<script th:src="@{/js/knockout-predictions.js}" defer></script>
+</body>
+</html>

@@ -35,6 +35,13 @@ public class Prediction {
     @Column(name = "away_score_guess", nullable = false)
     private Integer awayScoreGuess;
 
+    @Column(name = "penalty_shootout_guess")
+    private Boolean penaltyShootoutGuess;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "advancing_team_id")
+    private Team advancingTeamGuess;
+
     @Column
     private Integer points;
 
@@ -82,6 +89,22 @@ public class Prediction {
 
     public void setAwayScoreGuess(Integer awayScoreGuess) {
         this.awayScoreGuess = awayScoreGuess;
+    }
+
+    public Boolean getPenaltyShootoutGuess() {
+        return penaltyShootoutGuess;
+    }
+
+    public void setPenaltyShootoutGuess(Boolean penaltyShootoutGuess) {
+        this.penaltyShootoutGuess = penaltyShootoutGuess;
+    }
+
+    public Team getAdvancingTeamGuess() {
+        return advancingTeamGuess;
+    }
+
+    public void setAdvancingTeamGuess(Team advancingTeamGuess) {
+        this.advancingTeamGuess = advancingTeamGuess;
     }
 
     public Integer getPoints() {

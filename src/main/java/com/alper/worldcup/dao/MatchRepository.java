@@ -46,4 +46,9 @@ public interface MatchRepository extends JpaRepository<Match, Integer> {
             + "AND m.kickoffUtc > :now AND m.kickoffUtc <= :cutoff "
             + "ORDER BY m.kickoffUtc")
     List<Match> findOpenGroupStageMatchesKickingOffBetween(Instant now, Instant cutoff);
+
+    @Query("SELECT m FROM Match m LEFT JOIN FETCH m.homeTeam LEFT JOIN FETCH m.awayTeam "
+            + "WHERE m.stage <> com.alper.worldcup.entity.MatchStage.GROUP_STAGE "
+            + "ORDER BY m.kickoffUtc")
+    List<Match> findKnockoutMatchesWithTeams();
 }

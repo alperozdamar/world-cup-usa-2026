@@ -11,6 +11,8 @@ import com.alper.worldcup.service.BirdWatchService;
 import com.alper.worldcup.service.FinalPredictionService;
 import com.alper.worldcup.service.GroupStandingPredictionService;
 import com.alper.worldcup.service.HostPredictionService;
+import com.alper.worldcup.service.KnockoutRoundView;
+import com.alper.worldcup.service.KnockoutService;
 import com.alper.worldcup.service.LeaderboardService;
 import com.alper.worldcup.service.PeerPredictionService;
 import com.alper.worldcup.service.PredictionService;
@@ -25,6 +27,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import org.springframework.core.env.Environment;
+import org.springframework.core.env.Profiles;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -47,6 +51,8 @@ public class PredictionController {
     private final UserProfileService userProfileService;
     private final UserAccountService userAccountService;
     private final UserMatchStatsService userMatchStatsService;
+    private final KnockoutService knockoutService;
+    private final Environment environment;
 
     public PredictionController(PredictionService predictionService,
                                 GroupStandingPredictionService groupStandingPredictionService,
@@ -57,7 +63,9 @@ public class PredictionController {
                                 BirdWatchService birdWatchService,
                                 UserProfileService userProfileService,
                                 UserAccountService userAccountService,
-                                UserMatchStatsService userMatchStatsService) {
+                                UserMatchStatsService userMatchStatsService,
+                                KnockoutService knockoutService,
+                                Environment environment) {
         this.predictionService = predictionService;
         this.groupStandingPredictionService = groupStandingPredictionService;
         this.finalPredictionService = finalPredictionService;
@@ -68,6 +76,8 @@ public class PredictionController {
         this.userProfileService = userProfileService;
         this.userAccountService = userAccountService;
         this.userMatchStatsService = userMatchStatsService;
+        this.knockoutService = knockoutService;
+        this.environment = environment;
     }
 
     @GetMapping("/list")
@@ -99,6 +109,36 @@ public class PredictionController {
             redirectAttributes.addFlashAttribute("errorMessage", ex.getMessage());
         }
         return "redirect:/predictions/list";
+    }
+
+    @GetMapping("/knockout")
+    public String knockout(Principal principal, Model model) {
+        String username = principal.getName();
+        ZoneId zoneId = userProfileService.getUserZoneId(username);
+        List<KnockoutRoundView> rounds = knockoutService.getKnockoutRounds(username);
+
+        model.addAttribute("rounds", rounds);
+        model.addAttribute("zoneId", zoneId.getId());
+        model.addAttribute("knockoutDevPreview", environment.acceptsProfiles(Profiles.of("local")));
+        return "predictions/knockout";
+    }
+
+    @PostMapping("/knockout/save")
+    public String saveKnockout(Principal principal,
+                               @RequestParam Integer matchId,
+                               @RequestParam Integer homeScore,
+                               @RequestParam Integer awayScore,
+                               @RequestParam(required = false) Boolean penaltyShootout,
+                               @RequestParam(required = false) Integer advancingTeamId,
+                               RedirectAttributes redirectAttributes) {
+        try {
+            knockoutService.saveKnockoutPrediction(
+                    principal.getName(), matchId, homeScore, awayScore, penaltyShootout, advancingTeamId);
+            redirectAttributes.addFlashAttribute("successMessage", "Knockout prediction saved.");
+        } catch (Exception ex) {
+            redirectAttributes.addFlashAttribute("errorMessage", ex.getMessage());
+        }
+        return "redirect:/predictions/knockout";
     }
 
     @GetMapping("/groups")

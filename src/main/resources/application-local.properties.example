@@ -1,5 +1,8 @@
 spring.datasource.url=jdbc:mysql://localhost:3306/worldcup?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
 
+# Knockout preview: assign real teams to knockout slots and enable picks (local only)
+app.knockout.dev-bootstrap=true
+
 # Optional — prediction reminder emails
 # app.base-url=http://localhost:8090
 # app.mail.enabled=true
