@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Admin - Knockout')}"></head>
+<body class="admin-page">
+<div th:replace="~{fragments/layout :: navbar-admin}"></div>
+<div class="container">
+    <h2>Knockout Admin</h2>
+    <p class="text-muted">
+        One-click actions only — nothing runs automatically on startup.
+        Sync teams from current standings, then open predictions when ready.
+    </p>
+
+    <div th:if="${successMessage}" class="alert alert-success" th:text="${successMessage}"></div>
+    <div th:if="${warningMessage}" class="alert alert-warning" th:text="${warningMessage}"></div>
+    <div th:if="${errorMessage}" class="alert alert-danger" th:text="${errorMessage}"></div>
+
+    <div th:if="${!teamSyncEnabled}" class="alert alert-info">
+        Team sync is disabled on this server
+        (<code>app.knockout.team-sync.enabled=false</code>).
+        Open-predictions actions still work when teams are already assigned.
+    </div>
+
+    <div class="table-responsive">
+        <table class="table table-sm table-striped align-middle">
+            <thead class="table-dark">
+            <tr>
+                <th>Round</th>
+                <th>Matches</th>
+                <th>Teams set</th>
+                <th>Predictions open</th>
+                <th>Actions</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="status : ${stageStatuses}">
+                <td th:text="${status.label()}">Round of 32</td>
+                <td th:text="${status.matchCount()}">16</td>
+                <td>
+                    <span th:text="${status.matchesWithTeams()} + ' / ' + ${status.matchCount()}"></span>
+                </td>
+                <td>
+                    <span th:text="${status.matchesWithPredictionsOpen()} + ' / ' + ${status.matchCount()}"></span>
+                </td>
+                <td class="d-flex flex-wrap gap-2">
+                    <form th:if="${teamSyncEnabled}"
+                          th:action="@{/admin/knockout/sync-teams}" method="post">
+                        <input type="hidden" name="stage" th:value="${status.stage()}">
+                        <button type="submit" class="btn btn-sm btn-warning"
+                                th:text="'Sync ' + ${status.label()} + ' teams'">
+                            Sync teams
+                        </button>
+                    </form>
+                    <form th:action="@{/admin/knockout/open-predictions}" method="post">
+                        <input type="hidden" name="stage" th:value="${status.stage()}">
+                        <button type="submit" class="btn btn-sm btn-success"
+                                th:text="'Open ' + ${status.label()} + ' predictions'">
+                            Open predictions
+                        </button>
+                    </form>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+<div th:replace="~{fragments/layout :: footer}"></div>
+</body>
+</html>

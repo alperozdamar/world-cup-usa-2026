@@ -17,6 +17,7 @@ public interface MatchRepository extends JpaRepository<Match, Integer> {
     List<Match> findByStageWithTeams(MatchStage stage);
 
     @Query("SELECT m FROM Match m LEFT JOIN FETCH m.homeTeam LEFT JOIN FETCH m.awayTeam "
+            + "LEFT JOIN FETCH m.advancingTeamActual "
             + "ORDER BY m.kickoffUtc")
     List<Match> findAllWithTeams();
 

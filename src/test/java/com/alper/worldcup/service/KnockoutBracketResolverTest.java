@@ -8,6 +8,7 @@ import com.alper.worldcup.entity.Team;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import org.junit.jupiter.api.Test;
 
 class KnockoutBracketResolverTest {
@@ -120,6 +121,57 @@ class KnockoutBracketResolverTest {
 
         assertEquals("USA", resolved.get(80).homeDisplayName());
         assertEquals(null, resolved.get(80).homeSlotLabel());
+    }
+
+    @Test
+    void resolvesTeamFromGroupPlaceholder() {
+        Team mexico = team(1, "Mexico");
+        GroupStandingsView groupA = new GroupStandingsView("A", List.of(standing(mexico, 1, 6)));
+
+        Match match = new Match();
+        match.setId(73);
+        match.setStage(MatchStage.ROUND_OF_32);
+        match.setHomePlaceholder("1A");
+
+        Optional<Team> resolved = KnockoutBracketResolver.resolveTeamForSide(
+                match,
+                true,
+                Map.of("A", groupA),
+                Map.of(),
+                placeholderFromMatch());
+
+        assertEquals("Mexico", resolved.orElseThrow().getName());
+    }
+
+    @Test
+    void resolvesWinnerTeamFromAdvancerOnDraw() {
+        Team mexico = team(1, "Mexico");
+        Team southAfrica = team(2, "South Africa");
+
+        Match roundOf32 = new Match();
+        roundOf32.setId(73);
+        roundOf32.setStage(MatchStage.ROUND_OF_32);
+        roundOf32.setHomePlaceholder("1A");
+        roundOf32.setAwayPlaceholder("2F");
+        roundOf32.setHomeTeam(mexico);
+        roundOf32.setAwayTeam(southAfrica);
+        roundOf32.setHomeScoreActual(1);
+        roundOf32.setAwayScoreActual(1);
+        roundOf32.setAdvancingTeamActual(mexico);
+
+        Match roundOf16 = new Match();
+        roundOf16.setId(89);
+        roundOf16.setStage(MatchStage.ROUND_OF_16);
+        roundOf16.setHomePlaceholder("W73");
+
+        Optional<Team> resolved = KnockoutBracketResolver.resolveTeamForSide(
+                roundOf16,
+                true,
+                Map.of(),
+                Map.of(73, roundOf32),
+                placeholderFromMatch());
+
+        assertEquals("Mexico", resolved.orElseThrow().getName());
     }
 
     private static KnockoutBracketResolver.PlaceholderSource placeholderFromMatch() {

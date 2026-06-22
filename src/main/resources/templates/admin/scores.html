@@ -5,7 +5,10 @@
 <div th:replace="~{fragments/layout :: navbar-admin}"></div>
 <div class="container">
     <h2>Enter Match Scores</h2>
-    <p class="text-muted">Admin only. Enter actual results after each match.</p>
+    <p class="text-muted">
+        Admin only. Enter actual results after each match.
+        For knockout matches level at 90′, also record penalties and who advanced.
+    </p>
 
     <div th:if="${successMessage}" class="alert alert-success" th:text="${successMessage}"></div>
     <div th:if="${errorMessage}" class="alert alert-danger" th:text="${errorMessage}"></div>
@@ -17,12 +20,14 @@
                 <th>Date</th>
                 <th>Stage</th>
                 <th>Match</th>
-                <th>Actual Score</th>
+                <th>90′ Score</th>
+                <th>Knockout extras</th>
                 <th></th>
             </tr>
             </thead>
             <tbody>
-            <tr th:each="match : ${matches}">
+            <tr th:each="match : ${matches}"
+                th:with="knockout=${match.stage.name() != 'GROUP_STAGE'}">
                 <td>
                     <div th:text="${@matchViewHelper.formatKickoffDate(match, zoneId)}"></div>
                     <div class="small text-muted"
@@ -34,15 +39,44 @@
                     vs
                     <span th:text="${match.awayDisplayName}"></span>
                 </td>
-                <td>
-                    <form th:action="@{/admin/scores/save}" method="post" class="d-flex gap-1">
+                <td colspan="2">
+                    <form th:action="@{/admin/scores/save}" method="post" class="row g-2 align-items-center">
                         <input type="hidden" name="matchId" th:value="${match.id}">
-                        <input type="number" name="homeScore" min="0" max="20" class="form-control form-control-sm"
-                               style="width:4rem" required th:value="${match.homeScoreActual}">
-                        <span class="align-self-center">-</span>
-                        <input type="number" name="awayScore" min="0" max="20" class="form-control form-control-sm"
-                               style="width:4rem" required th:value="${match.awayScoreActual}">
-                        <button type="submit" class="btn btn-sm btn-warning">Save</button>
+                        <div class="col-auto d-flex gap-1 align-items-center">
+                            <input type="number" name="homeScore" min="0" max="20"
+                                   class="form-control form-control-sm" style="width:4rem" required
+                                   th:value="${match.homeScoreActual}">
+                            <span>-</span>
+                            <input type="number" name="awayScore" min="0" max="20"
+                                   class="form-control form-control-sm" style="width:4rem" required
+                                   th:value="${match.awayScoreActual}">
+                        </div>
+                        <div class="col-auto" th:if="${knockout}">
+                            <label class="form-label small mb-0">Penalties?</label>
+                            <select name="penaltyShootoutActual" class="form-select form-select-sm">
+                                <option value="">—</option>
+                                <option value="true" th:selected="${match.penaltyShootoutActual == true}">Yes</option>
+                                <option value="false" th:selected="${match.penaltyShootoutActual == false}">No</option>
+                            </select>
+                        </div>
+                        <div class="col-auto" th:if="${knockout and match.homeTeam != null and match.awayTeam != null}">
+                            <label class="form-label small mb-0">Advancer</label>
+                            <select name="advancingTeamActualId" class="form-select form-select-sm">
+                                <option value="">—</option>
+                                <option th:value="${match.homeTeam.id}"
+                                        th:selected="${match.advancingTeamActual != null and match.advancingTeamActual.id == match.homeTeam.id}"
+                                        th:text="${match.homeTeam.name}"></option>
+                                <option th:value="${match.awayTeam.id}"
+                                        th:selected="${match.advancingTeamActual != null and match.advancingTeamActual.id == match.awayTeam.id}"
+                                        th:text="${match.awayTeam.name}"></option>
+                            </select>
+                        </div>
+                        <div class="col-auto" th:if="${knockout and (match.homeTeam == null or match.awayTeam == null)}">
+                            <span class="small text-muted">Set teams via Knockout Admin before advancer</span>
+                        </div>
+                        <div class="col-auto">
+                            <button type="submit" class="btn btn-sm btn-warning">Save</button>
+                        </div>
                     </form>
                 </td>
                 <td>

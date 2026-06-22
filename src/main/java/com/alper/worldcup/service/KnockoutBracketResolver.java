@@ -41,6 +41,27 @@ public class KnockoutBracketResolver {
         return resolveDisplayNames(knockoutMatches, standingsByGroup(), matchesById, placeholderCatalog);
     }
 
+    @Transactional(readOnly = true)
+    public Optional<Team> resolveTeamForSide(Match match, boolean homeSide) {
+        Map<Integer, Match> matchesById = new HashMap<>();
+        for (Match loaded : matchRepository.findAllWithTeams()) {
+            matchesById.put(loaded.getId(), loaded);
+        }
+        return resolveTeamForSide(match, homeSide, standingsByGroup(), matchesById, placeholderCatalog);
+    }
+
+    static Optional<Team> resolveTeamForSide(Match match,
+                                             boolean homeSide,
+                                             Map<String, GroupStandingsView> standingsByGroup,
+                                             Map<Integer, Match> matchesById,
+                                             PlaceholderSource placeholderSource) {
+        String placeholder = placeholderSource.placeholder(match, homeSide);
+        if (placeholder != null && !placeholder.isBlank()) {
+            return resolvePlaceholderTeam(placeholder, standingsByGroup, matchesById, placeholderSource);
+        }
+        return Optional.ofNullable(homeSide ? match.getHomeTeam() : match.getAwayTeam());
+    }
+
     static Map<Integer, ResolvedKnockoutSides> resolveDisplayNames(List<Match> knockoutMatches,
                                                                    Map<String, GroupStandingsView> standingsByGroup,
                                                                    Map<Integer, Match> matchesById,
@@ -150,6 +171,87 @@ public class KnockoutBracketResolver {
         }
 
         return placeholder;
+    }
+
+    private static Optional<Team> resolvePlaceholderTeam(String placeholder,
+                                                         Map<String, GroupStandingsView> standingsByGroup,
+                                                         Map<Integer, Match> matchesById,
+                                                         PlaceholderSource placeholderSource) {
+        Matcher groupRank = GROUP_RANK.matcher(placeholder);
+        if (groupRank.matches()) {
+            int rank = Integer.parseInt(groupRank.group(1));
+            String groupName = groupRank.group(2);
+            return teamAtGroupRank(standingsByGroup, groupName, rank);
+        }
+
+        Matcher thirdPlace = THIRD_PLACE_SLOT.matcher(placeholder);
+        if (thirdPlace.matches()) {
+            return bestThirdPlaceAmongGroups(thirdPlace.group(1), standingsByGroup);
+        }
+
+        Matcher winner = WINNER.matcher(placeholder);
+        if (winner.matches()) {
+            return resolveMatchWinnerTeam(Integer.parseInt(winner.group(1)), standingsByGroup, matchesById, placeholderSource);
+        }
+
+        Matcher runnerUp = RUNNER_UP.matcher(placeholder);
+        if (runnerUp.matches()) {
+            return resolveMatchRunnerUpTeam(Integer.parseInt(runnerUp.group(1)), standingsByGroup, matchesById, placeholderSource);
+        }
+
+        return Optional.empty();
+    }
+
+    private static Optional<Team> resolveMatchWinnerTeam(int matchId,
+                                                         Map<String, GroupStandingsView> standingsByGroup,
+                                                         Map<Integer, Match> matchesById,
+                                                         PlaceholderSource placeholderSource) {
+        Match match = matchesById.get(matchId);
+        if (match == null || !match.isScoreEntered()) {
+            return Optional.empty();
+        }
+        return winnerTeamFromScore(match, standingsByGroup, matchesById, placeholderSource);
+    }
+
+    private static Optional<Team> resolveMatchRunnerUpTeam(int matchId,
+                                                           Map<String, GroupStandingsView> standingsByGroup,
+                                                           Map<Integer, Match> matchesById,
+                                                           PlaceholderSource placeholderSource) {
+        Match match = matchesById.get(matchId);
+        if (match == null || !match.isScoreEntered()) {
+            return Optional.empty();
+        }
+        return runnerUpTeamFromScore(match, standingsByGroup, matchesById, placeholderSource);
+    }
+
+    private static Optional<Team> winnerTeamFromScore(Match match,
+                                                      Map<String, GroupStandingsView> standingsByGroup,
+                                                      Map<Integer, Match> matchesById,
+                                                      PlaceholderSource placeholderSource) {
+        int homeGoals = match.getHomeScoreActual();
+        int awayGoals = match.getAwayScoreActual();
+        if (homeGoals > awayGoals) {
+            return resolveTeamForSide(match, true, standingsByGroup, matchesById, placeholderSource);
+        }
+        if (awayGoals > homeGoals) {
+            return resolveTeamForSide(match, false, standingsByGroup, matchesById, placeholderSource);
+        }
+        return Optional.ofNullable(match.getAdvancingTeamActual());
+    }
+
+    private static Optional<Team> runnerUpTeamFromScore(Match match,
+                                                        Map<String, GroupStandingsView> standingsByGroup,
+                                                        Map<Integer, Match> matchesById,
+                                                        PlaceholderSource placeholderSource) {
+        int homeGoals = match.getHomeScoreActual();
+        int awayGoals = match.getAwayScoreActual();
+        if (homeGoals > awayGoals) {
+            return resolveTeamForSide(match, false, standingsByGroup, matchesById, placeholderSource);
+        }
+        if (awayGoals > homeGoals) {
+            return resolveTeamForSide(match, true, standingsByGroup, matchesById, placeholderSource);
+        }
+        return Optional.empty();
     }
 
     private static Optional<String> resolveMatchWinner(int matchId,

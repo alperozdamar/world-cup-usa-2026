@@ -57,6 +57,13 @@ public class Match {
     @Column(name = "away_score_actual")
     private Integer awayScoreActual;
 
+    @Column(name = "penalty_shootout_actual")
+    private Boolean penaltyShootoutActual;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "advancing_team_actual_id")
+    private Team advancingTeamActual;
+
     @Column(name = "predictions_enabled", nullable = false)
     private boolean predictionsEnabled;
 
@@ -160,6 +167,22 @@ public class Match {
         this.awayScoreActual = awayScoreActual;
     }
 
+    public Boolean getPenaltyShootoutActual() {
+        return penaltyShootoutActual;
+    }
+
+    public void setPenaltyShootoutActual(Boolean penaltyShootoutActual) {
+        this.penaltyShootoutActual = penaltyShootoutActual;
+    }
+
+    public Team getAdvancingTeamActual() {
+        return advancingTeamActual;
+    }
+
+    public void setAdvancingTeamActual(Team advancingTeamActual) {
+        this.advancingTeamActual = advancingTeamActual;
+    }
+
     public boolean isPredictionsEnabled() {
         return predictionsEnabled;
     }
@@ -182,5 +205,9 @@ public class Match {
 
     public boolean isScoreEntered() {
         return homeScoreActual != null && awayScoreActual != null;
+    }
+
+    public boolean isDrawAtFullTime() {
+        return isScoreEntered() && homeScoreActual.equals(awayScoreActual);
     }
 }

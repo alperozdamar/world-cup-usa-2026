@@ -2,10 +2,12 @@ package com.alper.worldcup.service;
 
 import com.alper.worldcup.dao.MatchRepository;
 import com.alper.worldcup.dao.PredictionRepository;
+import com.alper.worldcup.dao.TeamRepository;
 import com.alper.worldcup.entity.Match;
 import com.alper.worldcup.entity.MatchStage;
 import com.alper.worldcup.entity.Prediction;
 import com.alper.worldcup.entity.PredictionAuditAction;
+import com.alper.worldcup.entity.Team;
 import java.time.Instant;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -19,15 +21,18 @@ public class PredictionService {
 
     private final MatchRepository matchRepository;
     private final PredictionRepository predictionRepository;
+    private final TeamRepository teamRepository;
     private final PointsService pointsService;
     private final PredictionAuditService predictionAuditService;
 
     public PredictionService(MatchRepository matchRepository,
                              PredictionRepository predictionRepository,
+                             TeamRepository teamRepository,
                              PointsService pointsService,
                              PredictionAuditService predictionAuditService) {
         this.matchRepository = matchRepository;
         this.predictionRepository = predictionRepository;
+        this.teamRepository = teamRepository;
         this.pointsService = pointsService;
         this.predictionAuditService = predictionAuditService;
     }
@@ -91,7 +96,7 @@ public class PredictionService {
         prediction.setUpdatedAt(Instant.now());
 
         if (match.isScoreEntered()) {
-            prediction.setPoints(calculateMatchPoints(match, homeGuess, awayGuess));
+            prediction.setPoints(calculateMatchPoints(match, prediction));
         }
 
         predictionRepository.save(prediction);
@@ -107,20 +112,44 @@ public class PredictionService {
     }
 
     @Transactional
-    public void saveActualScore(Integer matchId, Integer homeScore, Integer awayScore) {
+    public void saveActualScore(Integer matchId,
+                                Integer homeScore,
+                                Integer awayScore,
+                                Boolean penaltyShootoutActual,
+                                Integer advancingTeamActualId) {
         Match match = matchRepository.findById(matchId)
                 .orElseThrow(() -> new IllegalArgumentException("Match not found: " + matchId));
         validateScore(homeScore);
         validateScore(awayScore);
+
+        boolean knockout = KnockoutStageLabels.isKnockout(match);
+        boolean drawAtFullTime = homeScore.equals(awayScore);
+
+        if (knockout && drawAtFullTime) {
+            if (penaltyShootoutActual == null) {
+                throw new IllegalArgumentException(
+                        "Penalty shootout (yes/no) is required when the match is level at 90 minutes");
+            }
+            if (advancingTeamActualId == null) {
+                throw new IllegalArgumentException(
+                        "Advancing team is required when the match is level at 90 minutes");
+            }
+            Team advancingTeam = teamRepository.findById(advancingTeamActualId)
+                    .orElseThrow(() -> new IllegalArgumentException("Team not found: " + advancingTeamActualId));
+            validateAdvancingTeam(match, advancingTeam);
+            match.setPenaltyShootoutActual(penaltyShootoutActual);
+            match.setAdvancingTeamActual(advancingTeam);
+        } else {
+            match.setPenaltyShootoutActual(null);
+            match.setAdvancingTeamActual(null);
+        }
 
         match.setHomeScoreActual(homeScore);
         match.setAwayScoreActual(awayScore);
         matchRepository.save(match);
 
         for (Prediction prediction : predictionRepository.findByMatchId(matchId)) {
-            prediction.setPoints(calculateMatchPoints(match,
-                    prediction.getHomeScoreGuess(),
-                    prediction.getAwayScoreGuess()));
+            prediction.setPoints(calculateMatchPoints(match, prediction));
             predictionRepository.save(prediction);
         }
     }
@@ -130,13 +159,36 @@ public class PredictionService {
         return predictionRepository.findLeaderboardTotals();
     }
 
-    private int calculateMatchPoints(Match match, int homeGuess, int awayGuess) {
+    private int calculateMatchPoints(Match match, Prediction prediction) {
+        if (KnockoutStageLabels.isKnockout(match)) {
+            return pointsService.calculateKnockoutPoints(
+                    prediction.getHomeScoreGuess(),
+                    prediction.getAwayScoreGuess(),
+                    match.getHomeScoreActual(),
+                    match.getAwayScoreActual(),
+                    match.getStage(),
+                    prediction.getPenaltyShootoutGuess(),
+                    match.getPenaltyShootoutActual(),
+                    prediction.getAdvancingTeamGuess(),
+                    match.getAdvancingTeamActual());
+        }
         return pointsService.calculatePoints(
-                homeGuess,
-                awayGuess,
+                prediction.getHomeScoreGuess(),
+                prediction.getAwayScoreGuess(),
                 match.getHomeScoreActual(),
                 match.getAwayScoreActual(),
                 match.getStage());
+    }
+
+    private void validateAdvancingTeam(Match match, Team advancingTeam) {
+        if (match.getHomeTeam() == null || match.getAwayTeam() == null) {
+            throw new IllegalStateException("Teams must be set before recording who advanced");
+        }
+        Integer advancingId = advancingTeam.getId();
+        if (!advancingId.equals(match.getHomeTeam().getId())
+                && !advancingId.equals(match.getAwayTeam().getId())) {
+            throw new IllegalArgumentException("Advancing team must be one of the two sides in this match");
+        }
     }
 
     private void validateScore(Integer score) {
