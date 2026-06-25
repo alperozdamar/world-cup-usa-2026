@@ -78,6 +78,25 @@ class LeaderboardServiceTest {
         assertTrue(leaderboard.stream().noneMatch(row -> "susan".equals(row[0])));
     }
 
+    @Test
+    void leaderboardRowsBreakDownPointsByCategory() {
+        when(predictionRepository.findLeaderboardTotals()).thenReturn(
+                List.<Object[]>of(new Object[]{"gonenc", 40L}));
+        when(groupStandingPredictionRepository.findLeaderboardTotals()).thenReturn(
+                List.<Object[]>of(new Object[]{"gonenc", 12L}));
+        when(finalPredictionRepository.findLeaderboardTotals()).thenReturn(
+                List.<Object[]>of(new Object[]{"gonenc", 8L}));
+        when(userProfileService.getPoolProfiles()).thenReturn(List.of(profile("gonenc", "Gonenc Gorgulu")));
+
+        List<LeaderboardRowView> rows = service.getLeaderboardRows();
+
+        assertEquals(1, rows.size());
+        assertEquals(40L, rows.get(0).matchPoints());
+        assertEquals(12L, rows.get(0).groupPoints());
+        assertEquals(8L, rows.get(0).finalPoints());
+        assertEquals(60L, rows.get(0).totalPoints());
+    }
+
     private static UserProfile profile(String username, String displayName) {
         return new UserProfile(username, "America/New_York", displayName);
     }

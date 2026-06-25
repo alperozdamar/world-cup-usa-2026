@@ -33,37 +33,40 @@ public class LeaderboardService {
     }
 
     @Transactional(readOnly = true)
-    public List<Object[]> getLeaderboard() {
-        Map<String, Long> totals = buildPointTotals();
+    public List<LeaderboardRowView> getLeaderboardRows() {
+        Map<String, Long> matchPoints = poolTotals(predictionRepository.findLeaderboardTotals());
+        Map<String, Long> groupPoints = poolTotals(groupStandingPredictionRepository.findLeaderboardTotals());
+        Map<String, Long> finalPoints = poolTotals(finalPredictionRepository.findLeaderboardTotals());
 
-        List<Object[]> leaderboard = new ArrayList<>();
+        List<LeaderboardRowView> rows = new ArrayList<>();
         for (var profile : userProfileService.getPoolProfiles()) {
-            leaderboard.add(new Object[]{
-                    profile.getUsername(),
-                    totals.getOrDefault(profile.getUsername(), 0L)});
+            String username = profile.getUsername();
+            long match = matchPoints.getOrDefault(username, 0L);
+            long group = groupPoints.getOrDefault(username, 0L);
+            long fin = finalPoints.getOrDefault(username, 0L);
+            rows.add(new LeaderboardRowView(username, match, group, fin, match + group + fin));
         }
 
-        leaderboard.sort(Comparator
-                .<Object[]>comparingLong(row -> ((Number) row[1]).longValue()).reversed()
-                .thenComparing(row -> userProfileService.getDisplayName((String) row[0]),
+        rows.sort(Comparator
+                .comparingLong(LeaderboardRowView::totalPoints).reversed()
+                .thenComparing(row -> userProfileService.getDisplayName(row.username()),
                         String.CASE_INSENSITIVE_ORDER));
-        return leaderboard;
+        return rows;
     }
 
-    private Map<String, Long> buildPointTotals() {
-        Map<String, Long> totals = new HashMap<>();
+    @Transactional(readOnly = true)
+    public List<Object[]> getLeaderboard() {
+        return getLeaderboardRows().stream()
+                .map(row -> new Object[]{row.username(), row.totalPoints()})
+                .toList();
+    }
 
-        for (Object[] row : predictionRepository.findLeaderboardTotals()) {
-            mergePoolTotal(totals, row);
+    private Map<String, Long> poolTotals(List<Object[]> totals) {
+        Map<String, Long> pointsByUser = new HashMap<>();
+        for (Object[] row : totals) {
+            mergePoolTotal(pointsByUser, row);
         }
-        for (Object[] row : groupStandingPredictionRepository.findLeaderboardTotals()) {
-            mergePoolTotal(totals, row);
-        }
-        for (Object[] row : finalPredictionRepository.findLeaderboardTotals()) {
-            mergePoolTotal(totals, row);
-        }
-
-        return totals;
+        return pointsByUser;
     }
 
     private void mergePoolTotal(Map<String, Long> totals, Object[] row) {

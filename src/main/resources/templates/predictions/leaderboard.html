@@ -5,35 +5,41 @@
 <div th:replace="~{fragments/layout :: navbar}"></div>
 <div class="container">
     <h2>Leaderboard</h2>
-    <p class="text-muted">5 pts exact · 2 pts outcome · +1 goal-diff · group 1st/2nd (3/2/1) · knockout multipliers</p>
+    <p class="text-muted">Match scores · group 1st/2nd (3/2/1) · final · knockout multipliers in match column</p>
 
     <table class="table table-striped align-middle">
         <thead class="table-dark">
         <tr>
             <th>#</th>
             <th>Player</th>
-            <th>Total Points</th>
+            <th class="text-end">Match</th>
+            <th class="text-end">Group</th>
+            <th class="text-end">Final</th>
+            <th class="text-end">Total</th>
         </tr>
         </thead>
         <tbody>
-        <tr th:each="row, stat : ${leaderboard}"
+        <tr th:each="row, stat : ${leaderboardRows}"
             th:classappend="${stat.count == 1} ? ' leaderboard-row-leader' : ''">
             <td th:text="${stat.count}"></td>
             <td>
                 <div class="leaderboard-player-cell">
-                    <div th:replace="~{fragments/layout :: player-club-badge-inline(username=${row[0]})}"></div>
-                    <div th:replace="~{fragments/layout :: player-avatar(username=${row[0]}, displayName=${displayNames[row[0]]}, size='sm')}"></div>
+                    <div th:replace="~{fragments/layout :: player-club-badge-inline(username=${row.username})}"></div>
+                    <div th:replace="~{fragments/layout :: player-avatar(username=${row.username}, displayName=${displayNames[row.username]}, size='sm')}"></div>
                     <div>
-                        <span th:text="${displayNames[row[0]]}">Player</span>
-                        <span class="small text-muted" th:text="'(' + ${row[0]} + ')'"></span>
-                        <div th:replace="~{fragments/layout :: match-stats-summary(stats=${matchStatsByUsername[row[0]]})}"></div>
+                        <span th:text="${displayNames[row.username]}">Player</span>
+                        <span class="small text-muted" th:text="'(' + ${row.username} + ')'"></span>
+                        <div th:replace="~{fragments/layout :: match-stats-summary(stats=${matchStatsByUsername[row.username]})}"></div>
                     </div>
                 </div>
             </td>
-            <td th:text="${row[1]}"></td>
+            <td class="text-end" th:text="${row.matchPoints}"></td>
+            <td class="text-end" th:text="${row.groupPoints}"></td>
+            <td class="text-end" th:text="${row.finalPoints}"></td>
+            <td class="text-end"><strong th:text="${row.totalPoints}"></strong></td>
         </tr>
-        <tr th:if="${#lists.isEmpty(leaderboard)}">
-            <td colspan="3" class="text-muted">No scored predictions yet.</td>
+        <tr th:if="${#lists.isEmpty(leaderboardRows)}">
+            <td colspan="6" class="text-muted">No scored predictions yet.</td>
         </tr>
         </tbody>
     </table>

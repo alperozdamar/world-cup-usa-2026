@@ -14,6 +14,7 @@ import com.alper.worldcup.service.GroupStandingsService;
 import com.alper.worldcup.service.HostPredictionService;
 import com.alper.worldcup.service.KnockoutRoundView;
 import com.alper.worldcup.service.KnockoutService;
+import com.alper.worldcup.service.LeaderboardRowView;
 import com.alper.worldcup.service.LeaderboardService;
 import com.alper.worldcup.service.PeerPredictionService;
 import com.alper.worldcup.service.PredictionService;
@@ -271,12 +272,12 @@ public class PredictionController {
 
     @GetMapping("/leaderboard")
     public String leaderboard(Principal principal, Model model) {
-        List<Object[]> leaderboard = leaderboardService.getLeaderboard();
-        List<String> usernames = leaderboard.stream()
-                .map(row -> (String) row[0])
+        List<LeaderboardRowView> leaderboardRows = leaderboardService.getLeaderboardRows();
+        List<String> usernames = leaderboardRows.stream()
+                .map(LeaderboardRowView::username)
                 .toList();
         ZoneId zoneId = userProfileService.getUserZoneId(principal.getName());
-        model.addAttribute("leaderboard", leaderboard);
+        model.addAttribute("leaderboardRows", leaderboardRows);
         model.addAttribute("displayNames", userProfileService.getDisplayNamesForUsernames(usernames));
         model.addAttribute("matchStatsByUsername", userMatchStatsService.getStatsForPoolMembers());
         model.addAttribute("categories", birdWatchService.buildCategories());
