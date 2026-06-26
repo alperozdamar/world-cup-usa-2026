@@ -55,7 +55,7 @@ Round to nearest whole point after multiplying. Applied to 90′ score base poin
 
 ---
 
-## Scoring — knockout stage predictions (documented on Rules page; penalty/advancer scoring not yet in code)
+## Scoring — knockout stage predictions (documented on Rules page; penalty/advancer scoring implemented)
 
 Enter picks at `/predictions/knockout`. Predict **regular time (90′)** only — not extra time.
 
@@ -66,14 +66,14 @@ Enter picks at `/predictions/knockout`. Predict **regular time (90′)** only �
 
 **90′ score** — same table as group stage (5 / 2 / +1 / 0, cap 6 base), then × round multiplier.
 
-**Knockout extras** — only when the **real** match is level at 90′:
+**Knockout extras**
 
 | Pick | Points | Notes |
 |------|--------|--------|
-| Correct **Penalty shootout?** (Yes / No) | **+1** | Only if you predicted a draw at 90′ |
-| Correct **team to advance** | **+2** | Wrong advancer = 0 |
+| Correct **Penalty shootout?** (Yes / No) | **+1** | Only if you predicted a draw at 90′ **and** the real match was level at 90′ |
+| Correct **team to advance** | **+2** | Only if you predicted a draw at 90′; correct winner after 90′ / extra time / penalties scores even when the 90′ score path was wrong (e.g. pick 1–1 + Canada advances, actual 1–2 Canada → **+2**) |
 
-Example: pick 1–1, penalties Yes, Brazil advances. Actual 1–1, penalties Yes, Brazil advances → 5 + 1 + 2 = 8 base → ×1.5 in quarter-final = **12 points**. If actual is 2–1, only the 90′ score table applies.
+Example: pick 1–1, penalties Yes, Brazil advances. Actual 1–1, penalties Yes, Brazil advances → 5 + 1 + 2 = 8 base → ×1.5 in quarter-final = **12 points**. Pick 1–1 + Canada advances, actual 1–2 Canada → **2** base (advancer only) → ×1.0 in R32 = **2 points**.
 
 The bracket overview shows provisional team names from current group standings plus fixture slot codes (1A, 2F, W73, etc.).
 

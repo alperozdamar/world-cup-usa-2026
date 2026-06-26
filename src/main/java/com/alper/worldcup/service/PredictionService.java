@@ -5,6 +5,7 @@ import com.alper.worldcup.dao.PredictionRepository;
 import com.alper.worldcup.entity.Match;
 import com.alper.worldcup.entity.MatchStage;
 import com.alper.worldcup.entity.Prediction;
+import com.alper.worldcup.entity.Team;
 import com.alper.worldcup.entity.PredictionAuditAction;
 import java.time.Instant;
 import java.util.Comparator;
@@ -91,7 +92,7 @@ public class PredictionService {
         prediction.setUpdatedAt(Instant.now());
 
         if (match.isScoreEntered()) {
-            prediction.setPoints(calculateMatchPoints(match, homeGuess, awayGuess));
+            prediction.setPoints(calculateMatchPoints(match, prediction));
         }
 
         predictionRepository.save(prediction);
@@ -118,9 +119,7 @@ public class PredictionService {
         matchRepository.save(match);
 
         for (Prediction prediction : predictionRepository.findByMatchId(matchId)) {
-            prediction.setPoints(calculateMatchPoints(match,
-                    prediction.getHomeScoreGuess(),
-                    prediction.getAwayScoreGuess()));
+            prediction.setPoints(calculateMatchPoints(match, prediction));
             predictionRepository.save(prediction);
         }
     }
@@ -130,13 +129,40 @@ public class PredictionService {
         return predictionRepository.findLeaderboardTotals();
     }
 
-    private int calculateMatchPoints(Match match, int homeGuess, int awayGuess) {
+    private int calculateMatchPoints(Match match, Prediction prediction) {
+        if (KnockoutStageLabels.isKnockout(match)) {
+            return pointsService.calculateKnockoutPoints(
+                    prediction.getHomeScoreGuess(),
+                    prediction.getAwayScoreGuess(),
+                    match.getHomeScoreActual(),
+                    match.getAwayScoreActual(),
+                    match.getStage(),
+                    prediction.getPenaltyShootoutGuess(),
+                    match.getPenaltyShootoutActual(),
+                    prediction.getAdvancingTeamGuess(),
+                    resolveActualAdvancer(match));
+        }
         return pointsService.calculatePoints(
-                homeGuess,
-                awayGuess,
+                prediction.getHomeScoreGuess(),
+                prediction.getAwayScoreGuess(),
                 match.getHomeScoreActual(),
                 match.getAwayScoreActual(),
                 match.getStage());
+    }
+
+    static Team resolveActualAdvancer(Match match) {
+        if (!match.isScoreEntered()) {
+            return null;
+        }
+        int homeScore = match.getHomeScoreActual();
+        int awayScore = match.getAwayScoreActual();
+        if (homeScore > awayScore) {
+            return match.getHomeTeam();
+        }
+        if (awayScore > homeScore) {
+            return match.getAwayTeam();
+        }
+        return match.getAdvancingTeamActual();
     }
 
     private void validateScore(Integer score) {
