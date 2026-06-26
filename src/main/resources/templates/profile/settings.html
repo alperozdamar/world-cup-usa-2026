@@ -10,6 +10,24 @@
     <div th:if="${successMessage}" class="alert alert-success" th:text="${successMessage}"></div>
     <div th:if="${errorMessage}" class="alert alert-danger" th:text="${errorMessage}"></div>
 
+    <div class="text-center mb-4">
+        <div th:replace="~{fragments/layout :: player-avatar(${username}, ${displayName}, 'lg')}"></div>
+        <p class="text-muted small mb-0" th:if="${hasUploadedPhoto}">Using your uploaded photo.</p>
+        <p class="text-muted small mb-0" th:unless="${hasUploadedPhoto}">Using the default pool photo if available.</p>
+    </div>
+
+    <form th:action="@{/profile/photo}" method="post" enctype="multipart/form-data" class="mb-3">
+        <div class="mb-3">
+            <label class="form-label">Profile photo</label>
+            <input type="file" name="photo" class="form-control" accept="image/jpeg,image/png,.jpg,.jpeg,.png" required>
+            <div class="form-text">JPEG or PNG only, up to 2 MB. Upload replaces your personal photo; remove it to fall back to the default.</div>
+        </div>
+        <button type="submit" class="btn btn-outline-primary">Upload photo</button>
+    </form>
+    <form th:if="${hasUploadedPhoto}" th:action="@{/profile/photo/remove}" method="post" class="mb-4">
+        <button type="submit" class="btn btn-outline-secondary btn-sm">Remove uploaded photo</button>
+    </form>
+
     <form th:action="@{/profile/settings}" method="post" class="mb-4">
         <div class="mb-3">
             <label class="form-label">Email (optional)</label>

@@ -11,31 +11,47 @@ public class UserProfilePhotoHelper {
     private static final String GROUP2_PHOTO_PATH = "classpath:static/images/group2/%s.png";
 
     private final ResourceLoader resourceLoader;
+    private final UserProfilePhotoService userProfilePhotoService;
 
-    public UserProfilePhotoHelper(ResourceLoader resourceLoader) {
+    public UserProfilePhotoHelper(ResourceLoader resourceLoader,
+                                  UserProfilePhotoService userProfilePhotoService) {
         this.resourceLoader = resourceLoader;
+        this.userProfilePhotoService = userProfilePhotoService;
     }
 
     public boolean hasPhoto(String username) {
-        return resolvePhotoPath(username) != null;
+        return hasUploadedPhoto(username) || resolveStaticPhotoPath(username) != null;
+    }
+
+    public boolean hasUploadedPhoto(String username) {
+        return userProfilePhotoService.hasUploadedPhoto(username);
     }
 
     public String photoUrl(String username) {
-        String normalized = normalizeUsername(username);
+        String normalized = UserProfilePhotoService.normalizeUsername(username);
         if (normalized == null) {
             return null;
         }
-        if (resourceLoader.getResource(PHOTO_PATH.formatted(normalized)).exists()) {
-            return "/images/" + normalized + ".png";
+        return userProfilePhotoService.findStoredPhoto(username)
+                .map(photo -> {
+                    long version = photo.updatedAt() != null ? photo.updatedAt().toEpochMilli() : 0L;
+                    return "/profile/photos/" + normalized + "?v=" + version;
+                })
+                .orElseGet(() -> staticPhotoUrl(normalized));
+    }
+
+    private String staticPhotoUrl(String normalizedUsername) {
+        if (resourceLoader.getResource(PHOTO_PATH.formatted(normalizedUsername)).exists()) {
+            return "/images/" + normalizedUsername + ".png";
         }
-        if (resourceLoader.getResource(GROUP2_PHOTO_PATH.formatted(normalized)).exists()) {
-            return "/images/group2/" + normalized + ".png";
+        if (resourceLoader.getResource(GROUP2_PHOTO_PATH.formatted(normalizedUsername)).exists()) {
+            return "/images/group2/" + normalizedUsername + ".png";
         }
         return null;
     }
 
-    private String resolvePhotoPath(String username) {
-        String normalized = normalizeUsername(username);
+    private String resolveStaticPhotoPath(String username) {
+        String normalized = UserProfilePhotoService.normalizeUsername(username);
         if (normalized == null) {
             return null;
         }
@@ -46,12 +62,5 @@ public class UserProfilePhotoHelper {
             return GROUP2_PHOTO_PATH.formatted(normalized);
         }
         return null;
-    }
-
-    private static String normalizeUsername(String username) {
-        if (username == null || username.isBlank()) {
-            return null;
-        }
-        return username.toLowerCase();
     }
 }

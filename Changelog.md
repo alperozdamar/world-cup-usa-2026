@@ -16,6 +16,9 @@ All notable changes to this project will be documented in this file.
   - WC-0050 - Knockout display: show admin-assigned teams (e.g. USA vs Bosnia) instead of provisional 3rd-place guess
   - WC-0051 - Knockout scoring: +2 for correct advancer when you predicted a draw at 90′, even if the 90′ score was wrong (e.g. 1–1 + Canada advances vs actual 1–2)
   - WC-0052 - Rules page: knockout scoring examples table (R32 picks vs results with point breakdown)
+  - WC-0053 - Profile photo upload on Profile Settings (JPEG/PNG up to 2 MB, stored in DB; falls back to bundled default photo)
+  - WC-0054 - Profile photo upload: show friendly error on oversize file instead of HTTP 413 page
+  - WC-0055 - Profile photo storage: use MEDIUMBLOB for photo_data (fixes upload failure above 64 KB)
 
 ## [v0.0.4-PRERELEASE]
   - WC-0037 - Mobile-friendly header: hamburger nav on small screens, compact clocks/ticker, no wasted blue space on iPhone

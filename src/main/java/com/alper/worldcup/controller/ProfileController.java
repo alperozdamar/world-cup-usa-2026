@@ -1,14 +1,22 @@
 package com.alper.worldcup.controller;
 
 import com.alper.worldcup.service.UserAccountService;
+import com.alper.worldcup.service.UserProfilePhotoHelper;
+import com.alper.worldcup.service.UserProfilePhotoService;
 import com.alper.worldcup.service.UserProfileService;
 import java.security.Principal;
+import org.springframework.http.CacheControl;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 @Controller
@@ -17,11 +25,17 @@ public class ProfileController {
 
     private final UserProfileService userProfileService;
     private final UserAccountService userAccountService;
+    private final UserProfilePhotoService userProfilePhotoService;
+    private final UserProfilePhotoHelper userProfilePhotoHelper;
 
     public ProfileController(UserProfileService userProfileService,
-                             UserAccountService userAccountService) {
+                             UserAccountService userAccountService,
+                             UserProfilePhotoService userProfilePhotoService,
+                             UserProfilePhotoHelper userProfilePhotoHelper) {
         this.userProfileService = userProfileService;
         this.userAccountService = userAccountService;
+        this.userProfilePhotoService = userProfilePhotoService;
+        this.userProfilePhotoHelper = userProfilePhotoHelper;
     }
 
     @GetMapping("/settings")
@@ -31,6 +45,8 @@ public class ProfileController {
         model.addAttribute("timezones", userProfileService.getCommonTimezones());
         model.addAttribute("displayName", userProfileService.getDisplayName(username));
         model.addAttribute("email", userProfileService.getEmail(username));
+        model.addAttribute("username", username);
+        model.addAttribute("hasUploadedPhoto", userProfilePhotoHelper.hasUploadedPhoto(username));
         return "profile/settings";
     }
 
@@ -46,6 +62,36 @@ public class ProfileController {
             redirectAttributes.addFlashAttribute("errorMessage", ex.getMessage());
         }
         return "redirect:/profile/settings";
+    }
+
+    @PostMapping("/photo")
+    public String uploadPhoto(Principal principal,
+                              @RequestParam("photo") MultipartFile photo,
+                              RedirectAttributes redirectAttributes) {
+        try {
+            userProfilePhotoService.savePhoto(principal.getName(), photo);
+            redirectAttributes.addFlashAttribute("successMessage", "Profile photo updated.");
+        } catch (Exception ex) {
+            redirectAttributes.addFlashAttribute("errorMessage", ex.getMessage());
+        }
+        return "redirect:/profile/settings";
+    }
+
+    @PostMapping("/photo/remove")
+    public String removePhoto(Principal principal, RedirectAttributes redirectAttributes) {
+        userProfilePhotoService.removeUploadedPhoto(principal.getName());
+        redirectAttributes.addFlashAttribute("successMessage", "Uploaded photo removed. Default photo will show if one exists.");
+        return "redirect:/profile/settings";
+    }
+
+    @GetMapping("/photos/{username}")
+    public ResponseEntity<byte[]> photo(@PathVariable String username) {
+        return userProfilePhotoService.findStoredPhoto(username)
+                .map(photo -> ResponseEntity.ok()
+                        .contentType(MediaType.parseMediaType(photo.contentType()))
+                        .header(HttpHeaders.CACHE_CONTROL, CacheControl.noCache().getHeaderValue())
+                        .body(photo.data()))
+                .orElse(ResponseEntity.notFound().build());
     }
 
     @GetMapping("/password")

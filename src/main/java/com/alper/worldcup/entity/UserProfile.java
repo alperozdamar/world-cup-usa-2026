@@ -3,7 +3,9 @@ package com.alper.worldcup.entity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
+import jakarta.persistence.Lob;
 import jakarta.persistence.Table;
+import java.time.Instant;
 
 @Entity
 @Table(name = "user_profiles")
@@ -21,6 +23,16 @@ public class UserProfile {
 
     @Column(length = 255)
     private String email;
+
+    @Column(name = "photo_content_type", length = 32)
+    private String photoContentType;
+
+    @Lob
+    @Column(name = "photo_data", columnDefinition = "MEDIUMBLOB")
+    private byte[] photoData;
+
+    @Column(name = "photo_updated_at")
+    private Instant photoUpdatedAt;
 
     public UserProfile() {
     }
@@ -61,5 +73,29 @@ public class UserProfile {
 
     public void setEmail(String email) {
         this.email = email;
+    }
+
+    public String getPhotoContentType() {
+        return photoContentType;
+    }
+
+    public void setPhotoContentType(String photoContentType) {
+        this.photoContentType = photoContentType;
+    }
+
+    public byte[] getPhotoData() {
+        return photoData;
+    }
+
+    public void setPhotoData(byte[] photoData) {
+        this.photoData = photoData;
+    }
+
+    public Instant getPhotoUpdatedAt() {
+        return photoUpdatedAt;
+    }
+
+    public void setPhotoUpdatedAt(Instant photoUpdatedAt) {
+        this.photoUpdatedAt = photoUpdatedAt;
     }
 }
