@@ -113,12 +113,26 @@
                 </tr>
                 </tbody>
             </table>
-            <p class="small text-muted mt-3 mb-0">
-                Example: you pick 1–1, penalties <strong>Yes</strong>, Brazil advances. Actual 1–1, penalties
-                <strong>Yes</strong>, Brazil advances → 5 (exact) + 1 (penalties) + 2 (advancer) = 8 base points,
-                then × round multiplier (e.g. ×1.5 in a quarter-final → 12).
-                If you pick 1–1 and Canada advances but actual is 1–2 Canada wins in normal time → 0 from the 90′ table
-                + <strong>2</strong> for the correct advancer (× round multiplier).
+            <p class="fw-semibold mb-2 mt-4">Examples (Round of 32, ×1.0)</p>
+            <table class="table mb-3">
+                <thead>
+                <tr><th>Your pick</th><th>Actual</th><th>Breakdown</th><th>Pts</th></tr>
+                </thead>
+                <tbody>
+                <tr><td>2–1</td><td>2–1</td><td>5 exact</td><td><strong>5</strong></td></tr>
+                <tr><td>2–1</td><td>3–1</td><td>2 outcome</td><td><strong>2</strong></td></tr>
+                <tr><td>2–1</td><td>3–0</td><td>3 outcome + GD</td><td><strong>3</strong></td></tr>
+                <tr><td>1–1, Pens Yes, Home adv</td><td>1–1, Pens Yes, Home adv</td><td>5 + 1 + 2</td><td><strong>8</strong></td></tr>
+                <tr><td>1–1, Pens Yes, Home adv</td><td>1–2 (Away wins)</td><td>+2 adv only</td><td><strong>2</strong></td></tr>
+                <tr><td>1–1, Pens Yes, Away adv</td><td>1–2 (Away wins)</td><td>+2 adv only</td><td><strong>2</strong></td></tr>
+                <tr><td>1–1, Pens Yes, Home adv</td><td>1–2</td><td>wrong advancer</td><td><strong>0</strong></td></tr>
+                <tr><td>1–1, Pens Yes, Home adv</td><td>1–1, Pens No, Home adv</td><td>5 + 2 (pens wrong)</td><td><strong>7</strong></td></tr>
+                <tr><td>2–1</td><td>1–1</td><td>wrong outcome</td><td><strong>0</strong></td></tr>
+                </tbody>
+            </table>
+            <p class="small text-muted mb-0">
+                Same base × multiplier per round: Round of 16 ×1.25, Quarter-final ×1.5, Semi-final ×1.75, Final ×2.0.
+                Points are rounded to the nearest whole number after multiplying.
             </p>
         </div>
     </div>

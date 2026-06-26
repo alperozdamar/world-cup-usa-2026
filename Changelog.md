@@ -15,6 +15,7 @@ All notable changes to this project will be documented in this file.
   - WC-0049 - Leaderboard: Match / Group / Final point columns so total breakdown is visible
   - WC-0050 - Knockout display: show admin-assigned teams (e.g. USA vs Bosnia) instead of provisional 3rd-place guess
   - WC-0051 - Knockout scoring: +2 for correct advancer when you predicted a draw at 90′, even if the 90′ score was wrong (e.g. 1–1 + Canada advances vs actual 1–2)
+  - WC-0052 - Rules page: knockout scoring examples table (R32 picks vs results with point breakdown)
 
 ## [v0.0.4-PRERELEASE]
   - WC-0037 - Mobile-friendly header: hamburger nav on small screens, compact clocks/ticker, no wasted blue space on iPhone
