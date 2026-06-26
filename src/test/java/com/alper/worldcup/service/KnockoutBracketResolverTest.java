@@ -79,28 +79,36 @@ class KnockoutBracketResolverTest {
     }
 
     @Test
-    void usesPlaceholderStandingsInsteadOfAssignedTeamForDisplay() {
+    void prefersAssignedTeamOverStandingsForDisplay() {
         Team usa = team(10, "USA");
+        Team bosnia = team(11, "Bosnia and Herzegovina");
         Match match = new Match();
         match.setId(80);
         match.setStage(MatchStage.ROUND_OF_32);
         match.setHomeTeam(usa);
-        match.setHomePlaceholder("1A");
-        match.setAwayPlaceholder("2H");
+        match.setAwayTeam(bosnia);
+        match.setHomePlaceholder("1D");
+        match.setAwayPlaceholder("3BEFIJ");
 
         Team mexico = team(1, "Mexico");
+        Team senegal = team(2, "Senegal");
         GroupStandingsView groupA = new GroupStandingsView("A", List.of(standing(mexico, 1, 6)));
+        GroupStandingsView groupI = new GroupStandingsView("I", List.of(
+                standing(team(3, "France"), 1, 6),
+                standing(team(4, "Norway"), 2, 6),
+                standing(senegal, 3, 0)));
 
         Map<Integer, KnockoutBracketResolver.ResolvedKnockoutSides> resolved =
                 KnockoutBracketResolver.resolveDisplayNames(
                         List.of(match),
-                        Map.of("A", groupA),
+                        Map.of("A", groupA, "I", groupI),
                         Map.of(80, match),
                         placeholderFromMatch());
 
-        assertEquals("Mexico", resolved.get(80).homeDisplayName());
-        assertEquals("1A", resolved.get(80).homeSlotLabel());
-        assertEquals("2H", resolved.get(80).awayDisplayName());
+        assertEquals("USA", resolved.get(80).homeDisplayName());
+        assertEquals("1D", resolved.get(80).homeSlotLabel());
+        assertEquals("Bosnia and Herzegovina", resolved.get(80).awayDisplayName());
+        assertEquals("3BEFIJ", resolved.get(80).awaySlotLabel());
     }
 
     @Test

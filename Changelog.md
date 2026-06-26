@@ -13,6 +13,7 @@ All notable changes to this project will be documented in this file.
   - WC-0046 - Group Stage Predictions mobile layout: Group column removed; Status rightmost; smaller Locks in countdown; compact score inputs
   - WC-0048 - Others' Picks: per-group points shown in Group 1st & 2nd table after admin enters official group results
   - WC-0049 - Leaderboard: Match / Group / Final point columns so total breakdown is visible
+  - WC-0050 - Knockout display: show admin-assigned teams (e.g. USA vs Bosnia) instead of provisional 3rd-place guess
 
 ## [v0.0.4-PRERELEASE]
   - WC-0037 - Mobile-friendly header: hamburger nav on small screens, compact clocks/ticker, no wasted blue space on iPhone

@@ -87,12 +87,12 @@ public class KnockoutBracketResolver {
                                              Map<String, GroupStandingsView> standingsByGroup,
                                              Map<Integer, Match> matchesById,
                                              PlaceholderSource placeholderSource) {
-        if (placeholder != null && !placeholder.isBlank()) {
-            return resolvePlaceholder(placeholder, standingsByGroup, matchesById, placeholderSource);
-        }
         Team assignedTeam = homeSide ? match.getHomeTeam() : match.getAwayTeam();
         if (assignedTeam != null) {
             return assignedTeam.getName();
+        }
+        if (placeholder != null && !placeholder.isBlank()) {
+            return resolvePlaceholder(placeholder, standingsByGroup, matchesById, placeholderSource);
         }
         return "TBD";
     }
@@ -102,13 +102,13 @@ public class KnockoutBracketResolver {
                                          Map<String, GroupStandingsView> standingsByGroup,
                                          Map<Integer, Match> matchesById,
                                          PlaceholderSource placeholderSource) {
-        String placeholder = placeholderSource.placeholder(match, homeSide);
-        if (placeholder != null && !placeholder.isBlank()) {
-            return resolvePlaceholder(placeholder, standingsByGroup, matchesById, placeholderSource);
-        }
         Team assignedTeam = homeSide ? match.getHomeTeam() : match.getAwayTeam();
         if (assignedTeam != null) {
             return assignedTeam.getName();
+        }
+        String placeholder = placeholderSource.placeholder(match, homeSide);
+        if (placeholder != null && !placeholder.isBlank()) {
+            return resolvePlaceholder(placeholder, standingsByGroup, matchesById, placeholderSource);
         }
         return "TBD";
     }
