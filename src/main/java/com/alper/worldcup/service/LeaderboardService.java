@@ -40,7 +40,8 @@ public class LeaderboardService {
 
     @Transactional(readOnly = true)
     public List<LeaderboardRowView> getLeaderboardRows() {
-        Map<String, Long> matchPoints = poolTotals(predictionRepository.findLeaderboardTotals());
+        Map<String, Long> matchPoints = poolTotals(predictionRepository.findGroupStageLeaderboardTotals());
+        Map<String, Long> knockoutPoints = poolTotals(predictionRepository.findKnockoutLeaderboardTotals());
         Map<String, Long> groupPoints = poolTotals(groupStandingPredictionRepository.findLeaderboardTotals());
         Map<String, Long> finalPoints = poolTotals(finalPredictionRepository.findLeaderboardTotals());
         Map<String, UserMatchStats> matchStats = userMatchStatsService.getStatsForPoolMembers();
@@ -50,9 +51,11 @@ public class LeaderboardService {
         for (var profile : userProfileService.getPoolProfiles()) {
             String username = profile.getUsername();
             long match = matchPoints.getOrDefault(username, 0L);
+            long knockout = knockoutPoints.getOrDefault(username, 0L);
             long group = groupPoints.getOrDefault(username, 0L);
             long fin = finalPoints.getOrDefault(username, 0L);
-            rows.add(new LeaderboardRowView(username, match, group, fin, match + group + fin));
+            rows.add(new LeaderboardRowView(username, match, knockout, group, fin,
+                    match + knockout + group + fin));
         }
 
         rows.sort(leaderboardComparator(matchStats, championCorrect));

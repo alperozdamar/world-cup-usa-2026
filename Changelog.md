@@ -21,6 +21,9 @@ All notable changes to this project will be documented in this file.
   - WC-0055 - Profile photo storage: use MEDIUMBLOB for photo_data (fixes upload failure above 64 KB)
   - WC-0056 - Leaderboard tiebreakers: success rate % then correct champion pick when total points are equal
   - WC-0057 - Knockout page: static bracket image (26 Jun 2026 snapshot) replaces dynamic bracket overview; prediction forms unchanged
+  - WC-0058 - Admin Enter Scores: today's matches first; unscored past games stay near the top; saved past games at the bottom
+  - WC-0059 - Leaderboard: Knockout column separate from group-stage Match column (stage multipliers visible per round)
+  - WC-0060 - Prod SQL scripts for manual R32 setup: `db/knockout_r32_prod_fix.sql` and `db/knockout_r32_group2.sql` (standings-based team assignment, accent-safe)
 
 ## [v0.0.4-PRERELEASE]
   - WC-0037 - Mobile-friendly header: hamburger nav on small screens, compact clocks/ticker, no wasted blue space on iPhone

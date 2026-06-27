@@ -48,7 +48,7 @@ class LeaderboardServiceTest {
 
     @Test
     void includesPoolMembersWithZeroPoints() {
-        when(predictionRepository.findLeaderboardTotals()).thenReturn(List.of(
+        stubMatchPoints(List.of(
                 new Object[]{"gonenc", 5L},
                 new Object[]{"alper", 2L}));
         when(groupStandingPredictionRepository.findLeaderboardTotals()).thenReturn(List.of());
@@ -76,7 +76,7 @@ class LeaderboardServiceTest {
 
     @Test
     void ignoresNonPoolUsersWithPoints() {
-        when(predictionRepository.findLeaderboardTotals()).thenReturn(List.of(
+        stubMatchPoints(List.of(
                 new Object[]{"susan", 99L},
                 new Object[]{"gonenc", 5L}));
         when(groupStandingPredictionRepository.findLeaderboardTotals()).thenReturn(List.of());
@@ -95,8 +95,10 @@ class LeaderboardServiceTest {
 
     @Test
     void leaderboardRowsBreakDownPointsByCategory() {
-        when(predictionRepository.findLeaderboardTotals()).thenReturn(
-                List.<Object[]>of(new Object[]{"gonenc", 40L}));
+        when(predictionRepository.findGroupStageLeaderboardTotals()).thenReturn(
+                List.<Object[]>of(new Object[]{"gonenc", 30L}));
+        when(predictionRepository.findKnockoutLeaderboardTotals()).thenReturn(
+                List.<Object[]>of(new Object[]{"gonenc", 10L}));
         when(groupStandingPredictionRepository.findLeaderboardTotals()).thenReturn(
                 List.<Object[]>of(new Object[]{"gonenc", 12L}));
         when(finalPredictionRepository.findLeaderboardTotals()).thenReturn(
@@ -109,7 +111,8 @@ class LeaderboardServiceTest {
         List<LeaderboardRowView> rows = service.getLeaderboardRows();
 
         assertEquals(1, rows.size());
-        assertEquals(40L, rows.get(0).matchPoints());
+        assertEquals(30L, rows.get(0).matchPoints());
+        assertEquals(10L, rows.get(0).knockoutPoints());
         assertEquals(12L, rows.get(0).groupPoints());
         assertEquals(8L, rows.get(0).finalPoints());
         assertEquals(60L, rows.get(0).totalPoints());
@@ -117,7 +120,7 @@ class LeaderboardServiceTest {
 
     @Test
     void tieBreaksOnSuccessRateThenChampionPick() {
-        when(predictionRepository.findLeaderboardTotals()).thenReturn(List.of(
+        stubMatchPoints(List.of(
                 new Object[]{"alper", 10L},
                 new Object[]{"gonenc", 10L}));
         when(groupStandingPredictionRepository.findLeaderboardTotals()).thenReturn(List.of());
@@ -138,7 +141,7 @@ class LeaderboardServiceTest {
 
     @Test
     void tieBreaksOnChampionWhenSuccessRateIsEqual() {
-        when(predictionRepository.findLeaderboardTotals()).thenReturn(List.of(
+        stubMatchPoints(List.of(
                 new Object[]{"alper", 10L},
                 new Object[]{"gonenc", 10L}));
         when(groupStandingPredictionRepository.findLeaderboardTotals()).thenReturn(List.of());
@@ -164,6 +167,11 @@ class LeaderboardServiceTest {
         assertEquals(-1, LeaderboardService.successRateForSort(null));
         assertEquals(-1, LeaderboardService.successRateForSort(new UserMatchStats(0, 0, 0)));
         assertEquals(50, LeaderboardService.successRateForSort(new UserMatchStats(1, 5, 5)));
+    }
+
+    private void stubMatchPoints(List<Object[]> combinedTotals) {
+        when(predictionRepository.findGroupStageLeaderboardTotals()).thenReturn(combinedTotals);
+        when(predictionRepository.findKnockoutLeaderboardTotals()).thenReturn(List.of());
     }
 
     private static UserProfile profile(String username, String displayName) {

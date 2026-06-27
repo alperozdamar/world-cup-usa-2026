@@ -18,6 +18,16 @@ public interface PredictionRepository extends JpaRepository<Prediction, Integer>
             + "WHERE p.points IS NOT NULL GROUP BY p.username ORDER BY COALESCE(SUM(p.points), 0) DESC")
     List<Object[]> findLeaderboardTotals();
 
+    @Query("SELECT p.username, COALESCE(SUM(p.points), 0) FROM Prediction p JOIN p.match m "
+            + "WHERE p.points IS NOT NULL AND m.stage = com.alper.worldcup.entity.MatchStage.GROUP_STAGE "
+            + "GROUP BY p.username")
+    List<Object[]> findGroupStageLeaderboardTotals();
+
+    @Query("SELECT p.username, COALESCE(SUM(p.points), 0) FROM Prediction p JOIN p.match m "
+            + "WHERE p.points IS NOT NULL AND m.stage <> com.alper.worldcup.entity.MatchStage.GROUP_STAGE "
+            + "GROUP BY p.username")
+    List<Object[]> findKnockoutLeaderboardTotals();
+
     @Query("SELECT p FROM Prediction p JOIN FETCH p.match m "
             + "WHERE m.homeScoreActual IS NOT NULL AND m.awayScoreActual IS NOT NULL")
     List<Prediction> findAllScoredWithMatch();
