@@ -62,7 +62,7 @@ public class AdminController {
     }
 
     /**
-     * Today first, then other upcoming, then past matches at the bottom.
+     * Today first, then unscored and upcoming, then scored past matches at the bottom.
      */
     static List<Match> sortMatchesForAdminScores(List<Match> matches, ZoneId zoneId) {
         return sortMatchesForAdminScores(matches, zoneId, Instant.now());
@@ -90,7 +90,7 @@ public class AdminController {
         if (matchDay.equals(today)) {
             return 0;
         }
-        if (matchDay.isAfter(today)) {
+        if (matchDay.isAfter(today) || !match.isScoreEntered()) {
             return 1;
         }
         return 2;
