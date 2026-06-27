@@ -12,6 +12,8 @@ import com.alper.worldcup.service.UserProfileService;
 import com.alper.worldcup.entity.GroupResult;
 import com.alper.worldcup.entity.Team;
 import java.security.Principal;
+import java.time.Instant;
+import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -52,11 +54,46 @@ public class AdminController {
 
     @GetMapping("/scores")
     public String scores(Principal principal, Model model) {
-        List<Match> matches = matchRepository.findAllWithTeams();
         ZoneId zoneId = userProfileService.getUserZoneId(principal.getName());
+        List<Match> matches = sortMatchesForAdminScores(matchRepository.findAllWithTeams(), zoneId);
         model.addAttribute("matches", matches);
         model.addAttribute("zoneId", zoneId.getId());
         return "admin/scores";
+    }
+
+    /**
+     * Today first, then other upcoming, then past matches at the bottom.
+     */
+    static List<Match> sortMatchesForAdminScores(List<Match> matches, ZoneId zoneId) {
+        return sortMatchesForAdminScores(matches, zoneId, Instant.now());
+    }
+
+    static List<Match> sortMatchesForAdminScores(List<Match> matches, ZoneId zoneId, Instant now) {
+        LocalDate today = now.atZone(zoneId).toLocalDate();
+        return matches.stream()
+                .sorted((left, right) -> {
+                    int leftBucket = adminScoresBucket(left, today, zoneId);
+                    int rightBucket = adminScoresBucket(right, today, zoneId);
+                    if (leftBucket != rightBucket) {
+                        return Integer.compare(leftBucket, rightBucket);
+                    }
+                    if (leftBucket == 2) {
+                        return right.getKickoffUtc().compareTo(left.getKickoffUtc());
+                    }
+                    return left.getKickoffUtc().compareTo(right.getKickoffUtc());
+                })
+                .toList();
+    }
+
+    private static int adminScoresBucket(Match match, LocalDate today, ZoneId zoneId) {
+        LocalDate matchDay = match.getKickoffUtc().atZone(zoneId).toLocalDate();
+        if (matchDay.equals(today)) {
+            return 0;
+        }
+        if (matchDay.isAfter(today)) {
+            return 1;
+        }
+        return 2;
     }
 
     @PostMapping("/scores/save")
