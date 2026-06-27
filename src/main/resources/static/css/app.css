@@ -900,3 +900,120 @@ body.admin-page .leaderboard-ticker-bar {
         font-weight: 600;
     }
 }
+
+.turkuaz-market-ad-desktop {
+    display: none;
+    position: fixed;
+    left: 0.75rem;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 1020;
+    width: 14rem;
+}
+
+@media (min-width: 1200px) {
+    .turkuaz-market-ad-desktop {
+        display: block;
+    }
+
+    .turkuaz-market-ad-mobile {
+        display: none;
+    }
+}
+
+.turkuaz-market-ad-mobile {
+    max-width: 22rem;
+    margin: 0 auto 1rem;
+}
+
+body.admin-page .turkuaz-market-ad-mobile {
+    display: none;
+}
+
+.turkuaz-market-ad-link {
+    display: block;
+    text-decoration: none;
+    color: inherit;
+    background: #fff;
+    border: 1px solid #dee2e6;
+    border-radius: 0.5rem;
+    overflow: hidden;
+    box-shadow: 0 0.25rem 0.75rem rgba(0, 0, 0, 0.08);
+    transition: box-shadow 0.15s ease, transform 0.15s ease;
+}
+
+.turkuaz-market-ad-link:hover {
+    box-shadow: 0 0.35rem 1rem rgba(0, 0, 0, 0.14);
+    transform: translateY(-2px);
+    color: inherit;
+}
+
+.turkuaz-market-ad-img {
+    display: block;
+    width: 100%;
+    height: auto;
+    aspect-ratio: 3 / 4;
+    object-fit: cover;
+}
+
+.turkuaz-market-ad-caption {
+    display: block;
+    padding: 0.6rem 0.65rem 0.2rem;
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: #0d6e6e;
+    line-height: 1.2;
+}
+
+.turkuaz-market-ad-sub {
+    display: block;
+    padding: 0 0.65rem 0.65rem;
+    font-size: 0.78rem;
+    color: #6c757d;
+    line-height: 1.25;
+}
+
+.turkuaz-market-ad-mobile-link {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    text-decoration: none;
+    color: inherit;
+    background: #fff;
+    border: 1px solid #dee2e6;
+    border-radius: 0.5rem;
+    overflow: hidden;
+    box-shadow: 0 0.15rem 0.5rem rgba(0, 0, 0, 0.06);
+    padding: 0.5rem 0.65rem 0.5rem 0.5rem;
+}
+
+.turkuaz-market-ad-mobile-link:active {
+    opacity: 0.92;
+}
+
+.turkuaz-market-ad-mobile-img {
+    width: 3.25rem;
+    height: 3.25rem;
+    object-fit: cover;
+    border-radius: 0.35rem;
+    flex-shrink: 0;
+}
+
+.turkuaz-market-ad-mobile-text {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+}
+
+.turkuaz-market-ad-mobile-caption {
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: #0d6e6e;
+    line-height: 1.2;
+}
+
+.turkuaz-market-ad-mobile-sub {
+    font-size: 0.72rem;
+    color: #6c757d;
+    line-height: 1.25;
+}

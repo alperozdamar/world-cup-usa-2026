@@ -161,6 +161,7 @@
         </div>
     </nav>
     <script th:src="@{/js/world-clocks.js}" defer></script>
+    <div th:replace="~{fragments/layout :: turkuaz-market-ad}"></div>
 </div>
 <div th:fragment="navbar-admin">
     <div th:replace="~{fragments/layout :: world-clocks}"></div>
@@ -202,9 +203,11 @@
         Admin area — enter official results only (after matches / group stage finish)
     </div>
     <script th:src="@{/js/world-clocks.js}" defer></script>
+    <div th:replace="~{fragments/layout :: turkuaz-market-ad}"></div>
 </div>
 <footer th:fragment="footer" class="app-footer">
     <div class="container">
+        <div th:replace="~{fragments/layout :: turkuaz-market-ad-mobile}"></div>
         <details class="support-footer-toggle">
             <summary class="support-footer-summary">Support the app</summary>
             <div th:replace="~{fragments/layout :: support-content(compact=true)}"></div>
@@ -241,6 +244,37 @@
             <p class="mb-0 text-muted">International: ask me for Wise / Revolut / IBAN.</p>
         </div>
     </div>
+</div>
+<aside th:fragment="turkuaz-market-ad" class="turkuaz-market-ad turkuaz-market-ad-desktop" aria-label="Turkuaz Market">
+    <a href="https://www.yelp.com/biz_photos/turkuaz-market-cary?select=URv-DsNdNWPFQBSf_fZkyQ"
+       class="turkuaz-market-ad-link"
+       target="_blank"
+       rel="noopener noreferrer"
+       title="Turkuaz Market on Yelp">
+        <img th:src="@{/images/turkuaz-market.png}"
+             src="/images/turkuaz-market.png"
+             alt="Turkuaz Market storefront — Mediterranean grocery in Cary, NC"
+             class="turkuaz-market-ad-img">
+        <span class="turkuaz-market-ad-caption">Turkuaz Market</span>
+        <span class="turkuaz-market-ad-sub">Mediterranean Grocery · Cary, NC</span>
+    </a>
+</aside>
+<div th:fragment="turkuaz-market-ad-mobile" class="turkuaz-market-ad-mobile">
+    <a href="https://www.yelp.com/biz_photos/turkuaz-market-cary?select=URv-DsNdNWPFQBSf_fZkyQ"
+       class="turkuaz-market-ad-mobile-link"
+       target="_blank"
+       rel="noopener noreferrer"
+       title="Turkuaz Market on Yelp">
+        <img th:src="@{/images/turkuaz-market.png}"
+             src="/images/turkuaz-market.png"
+             alt=""
+             class="turkuaz-market-ad-mobile-img"
+             aria-hidden="true">
+        <span class="turkuaz-market-ad-mobile-text">
+            <span class="turkuaz-market-ad-mobile-caption">Turkuaz Market</span>
+            <span class="turkuaz-market-ad-mobile-sub">Mediterranean Grocery · Cary, NC</span>
+        </span>
+    </a>
 </div>
 </body>
 </html>
