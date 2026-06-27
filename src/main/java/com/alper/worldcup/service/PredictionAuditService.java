@@ -37,6 +37,22 @@ public class PredictionAuditService {
                                        PredictionAuditAction action,
                                        Integer previousHomeGuess,
                                        Integer previousAwayGuess) {
+        recordPredictionChange(username, match, homeGuess, awayGuess, action,
+                previousHomeGuess, previousAwayGuess, null, null, null, null);
+    }
+
+    @Transactional
+    public void recordPredictionChange(String username,
+                                       com.alper.worldcup.entity.Match match,
+                                       int homeGuess,
+                                       int awayGuess,
+                                       PredictionAuditAction action,
+                                       Integer previousHomeGuess,
+                                       Integer previousAwayGuess,
+                                       Boolean penaltyShootoutGuess,
+                                       String advancingTeamName,
+                                       Boolean previousPenaltyShootoutGuess,
+                                       String previousAdvancingTeamName) {
         PredictionAudit audit = new PredictionAudit();
         audit.setUsername(username);
         audit.setMatch(match);
@@ -46,6 +62,10 @@ public class PredictionAuditService {
         audit.setAwayScoreGuess(awayGuess);
         audit.setPreviousHomeScoreGuess(previousHomeGuess);
         audit.setPreviousAwayScoreGuess(previousAwayGuess);
+        audit.setPenaltyShootoutGuess(penaltyShootoutGuess);
+        audit.setAdvancingTeamName(advancingTeamName);
+        audit.setPreviousPenaltyShootoutGuess(previousPenaltyShootoutGuess);
+        audit.setPreviousAdvancingTeamName(previousAdvancingTeamName);
         audit.setAction(action);
         audit.setRecordedAt(Instant.now());
         predictionAuditRepository.save(audit);
@@ -98,11 +118,12 @@ public class PredictionAuditService {
                 : predictionAuditRepository.findByUsernameWithMatchOrderByRecordedAtDesc(username);
 
         for (PredictionAudit audit : matchAudits) {
+            String type = KnockoutStageLabels.isKnockout(audit.getMatch()) ? "Knockout" : "Match";
             entries.add(new AuditEntryView(
                     audit.getRecordedAt(),
                     audit.getUsername(),
                     audit.getAction(),
-                    "Match",
+                    type,
                     audit.getMatchLabel(),
                     audit.getChangeLabel()));
         }

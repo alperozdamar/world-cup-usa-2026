@@ -46,6 +46,18 @@ public class PredictionAudit {
     @Column(name = "previous_away_score_guess")
     private Integer previousAwayScoreGuess;
 
+    @Column(name = "penalty_shootout_guess")
+    private Boolean penaltyShootoutGuess;
+
+    @Column(name = "advancing_team_name", length = 100)
+    private String advancingTeamName;
+
+    @Column(name = "previous_penalty_shootout_guess")
+    private Boolean previousPenaltyShootoutGuess;
+
+    @Column(name = "previous_advancing_team_name", length = 100)
+    private String previousAdvancingTeamName;
+
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 10)
     private PredictionAuditAction action;
@@ -128,6 +140,38 @@ public class PredictionAudit {
         this.previousAwayScoreGuess = previousAwayScoreGuess;
     }
 
+    public Boolean getPenaltyShootoutGuess() {
+        return penaltyShootoutGuess;
+    }
+
+    public void setPenaltyShootoutGuess(Boolean penaltyShootoutGuess) {
+        this.penaltyShootoutGuess = penaltyShootoutGuess;
+    }
+
+    public String getAdvancingTeamName() {
+        return advancingTeamName;
+    }
+
+    public void setAdvancingTeamName(String advancingTeamName) {
+        this.advancingTeamName = advancingTeamName;
+    }
+
+    public Boolean getPreviousPenaltyShootoutGuess() {
+        return previousPenaltyShootoutGuess;
+    }
+
+    public void setPreviousPenaltyShootoutGuess(Boolean previousPenaltyShootoutGuess) {
+        this.previousPenaltyShootoutGuess = previousPenaltyShootoutGuess;
+    }
+
+    public String getPreviousAdvancingTeamName() {
+        return previousAdvancingTeamName;
+    }
+
+    public void setPreviousAdvancingTeamName(String previousAdvancingTeamName) {
+        this.previousAdvancingTeamName = previousAdvancingTeamName;
+    }
+
     public PredictionAuditAction getAction() {
         return action;
     }
@@ -149,7 +193,11 @@ public class PredictionAudit {
     }
 
     public String getScoreLabel() {
-        return homeScoreGuess + " - " + awayScoreGuess;
+        return formatPredictionLabel(
+                homeScoreGuess,
+                awayScoreGuess,
+                penaltyShootoutGuess,
+                advancingTeamName);
     }
 
     public String getChangeLabel() {
@@ -158,7 +206,26 @@ public class PredictionAudit {
                 || previousAwayScoreGuess == null) {
             return getScoreLabel();
         }
-        return previousHomeScoreGuess + " - " + previousAwayScoreGuess
-                + " → " + getScoreLabel();
+        return formatPredictionLabel(
+                previousHomeScoreGuess,
+                previousAwayScoreGuess,
+                previousPenaltyShootoutGuess,
+                previousAdvancingTeamName)
+                + " → "
+                + getScoreLabel();
+    }
+
+    static String formatPredictionLabel(Integer homeGuess,
+                                        Integer awayGuess,
+                                        Boolean penaltyShootoutGuess,
+                                        String advancingTeamName) {
+        String label = homeGuess + " - " + awayGuess;
+        if (penaltyShootoutGuess != null) {
+            label += " · Penalties: " + (penaltyShootoutGuess ? "Yes" : "No");
+        }
+        if (advancingTeamName != null && !advancingTeamName.isBlank()) {
+            label += " · Advances: " + advancingTeamName;
+        }
+        return label;
     }
 }

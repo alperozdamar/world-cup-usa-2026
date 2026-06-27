@@ -26,6 +26,7 @@ All notable changes to this project will be documented in this file.
   - WC-0060 - Prod SQL scripts for manual R32 setup: `db/knockout_r32_prod_fix.sql` and `db/knockout_r32_group2.sql` (standings-based team assignment, accent-safe)
   - WC-0061 - Host's Picks: show host knockout predictions (90′ score, penalties, advancer) before kickoff, same transparency as group-stage scores
   - WC-0062 - Others' Picks: knockout section with 90′ / penalties / advancer columns; hidden until kickoff; Next match includes earliest group or knockout game
+  - WC-0063 - Prediction Audit: knockout picks show 90′ score, penalties, and advancer; type badge "Knockout"
 
 ## [v0.0.4-PRERELEASE]
   - WC-0037 - Mobile-friendly header: hamburger nav on small screens, compact clocks/ticker, no wasted blue space on iPhone

@@ -130,6 +130,10 @@ public class KnockoutService {
         boolean isUpdate = prediction.getId() != null;
         Integer previousHome = isUpdate ? prediction.getHomeScoreGuess() : null;
         Integer previousAway = isUpdate ? prediction.getAwayScoreGuess() : null;
+        Boolean previousPenalty = isUpdate ? prediction.getPenaltyShootoutGuess() : null;
+        String previousAdvancer = isUpdate && prediction.getAdvancingTeamGuess() != null
+                ? prediction.getAdvancingTeamGuess().getName()
+                : null;
 
         if (isUpdate
                 && homeGuess.equals(previousHome)
@@ -155,7 +159,11 @@ public class KnockoutService {
                 awayGuess,
                 isUpdate ? PredictionAuditAction.UPDATED : PredictionAuditAction.CREATED,
                 previousHome,
-                previousAway);
+                previousAway,
+                storedPenaltyGuess,
+                advancingTeam.getName(),
+                previousPenalty,
+                previousAdvancer);
     }
 
     private Team resolveAdvancingTeam(Match match,
