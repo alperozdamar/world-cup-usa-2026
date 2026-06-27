@@ -19,17 +19,23 @@ public class LeaderboardService {
     private final FinalPredictionRepository finalPredictionRepository;
     private final UserProfileService userProfileService;
     private final PoolMemberRegistry poolMemberRegistry;
+    private final UserMatchStatsService userMatchStatsService;
+    private final FinalPredictionService finalPredictionService;
 
     public LeaderboardService(PredictionRepository predictionRepository,
                               GroupStandingPredictionRepository groupStandingPredictionRepository,
                               FinalPredictionRepository finalPredictionRepository,
                               UserProfileService userProfileService,
-                              PoolMemberRegistry poolMemberRegistry) {
+                              PoolMemberRegistry poolMemberRegistry,
+                              UserMatchStatsService userMatchStatsService,
+                              FinalPredictionService finalPredictionService) {
         this.predictionRepository = predictionRepository;
         this.groupStandingPredictionRepository = groupStandingPredictionRepository;
         this.finalPredictionRepository = finalPredictionRepository;
         this.userProfileService = userProfileService;
         this.poolMemberRegistry = poolMemberRegistry;
+        this.userMatchStatsService = userMatchStatsService;
+        this.finalPredictionService = finalPredictionService;
     }
 
     @Transactional(readOnly = true)
@@ -37,6 +43,8 @@ public class LeaderboardService {
         Map<String, Long> matchPoints = poolTotals(predictionRepository.findLeaderboardTotals());
         Map<String, Long> groupPoints = poolTotals(groupStandingPredictionRepository.findLeaderboardTotals());
         Map<String, Long> finalPoints = poolTotals(finalPredictionRepository.findLeaderboardTotals());
+        Map<String, UserMatchStats> matchStats = userMatchStatsService.getStatsForPoolMembers();
+        Map<String, Boolean> championCorrect = finalPredictionService.getChampionCorrectByUsername();
 
         List<LeaderboardRowView> rows = new ArrayList<>();
         for (var profile : userProfileService.getPoolProfiles()) {
@@ -47,10 +55,7 @@ public class LeaderboardService {
             rows.add(new LeaderboardRowView(username, match, group, fin, match + group + fin));
         }
 
-        rows.sort(Comparator
-                .comparingLong(LeaderboardRowView::totalPoints).reversed()
-                .thenComparing(row -> userProfileService.getDisplayName(row.username()),
-                        String.CASE_INSENSITIVE_ORDER));
+        rows.sort(leaderboardComparator(matchStats, championCorrect));
         return rows;
     }
 
@@ -59,6 +64,24 @@ public class LeaderboardService {
         return getLeaderboardRows().stream()
                 .map(row -> new Object[]{row.username(), row.totalPoints()})
                 .toList();
+    }
+
+    private Comparator<LeaderboardRowView> leaderboardComparator(Map<String, UserMatchStats> matchStats,
+                                                               Map<String, Boolean> championCorrect) {
+        return Comparator
+                .comparingLong(LeaderboardRowView::totalPoints).reversed()
+                .thenComparing(row -> successRateForSort(matchStats.get(row.username())), Comparator.reverseOrder())
+                .thenComparing(row -> championCorrect.getOrDefault(row.username(), false), Comparator.reverseOrder())
+                .thenComparing(row -> userProfileService.getDisplayName(row.username()),
+                        String.CASE_INSENSITIVE_ORDER);
+    }
+
+    static int successRateForSort(UserMatchStats stats) {
+        if (stats == null) {
+            return -1;
+        }
+        Integer rate = stats.successRatePercent();
+        return rate != null ? rate : -1;
     }
 
     private Map<String, Long> poolTotals(List<Object[]> totals) {
@@ -78,26 +101,15 @@ public class LeaderboardService {
 
     @Transactional(readOnly = true)
     public List<LeaderboardTickerEntry> getTickerEntries() {
-        Map<String, Long> totals = new HashMap<>();
-        for (Object[] row : getLeaderboard()) {
-            totals.put((String) row[0], ((Number) row[1]).longValue());
-        }
-
-        List<LeaderboardTickerEntry> entries = userProfileService.getPoolProfiles().stream()
-                .map(profile -> new LeaderboardTickerEntry(
-                        0,
-                        profile.getUsername(),
-                        userProfileService.getDisplayName(profile.getUsername()),
-                        totals.getOrDefault(profile.getUsername(), 0L)))
-                .sorted(Comparator
-                        .comparingLong(LeaderboardTickerEntry::points).reversed()
-                        .thenComparing(LeaderboardTickerEntry::displayName, String.CASE_INSENSITIVE_ORDER))
-                .toList();
-
-        List<LeaderboardTickerEntry> ranked = new ArrayList<>(entries.size());
-        for (int i = 0; i < entries.size(); i++) {
-            LeaderboardTickerEntry entry = entries.get(i);
-            ranked.add(new LeaderboardTickerEntry(i + 1, entry.username(), entry.displayName(), entry.points()));
+        List<LeaderboardRowView> rows = getLeaderboardRows();
+        List<LeaderboardTickerEntry> ranked = new ArrayList<>(rows.size());
+        for (int i = 0; i < rows.size(); i++) {
+            LeaderboardRowView row = rows.get(i);
+            ranked.add(new LeaderboardTickerEntry(
+                    i + 1,
+                    row.username(),
+                    userProfileService.getDisplayName(row.username()),
+                    row.totalPoints()));
         }
         return ranked;
     }

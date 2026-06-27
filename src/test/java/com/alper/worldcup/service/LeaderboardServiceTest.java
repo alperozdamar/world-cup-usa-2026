@@ -5,6 +5,7 @@ import com.alper.worldcup.dao.GroupStandingPredictionRepository;
 import com.alper.worldcup.dao.PredictionRepository;
 import com.alper.worldcup.entity.UserProfile;
 import java.util.List;
+import java.util.Map;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -26,6 +27,10 @@ class LeaderboardServiceTest {
     private FinalPredictionRepository finalPredictionRepository;
     @Mock
     private UserProfileService userProfileService;
+    @Mock
+    private UserMatchStatsService userMatchStatsService;
+    @Mock
+    private FinalPredictionService finalPredictionService;
 
     private LeaderboardService service;
 
@@ -36,7 +41,9 @@ class LeaderboardServiceTest {
                 groupStandingPredictionRepository,
                 finalPredictionRepository,
                 userProfileService,
-                new PoolMemberRegistry("default"));
+                new PoolMemberRegistry("default"),
+                userMatchStatsService,
+                finalPredictionService);
     }
 
     @Test
@@ -50,6 +57,11 @@ class LeaderboardServiceTest {
                 profile("gonenc", "Gonenc Gorgulu"),
                 profile("kubilay", "Kubilay Kahraman"),
                 profile("alper", "Alper Ozdamar")));
+        when(userMatchStatsService.getStatsForPoolMembers()).thenReturn(Map.of(
+                "gonenc", new UserMatchStats(0, 0, 0),
+                "kubilay", new UserMatchStats(0, 0, 0),
+                "alper", new UserMatchStats(0, 0, 0)));
+        when(finalPredictionService.getChampionCorrectByUsername()).thenReturn(Map.of());
 
         List<Object[]> leaderboard = service.getLeaderboard();
 
@@ -70,6 +82,9 @@ class LeaderboardServiceTest {
         when(groupStandingPredictionRepository.findLeaderboardTotals()).thenReturn(List.of());
         when(finalPredictionRepository.findLeaderboardTotals()).thenReturn(List.of());
         when(userProfileService.getPoolProfiles()).thenReturn(List.of(profile("gonenc", "Gonenc Gorgulu")));
+        when(userMatchStatsService.getStatsForPoolMembers()).thenReturn(Map.of(
+                "gonenc", new UserMatchStats(0, 0, 0)));
+        when(finalPredictionService.getChampionCorrectByUsername()).thenReturn(Map.of());
 
         List<Object[]> leaderboard = service.getLeaderboard();
 
@@ -87,6 +102,9 @@ class LeaderboardServiceTest {
         when(finalPredictionRepository.findLeaderboardTotals()).thenReturn(
                 List.<Object[]>of(new Object[]{"gonenc", 8L}));
         when(userProfileService.getPoolProfiles()).thenReturn(List.of(profile("gonenc", "Gonenc Gorgulu")));
+        when(userMatchStatsService.getStatsForPoolMembers()).thenReturn(Map.of(
+                "gonenc", new UserMatchStats(0, 0, 0)));
+        when(finalPredictionService.getChampionCorrectByUsername()).thenReturn(Map.of());
 
         List<LeaderboardRowView> rows = service.getLeaderboardRows();
 
@@ -95,6 +113,57 @@ class LeaderboardServiceTest {
         assertEquals(12L, rows.get(0).groupPoints());
         assertEquals(8L, rows.get(0).finalPoints());
         assertEquals(60L, rows.get(0).totalPoints());
+    }
+
+    @Test
+    void tieBreaksOnSuccessRateThenChampionPick() {
+        when(predictionRepository.findLeaderboardTotals()).thenReturn(List.of(
+                new Object[]{"alper", 10L},
+                new Object[]{"gonenc", 10L}));
+        when(groupStandingPredictionRepository.findLeaderboardTotals()).thenReturn(List.of());
+        when(finalPredictionRepository.findLeaderboardTotals()).thenReturn(List.of());
+        when(userProfileService.getPoolProfiles()).thenReturn(List.of(
+                profile("alper", "Alper Ozdamar"),
+                profile("gonenc", "Gonenc Gorgulu")));
+        when(userMatchStatsService.getStatsForPoolMembers()).thenReturn(Map.of(
+                "alper", new UserMatchStats(1, 3, 7),
+                "gonenc", new UserMatchStats(2, 5, 5)));
+        when(finalPredictionService.getChampionCorrectByUsername()).thenReturn(Map.of());
+
+        List<LeaderboardRowView> rows = service.getLeaderboardRows();
+
+        assertEquals("gonenc", rows.get(0).username());
+        assertEquals("alper", rows.get(1).username());
+    }
+
+    @Test
+    void tieBreaksOnChampionWhenSuccessRateIsEqual() {
+        when(predictionRepository.findLeaderboardTotals()).thenReturn(List.of(
+                new Object[]{"alper", 10L},
+                new Object[]{"gonenc", 10L}));
+        when(groupStandingPredictionRepository.findLeaderboardTotals()).thenReturn(List.of());
+        when(finalPredictionRepository.findLeaderboardTotals()).thenReturn(List.of());
+        when(userProfileService.getPoolProfiles()).thenReturn(List.of(
+                profile("alper", "Alper Ozdamar"),
+                profile("gonenc", "Gonenc Gorgulu")));
+        when(userMatchStatsService.getStatsForPoolMembers()).thenReturn(Map.of(
+                "alper", new UserMatchStats(1, 5, 5),
+                "gonenc", new UserMatchStats(1, 5, 5)));
+        when(finalPredictionService.getChampionCorrectByUsername()).thenReturn(Map.of(
+                "alper", true,
+                "gonenc", false));
+
+        List<LeaderboardRowView> rows = service.getLeaderboardRows();
+
+        assertEquals("alper", rows.get(0).username());
+        assertEquals("gonenc", rows.get(1).username());
+    }
+
+    @Test
+    void successRateForSortTreatsMissingStatsAsLowest() {
+        assertEquals(-1, LeaderboardService.successRateForSort(null));
+        assertEquals(-1, LeaderboardService.successRateForSort(new UserMatchStats(0, 0, 0)));
+        assertEquals(50, LeaderboardService.successRateForSort(new UserMatchStats(1, 5, 5)));
     }
 
     private static UserProfile profile(String username, String displayName) {

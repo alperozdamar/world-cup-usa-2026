@@ -19,6 +19,7 @@ All notable changes to this project will be documented in this file.
   - WC-0053 - Profile photo upload on Profile Settings (JPEG/PNG up to 2 MB, stored in DB; falls back to bundled default photo)
   - WC-0054 - Profile photo upload: show friendly error on oversize file instead of HTTP 413 page
   - WC-0055 - Profile photo storage: use MEDIUMBLOB for photo_data (fixes upload failure above 64 KB)
+  - WC-0056 - Leaderboard tiebreakers: success rate % then correct champion pick when total points are equal
 
 ## [v0.0.4-PRERELEASE]
   - WC-0037 - Mobile-friendly header: hamburger nav on small screens, compact clocks/ticker, no wasted blue space on iPhone

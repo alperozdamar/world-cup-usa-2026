@@ -9,7 +9,9 @@ import com.alper.worldcup.entity.FinalResult;
 import com.alper.worldcup.entity.PredictionAuditAction;
 import com.alper.worldcup.entity.Team;
 import java.time.Instant;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -45,13 +47,29 @@ public class FinalPredictionService {
     }
 
     @Transactional(readOnly = true)
-    public Optional<FinalPrediction> getPredictionForUser(String username) {
-        return predictionRepository.findByUsernameWithTeams(username);
+    public Optional<FinalResult> getFinalResult() {
+        return finalResultRepository.findByIdWithTeams(FinalResult.SINGLETON_ID);
     }
 
     @Transactional(readOnly = true)
-    public Optional<FinalResult> getFinalResult() {
-        return finalResultRepository.findByIdWithTeams(FinalResult.SINGLETON_ID);
+    public Map<String, Boolean> getChampionCorrectByUsername() {
+        Optional<FinalResult> result = getFinalResult();
+        if (result.isEmpty()) {
+            return Map.of();
+        }
+        Integer championId = result.get().getChampionTeam().getId();
+        Map<String, Boolean> byUsername = new HashMap<>();
+        for (FinalPrediction prediction : predictionRepository.findAllWithTeams()) {
+            byUsername.put(
+                    prediction.getUsername(),
+                    championId.equals(prediction.getChampionTeam().getId()));
+        }
+        return byUsername;
+    }
+
+    @Transactional(readOnly = true)
+    public Optional<FinalPrediction> getPredictionForUser(String username) {
+        return predictionRepository.findByUsernameWithTeams(username);
     }
 
     @Transactional(readOnly = true)

@@ -120,10 +120,9 @@ Maximum **15 points** if both champion and runner-up are correct. Example: final
 
 ## Tiebreakers (if total points are equal)
 
-1. Most **exact scores**  
-2. Most **correct outcomes** (win/draw/loss)  
-3. Closest prediction on the **final** (exact score, then goal difference, then one side’s goals)  
-4. Coin flip or friendly vote
+1. Higher **success rate %** on match score predictions (correct outcomes ÷ scored matches)  
+2. Correct **champion** pick (after the official final result is entered)  
+3. Display name (alphabetical)
 
 ---
 

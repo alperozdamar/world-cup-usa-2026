@@ -153,6 +153,22 @@
         </div>
     </div>
 
+    <div class="card mb-4">
+        <div class="card-header">Tiebreakers (same total points)</div>
+        <div class="card-body">
+            <p class="mb-3">If two or more players have the same total on the <a th:href="@{/predictions/leaderboard}">Leaderboard</a>, rank is decided in this order:</p>
+            <ol class="mb-3">
+                <li>Higher <strong>success rate %</strong> on match score predictions — correct win/draw/loss outcomes ÷ all scored matches (shown under each player on the leaderboard)</li>
+                <li>Correct <strong>champion</strong> pick — only after admin enters the official final result</li>
+                <li>Display name (alphabetical)</li>
+            </ol>
+            <p class="small text-muted mb-0">
+                Example: both players have 85 pts. Player A has 52% success rate and picked the champion correctly;
+                Player B has 48% and did not → Player A ranks higher.
+            </p>
+        </div>
+    </div>
+
     <ul>
         <li>Group-stage and knockout match score predictions lock at kickoff (UTC).</li>
         <li>Knockout picks open when both teams are confirmed for that match.</li>
