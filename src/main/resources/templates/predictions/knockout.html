@@ -14,13 +14,11 @@
     </p>
 
     <div th:if="${!knockoutDevPreview}" class="alert alert-info py-2 small">
-        Round of 32 names reflect <strong>current group standings</strong> from entered match scores.
-        Third-place and later-round slots update as results are confirmed.
+        Bracket overview is a fixed snapshot (26 June 2026). Enter and update picks in the match list below.
     </div>
 
     <div th:if="${knockoutDevPreview}" class="alert alert-warning py-2 small">
-        <strong>Local preview.</strong> Bracket names come from current group standings and fixture slot codes (1A, 2F, W73, etc.).
-        Disable prediction toggles with <code>app.knockout.dev-bootstrap=false</code>.
+        <strong>Local preview.</strong> Bracket image is a static snapshot; prediction forms below still use live team names from standings and admin assignments.
     </div>
 
     <div th:if="${successMessage}" class="alert alert-success" th:text="${successMessage}"></div>
@@ -30,46 +28,14 @@
         No knockout matches loaded yet. Ensure fixtures are imported and restart with <code>local</code> profile.
     </div>
 
-    <section th:if="${!#lists.isEmpty(rounds)}" class="knockout-bracket-section mb-4">
-        <h3 class="h5 mb-3">Bracket overview</h3>
-        <div class="knockout-bracket">
-            <div th:each="round : ${rounds}" class="knockout-round">
-                <div class="knockout-round-title" th:text="${round.label()}">Round of 32</div>
-                <div th:each="matchView : ${round.matches()}"
-                     th:with="match=${matchView.match()}, prediction=${matchView.prediction()},
-                              homeName=${matchView.homeDisplayName()}, awayName=${matchView.awayDisplayName()},
-                              homeSlot=${matchView.homeSlotLabel()}, awaySlot=${matchView.awaySlotLabel()}"
-                     class="knockout-bracket-card"
-                     th:classappend="${prediction != null and prediction.advancingTeamGuess != null} ? ' knockout-bracket-card-picked' : ''"
-                     th:attr="data-match-id=${match.id}">
-                    <div class="knockout-bracket-team"
-                         th:classappend="${prediction != null and prediction.advancingTeamGuess != null and prediction.advancingTeamGuess.id == match.homeTeam.id} ? ' knockout-bracket-team-advance' : ''">
-                        <span class="knockout-team-label">
-                            <span th:text="${homeName}">Home</span>
-                            <span th:if="${homeSlot != null}" class="knockout-slot-label" th:text="${homeSlot}">1A</span>
-                        </span>
-                        <span th:if="${prediction != null}"
-                              class="knockout-bracket-score"
-                              th:text="${prediction.homeScoreGuess}">0</span>
-                    </div>
-                    <div class="knockout-bracket-team"
-                         th:classappend="${prediction != null and prediction.advancingTeamGuess != null and prediction.advancingTeamGuess.id == match.awayTeam.id} ? ' knockout-bracket-team-advance' : ''">
-                        <span class="knockout-team-label">
-                            <span th:text="${awayName}">Away</span>
-                            <span th:if="${awaySlot != null}" class="knockout-slot-label" th:text="${awaySlot}">2F</span>
-                        </span>
-                        <span th:if="${prediction != null}"
-                              class="knockout-bracket-score"
-                              th:text="${prediction.awayScoreGuess}">0</span>
-                    </div>
-                    <div class="knockout-bracket-meta small text-muted"
-                         th:text="${@matchViewHelper.formatKickoffDate(match, zoneId)}">Date</div>
-                    <div th:if="${prediction != null and prediction.advancingTeamGuess != null}"
-                         class="knockout-bracket-advance small">
-                        → <span th:text="${prediction.advancingTeamGuess.name}">Winner</span>
-                    </div>
-                </div>
-            </div>
+    <section class="knockout-bracket-section mb-4">
+        <h3 class="h5 mb-2">Bracket overview</h3>
+        <p class="small text-muted mb-3">Knockout tree as of 26 June 2026 — scroll horizontally on small screens.</p>
+        <div class="knockout-bracket-static">
+            <img th:src="@{/images/bracket_26June2026.png}"
+                 src="/images/bracket_26June2026.png"
+                 alt="2026 World Cup knockout bracket — Round of 32 through Final"
+                 class="knockout-bracket-static-image">
         </div>
     </section>
 

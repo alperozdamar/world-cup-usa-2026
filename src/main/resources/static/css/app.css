@@ -667,6 +667,20 @@ body.admin-page .leaderboard-ticker-bar {
     padding: 1rem 1.25rem;
 }
 
+.knockout-bracket-static {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    padding-bottom: 0.25rem;
+}
+
+.knockout-bracket-static-image {
+    display: block;
+    max-width: none;
+    height: auto;
+    min-width: 720px;
+    width: 100%;
+}
+
 .knockout-bracket {
     display: flex;
     gap: 1.25rem;
