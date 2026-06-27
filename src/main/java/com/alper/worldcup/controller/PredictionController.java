@@ -247,6 +247,7 @@ public class PredictionController {
         model.addAttribute("hostDisplayNames", hostPredictionService.getHostDisplayNames());
         model.addAttribute("hostDisplayNamesByUsername", userProfileService.getDisplayNamesForUsernames(hostUsernames));
         model.addAttribute("matchViews", hostPredictionService.getHostMatchPredictions());
+        model.addAttribute("knockoutMatchViews", hostPredictionService.getHostKnockoutPredictions());
         model.addAttribute("groupNames", groupStandingPredictionService.getGroupNames());
         model.addAttribute("groupRows", hostPredictionService.getHostGroupPredictions());
         model.addAttribute("finalRows", hostPredictionService.getHostFinalPredictions());
@@ -263,6 +264,7 @@ public class PredictionController {
                         .ofPattern("EEE, MMM d yyyy HH:mm z")))
                 .orElse(null));
         model.addAttribute("matchViews", peerPredictionService.getVisibleMatchPredictions());
+        model.addAttribute("knockoutMatchViews", peerPredictionService.getVisibleKnockoutPredictions());
         model.addAttribute("upcomingMatchView", peerPredictionService.getUpcomingMatchPrediction().orElse(null));
         model.addAttribute("groupNames", groupStandingPredictionService.getGroupNames());
         model.addAttribute("groupRows", peerPredictionService.getVisibleGroupPredictions());

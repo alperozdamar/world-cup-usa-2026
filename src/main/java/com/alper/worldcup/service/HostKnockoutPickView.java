@@ -2,36 +2,26 @@ package com.alper.worldcup.service;
 
 import com.alper.worldcup.entity.Prediction;
 
-public record PeerPlayerMatchPrediction(
+public record HostKnockoutPickView(
         String username,
         String displayName,
         Integer homeGuess,
         Integer awayGuess,
         Boolean penaltyShootoutGuess,
         String advancingTeamName,
-        Integer points,
-        boolean hidden) {
+        Integer points) {
 
-    public static PeerPlayerMatchPrediction from(Prediction prediction, String displayName) {
+    static HostKnockoutPickView from(Prediction prediction, String displayName) {
         String advancer = prediction.getAdvancingTeamGuess() != null
                 ? prediction.getAdvancingTeamGuess().getName()
                 : null;
-        return new PeerPlayerMatchPrediction(
+        return new HostKnockoutPickView(
                 prediction.getUsername(),
                 displayName,
                 prediction.getHomeScoreGuess(),
                 prediction.getAwayScoreGuess(),
                 prediction.getPenaltyShootoutGuess(),
                 advancer,
-                prediction.getPoints(),
-                false);
-    }
-
-    public static PeerPlayerMatchPrediction hidden(String username, String displayName) {
-        return new PeerPlayerMatchPrediction(username, displayName, null, null, null, null, null, true);
-    }
-
-    public boolean hidden() {
-        return hidden;
+                prediction.getPoints());
     }
 }

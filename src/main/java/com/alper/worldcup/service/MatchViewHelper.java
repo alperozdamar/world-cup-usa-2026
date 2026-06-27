@@ -37,6 +37,10 @@ public class MatchViewHelper {
         return instant.atZone(ZoneId.of(timezoneId)).format(RECORDED_AT_FORMAT);
     }
 
+    public String formatStageLabel(Match match) {
+        return KnockoutStageLabels.label(match.getStage());
+    }
+
     public boolean isEditable(Match match) {
         return match.isPredictionsEnabled()
                 && match.getStage() == MatchStage.GROUP_STAGE

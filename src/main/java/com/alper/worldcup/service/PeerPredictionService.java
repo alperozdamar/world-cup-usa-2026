@@ -63,14 +63,36 @@ public class PeerPredictionService {
     }
 
     @Transactional(readOnly = true)
+    public List<PeerMatchView> getVisibleKnockoutPredictions() {
+        Instant now = Instant.now();
+
+        return matchRepository.findKnockoutMatchesWithTeams().stream()
+                .filter(match -> match.hasStarted(now))
+                .map(match -> new PeerMatchView(match, loadPredictions(match), false))
+                .sorted(Comparator.comparing((PeerMatchView view) -> view.match().getKickoffUtc()).reversed())
+                .toList();
+    }
+
+    @Transactional(readOnly = true)
     public Optional<PeerMatchView> getUpcomingMatchPrediction() {
         Instant now = Instant.now();
 
-        return matchRepository.findByStageWithTeams(MatchStage.GROUP_STAGE).stream()
+        Optional<Match> nextGroup = matchRepository.findByStageWithTeams(MatchStage.GROUP_STAGE).stream()
                 .filter(match -> match.getKickoffUtc().isAfter(now))
                 .filter(Match::isPredictionsEnabled)
-                .min(Comparator.comparing(Match::getKickoffUtc))
-                .map(match -> new PeerMatchView(match, loadHiddenPredictions(match), true));
+                .min(Comparator.comparing(Match::getKickoffUtc));
+
+        Optional<Match> nextKnockout = matchRepository.findKnockoutMatchesWithTeams().stream()
+                .filter(match -> match.getKickoffUtc().isAfter(now))
+                .filter(Match::isPredictionsEnabled)
+                .min(Comparator.comparing(Match::getKickoffUtc));
+
+        Optional<Match> next = nextGroup.flatMap(group -> nextKnockout
+                .map(knockout -> group.getKickoffUtc().isBefore(knockout.getKickoffUtc()) ? group : knockout)
+                .or(() -> Optional.of(group)))
+                .or(() -> nextKnockout);
+
+        return next.map(match -> new PeerMatchView(match, loadHiddenPredictions(match), true));
     }
 
     private List<PeerPlayerMatchPrediction> loadPredictions(Match match) {

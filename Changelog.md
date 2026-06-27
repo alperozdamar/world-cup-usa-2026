@@ -24,6 +24,8 @@ All notable changes to this project will be documented in this file.
   - WC-0058 - Admin Enter Scores: today's matches first; unscored past games stay near the top; saved past games at the bottom
   - WC-0059 - Leaderboard: Knockout column separate from group-stage Match column (stage multipliers visible per round)
   - WC-0060 - Prod SQL scripts for manual R32 setup: `db/knockout_r32_prod_fix.sql` and `db/knockout_r32_group2.sql` (standings-based team assignment, accent-safe)
+  - WC-0061 - Host's Picks: show host knockout predictions (90′ score, penalties, advancer) before kickoff, same transparency as group-stage scores
+  - WC-0062 - Others' Picks: knockout section with 90′ / penalties / advancer columns; hidden until kickoff; Next match includes earliest group or knockout game
 
 ## [v0.0.4-PRERELEASE]
   - WC-0037 - Mobile-friendly header: hamburger nav on small screens, compact clocks/ticker, no wasted blue space on iPhone

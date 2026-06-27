@@ -106,6 +106,44 @@ class PeerPredictionServiceTest {
         assertTrue(view.predictions().get(0).hidden());
     }
 
+    @Test
+    void startedKnockoutMatchesNewestFirst() {
+        Match older = knockoutMatch(10, Instant.parse("2020-06-28T19:00:00Z"));
+        Match newer = knockoutMatch(11, Instant.parse("2020-06-29T19:00:00Z"));
+
+        when(matchRepository.findKnockoutMatchesWithTeams()).thenReturn(List.of(older, newer));
+        when(predictionRepository.findByMatchId(10)).thenReturn(List.of());
+        when(predictionRepository.findByMatchId(11)).thenReturn(List.of());
+
+        List<PeerMatchView> views = service.getVisibleKnockoutPredictions();
+
+        assertEquals(2, views.size());
+        assertEquals(11, views.get(0).match().getId());
+        assertEquals(10, views.get(1).match().getId());
+    }
+
+    @Test
+    void upcomingMatchPrefersEarliestKnockoutWhenSooner() {
+        Match groupLater = upcomingMatch(1, Instant.parse("2099-06-12T19:00:00Z"));
+        Match knockoutSooner = knockoutMatch(73, Instant.parse("2099-06-11T19:00:00Z"));
+
+        when(matchRepository.findByStageWithTeams(MatchStage.GROUP_STAGE)).thenReturn(List.of(groupLater));
+        when(matchRepository.findKnockoutMatchesWithTeams()).thenReturn(List.of(knockoutSooner));
+        when(predictionRepository.findByMatchId(73)).thenReturn(List.of());
+
+        PeerMatchView view = service.getUpcomingMatchPrediction().orElseThrow();
+
+        assertEquals(73, view.match().getId());
+        assertTrue(view.predictionsHidden());
+    }
+
+    private Match knockoutMatch(int id, Instant kickoff) {
+        Match match = upcomingMatch(id, kickoff);
+        match.setStage(MatchStage.ROUND_OF_32);
+        match.setGroupName(null);
+        return match;
+    }
+
     private Match upcomingMatch(int id, Instant kickoff) {
         Match match = new Match();
         match.setId(id);

@@ -144,6 +144,42 @@ class HostPredictionServiceTest {
         assertEquals("Mexico", rows.get(0).picksByGroup().get("A").firstTeamName());
     }
 
+    @Test
+    void returnsOnlyAdminKnockoutPredictions() {
+        when(userAccountService.findAdminUsernames()).thenReturn(List.of("alper"));
+
+        Team home = team(1, "Brazil");
+        Team away = team(2, "Japan");
+        Team advancer = team(2, "Japan");
+
+        Match match = new Match();
+        match.setId(73);
+        match.setStage(MatchStage.ROUND_OF_32);
+        match.setHomeTeam(home);
+        match.setAwayTeam(away);
+
+        Prediction hostPrediction = new Prediction();
+        hostPrediction.setUsername("alper");
+        hostPrediction.setHomeScoreGuess(1);
+        hostPrediction.setAwayScoreGuess(1);
+        hostPrediction.setPenaltyShootoutGuess(true);
+        hostPrediction.setAdvancingTeamGuess(advancer);
+
+        when(matchRepository.findKnockoutMatchesWithTeams()).thenReturn(List.of(match));
+        when(predictionRepository.findByMatchId(73)).thenReturn(List.of(hostPrediction));
+        when(userProfileService.getDisplayName("alper")).thenReturn("Alper Ozdamar");
+
+        List<HostKnockoutMatchView> views = service.getHostKnockoutPredictions();
+
+        assertEquals(1, views.size());
+        assertEquals(1, views.get(0).picks().size());
+        HostKnockoutPickView pick = views.get(0).picks().get(0);
+        assertEquals("alper", pick.username());
+        assertEquals(1, pick.homeGuess());
+        assertEquals(true, pick.penaltyShootoutGuess());
+        assertEquals("Japan", pick.advancingTeamName());
+    }
+
     private static Team team(int id, String name) {
         Team team = new Team();
         team.setId(id);

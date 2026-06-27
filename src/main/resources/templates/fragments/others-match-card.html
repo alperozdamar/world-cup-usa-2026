@@ -2,12 +2,14 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <body>
 <th:block th:fragment="others-match-card(matchView)">
-    <div class="card mb-3">
+    <div class="card mb-3"
+         th:with="knockout=${matchView.match().stage.name() != 'GROUP_STAGE'}">
         <div class="card-header">
             <strong th:text="${matchView.match().homeDisplayName} + ' vs ' + ${matchView.match().awayDisplayName}"></strong>
             <span class="text-muted ms-2">
-                · Group <span th:text="${matchView.match().groupName}"></span>
-                · <span th:text="${@matchViewHelper.formatKickoffDate(matchView.match(), zoneId)}"></span>
+                · <span th:if="${!knockout}">Group <span th:text="${matchView.match().groupName}"></span> · </span>
+                <span th:if="${knockout}" th:text="${@matchViewHelper.formatStageLabel(matchView.match())} + ' · '"></span>
+                <span th:text="${@matchViewHelper.formatKickoffDate(matchView.match(), zoneId)}"></span>
                 <span th:text="${@matchViewHelper.formatKickoffTime(matchView.match(), zoneId)}"></span>
             </span>
             <span th:if="${matchView.match().scoreEntered}" class="ms-2 badge bg-success">
@@ -19,9 +21,16 @@
             <div class="table-responsive">
                 <table class="table table-sm table-striped mb-0 align-middle">
                     <thead>
-                    <tr>
+                    <tr th:if="${!knockout}">
                         <th>Player</th>
                         <th>Prediction</th>
+                        <th th:if="${matchView.match().scoreEntered and !matchView.predictionsHidden()}">Points</th>
+                    </tr>
+                    <tr th:if="${knockout}">
+                        <th>Player</th>
+                        <th>90′ score</th>
+                        <th>Penalties</th>
+                        <th>Advances</th>
                         <th th:if="${matchView.match().scoreEntered and !matchView.predictionsHidden()}">Points</th>
                     </tr>
                     </thead>
@@ -31,9 +40,25 @@
                             <span th:text="${pick.displayName()}"></span>
                             <span class="small text-muted" th:text="'(' + ${pick.username()} + ')'"></span>
                         </td>
-                        <td>
+                        <td th:if="${!knockout}">
                             <span th:if="${pick.hidden()}" class="text-muted fst-italic">Hidden until kickoff</span>
                             <span th:if="${!pick.hidden()}" th:text="${pick.homeGuess()} + ' - ' + ${pick.awayGuess()}"></span>
+                        </td>
+                        <td th:if="${knockout}">
+                            <span th:if="${pick.hidden()}" class="text-muted fst-italic">Hidden until kickoff</span>
+                            <span th:if="${!pick.hidden()}" th:text="${pick.homeGuess()} + ' - ' + ${pick.awayGuess()}"></span>
+                        </td>
+                        <td th:if="${knockout}">
+                            <span th:if="${pick.hidden()}" class="text-muted">—</span>
+                            <span th:if="${!pick.hidden() and pick.penaltyShootoutGuess() == null}" class="text-muted">—</span>
+                            <span th:if="${!pick.hidden() and pick.penaltyShootoutGuess() != null}"
+                                  th:text="${pick.penaltyShootoutGuess()} ? 'Yes' : 'No'"></span>
+                        </td>
+                        <td th:if="${knockout}">
+                            <span th:if="${pick.hidden()}" class="text-muted">—</span>
+                            <span th:if="${!pick.hidden() and pick.advancingTeamName() != null}"
+                                  th:text="${pick.advancingTeamName()}"></span>
+                            <span th:if="${!pick.hidden() and pick.advancingTeamName() == null}" class="text-muted">—</span>
                         </td>
                         <td th:if="${matchView.match().scoreEntered and !matchView.predictionsHidden()}">
                             <span th:if="${pick.points() != null}" th:text="${pick.points()}"></span>
@@ -41,7 +66,8 @@
                         </td>
                     </tr>
                     <tr th:if="${#lists.isEmpty(matchView.predictions())}">
-                        <td colspan="3" class="text-muted">No predictions saved for this match.</td>
+                        <td th:colspan="${knockout ? (matchView.match().scoreEntered and !matchView.predictionsHidden() ? 5 : 4) : (matchView.match().scoreEntered and !matchView.predictionsHidden() ? 3 : 2)}"
+                            class="text-muted">No predictions saved for this match.</td>
                     </tr>
                     </tbody>
                 </table>

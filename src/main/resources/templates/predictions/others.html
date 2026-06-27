@@ -8,6 +8,7 @@
     <p class="text-muted mb-0">
         Match scores appear after each game kicks off.
         The next game shows who has picked — scores stay hidden until kickoff.
+        Knockout picks include 90′ score, penalty shootout, and advancer.
         Group and final picks appear after the tournament starts
         <span th:if="${tournamentStartLabel != null}">
             (<strong th:text="${tournamentStartLabel}"></strong>)
@@ -21,14 +22,27 @@
     </section>
 
     <section class="mt-4">
-        <h4 class="h5">Match scores</h4>
+        <h4 class="h5">Group stage match scores</h4>
         <p class="text-muted small">Started games — newest first.</p>
 
         <div th:if="${#lists.isEmpty(matchViews)}" class="alert alert-secondary py-2">
-            No match predictions to show yet — check back after the first kickoff.
+            No group-stage match predictions to show yet — check back after the first kickoff.
         </div>
 
         <div th:each="mv : ${matchViews}">
+            <div th:replace="~{fragments/others-match-card :: others-match-card(matchView=${mv})}"></div>
+        </div>
+    </section>
+
+    <section class="mt-4">
+        <h4 class="h5">Knockout</h4>
+        <p class="text-muted small">Started knockout games — newest first. Hidden until kickoff for upcoming games (see Next match above).</p>
+
+        <div th:if="${#lists.isEmpty(knockoutMatchViews)}" class="alert alert-secondary py-2">
+            No knockout predictions to show yet — check back after the first knockout kickoff.
+        </div>
+
+        <div th:each="mv : ${knockoutMatchViews}">
             <div th:replace="~{fragments/others-match-card :: others-match-card(matchView=${mv})}"></div>
         </div>
     </section>

@@ -81,6 +81,32 @@ public class HostPredictionService {
     }
 
     @Transactional(readOnly = true)
+    public List<HostKnockoutMatchView> getHostKnockoutPredictions() {
+        Set<String> hostUsernames = new HashSet<>(userAccountService.findAdminUsernames());
+        if (hostUsernames.isEmpty()) {
+            return List.of();
+        }
+
+        List<HostKnockoutMatchView> views = new ArrayList<>();
+        for (Match match : matchRepository.findKnockoutMatchesWithTeams()) {
+            List<HostKnockoutPickView> hostPicks = predictionRepository.findByMatchId(match.getId()).stream()
+                    .filter(prediction -> hostUsernames.contains(prediction.getUsername()))
+                    .map(prediction -> HostKnockoutPickView.from(
+                            prediction,
+                            userProfileService.getDisplayName(prediction.getUsername())))
+                    .sorted(Comparator.comparing(HostKnockoutPickView::displayName,
+                            String.CASE_INSENSITIVE_ORDER))
+                    .toList();
+
+            if (!hostPicks.isEmpty()) {
+                views.add(new HostKnockoutMatchView(match, hostPicks));
+            }
+        }
+
+        return views;
+    }
+
+    @Transactional(readOnly = true)
     public List<PeerGroupRowView> getHostGroupPredictions() {
         Set<String> hostUsernames = new HashSet<>(userAccountService.findAdminUsernames());
         if (hostUsernames.isEmpty()) {

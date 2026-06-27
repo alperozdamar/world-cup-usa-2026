@@ -37,11 +37,11 @@
             </p>
 
             <section class="mt-4">
-                <h4 class="h5">Match scores</h4>
+                <h4 class="h5">Group stage match scores</h4>
                 <p class="text-muted small">Shown as soon as the host enters them, even before kickoff.</p>
 
                 <div th:if="${#lists.isEmpty(matchViews)}" class="alert alert-secondary py-2">
-                    The host hasn&rsquo;t entered any match predictions yet.
+                    The host hasn&rsquo;t entered any group-stage match predictions yet.
                 </div>
 
                 <div th:each="matchView : ${matchViews}" class="card mb-3">
@@ -79,6 +79,72 @@
                                         </div>
                                     </td>
                                     <td th:text="${pick.homeGuess} + ' - ' + ${pick.awayGuess}"></td>
+                                    <td th:if="${matchView.match.scoreEntered}">
+                                        <span th:if="${pick.points != null}" th:text="${pick.points}"></span>
+                                        <span th:if="${pick.points == null}" class="text-muted">—</span>
+                                    </td>
+                                </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="mt-4">
+                <h4 class="h5">Knockout</h4>
+                <p class="text-muted small">90′ score, penalty shootout, and advancer — visible as soon as the host saves a pick.</p>
+
+                <div th:if="${#lists.isEmpty(knockoutMatchViews)}" class="alert alert-secondary py-2">
+                    The host hasn&rsquo;t entered any knockout predictions yet.
+                </div>
+
+                <div th:each="matchView : ${knockoutMatchViews}" class="card mb-3">
+                    <div class="card-header">
+                        <strong th:text="${matchView.match.homeDisplayName} + ' vs ' + ${matchView.match.awayDisplayName}"></strong>
+                        <span class="text-muted ms-2">
+                            · <span th:text="${@matchViewHelper.formatStageLabel(matchView.match)}"></span>
+                            · <span th:text="${@matchViewHelper.formatKickoffDate(matchView.match, zoneId)}"></span>
+                            <span th:text="${@matchViewHelper.formatKickoffTime(matchView.match, zoneId)}"></span>
+                        </span>
+                        <span th:if="${matchView.match.scoreEntered}" class="ms-2 badge bg-success">
+                            Final: <span th:text="${matchView.match.homeScoreActual} + '-' + ${matchView.match.awayScoreActual}"></span>
+                        </span>
+                    </div>
+                    <div class="card-body p-0">
+                        <div class="table-responsive">
+                            <table class="table table-sm table-striped mb-0 align-middle">
+                                <thead>
+                                <tr>
+                                    <th>Host</th>
+                                    <th>90′ score</th>
+                                    <th>Penalties</th>
+                                    <th>Advances</th>
+                                    <th th:if="${matchView.match.scoreEntered}">Points</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                <tr th:each="pick : ${matchView.picks}">
+                                    <td>
+                                        <div class="leaderboard-player-cell">
+                                            <div th:replace="~{fragments/layout :: player-club-badge-inline(username=${pick.username})}"></div>
+                                            <div th:replace="~{fragments/layout :: player-avatar(username=${pick.username}, displayName=${pick.displayName}, size='sm')}"></div>
+                                            <div>
+                                                <span th:text="${pick.displayName}"></span>
+                                                <span class="small text-muted" th:text="'(' + ${pick.username} + ')'"></span>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td th:text="${pick.homeGuess} + ' - ' + ${pick.awayGuess}"></td>
+                                    <td>
+                                        <span th:if="${pick.penaltyShootoutGuess == null}" class="text-muted">—</span>
+                                        <span th:if="${pick.penaltyShootoutGuess != null}"
+                                              th:text="${pick.penaltyShootoutGuess} ? 'Yes' : 'No'"></span>
+                                    </td>
+                                    <td>
+                                        <span th:if="${pick.advancingTeamName != null}" th:text="${pick.advancingTeamName}"></span>
+                                        <span th:if="${pick.advancingTeamName == null}" class="text-muted">—</span>
+                                    </td>
                                     <td th:if="${matchView.match.scoreEntered}">
                                         <span th:if="${pick.points != null}" th:text="${pick.points}"></span>
                                         <span th:if="${pick.points == null}" class="text-muted">—</span>
