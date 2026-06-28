@@ -4,6 +4,7 @@ import com.alper.worldcup.dao.FinalPredictionAuditRepository;
 import com.alper.worldcup.dao.FinalPredictionRepository;
 import com.alper.worldcup.dao.FinalResultRepository;
 import com.alper.worldcup.dao.GroupStandingPredictionAuditRepository;
+import com.alper.worldcup.dao.GroupStandingPredictionRepository;
 import com.alper.worldcup.dao.PredictionAuditRepository;
 import com.alper.worldcup.dao.PredictionRepository;
 import com.alper.worldcup.entity.FinalPredictionAudit;
@@ -33,6 +34,7 @@ public class BirdWatchService {
 
     private final PredictionAuditRepository predictionAuditRepository;
     private final GroupStandingPredictionAuditRepository groupStandingPredictionAuditRepository;
+    private final GroupStandingPredictionRepository groupStandingPredictionRepository;
     private final FinalPredictionAuditRepository finalPredictionAuditRepository;
     private final PredictionRepository predictionRepository;
     private final FinalPredictionRepository finalPredictionRepository;
@@ -43,6 +45,7 @@ public class BirdWatchService {
 
     public BirdWatchService(PredictionAuditRepository predictionAuditRepository,
                             GroupStandingPredictionAuditRepository groupStandingPredictionAuditRepository,
+                            GroupStandingPredictionRepository groupStandingPredictionRepository,
                             FinalPredictionAuditRepository finalPredictionAuditRepository,
                             PredictionRepository predictionRepository,
                             FinalPredictionRepository finalPredictionRepository,
@@ -52,6 +55,7 @@ public class BirdWatchService {
                             PointsServiceImpl pointsService) {
         this.predictionAuditRepository = predictionAuditRepository;
         this.groupStandingPredictionAuditRepository = groupStandingPredictionAuditRepository;
+        this.groupStandingPredictionRepository = groupStandingPredictionRepository;
         this.finalPredictionAuditRepository = finalPredictionAuditRepository;
         this.predictionRepository = predictionRepository;
         this.finalPredictionRepository = finalPredictionRepository;
@@ -80,6 +84,8 @@ public class BirdWatchService {
         categories.add(buildBullseyeBirds(scoredPredictions));
         categories.add(buildLuckyDucks(scoredPredictions));
         categories.add(buildSoCloseSeabirds(scoredPredictions));
+        categories.add(buildGroupSageGrouse());
+        categories.add(buildKnockoutKestrels());
         categories.add(buildCrystalBallCondors());
         return categories;
     }
@@ -196,6 +202,35 @@ public class BirdWatchService {
                         count -> count + " near miss" + pluralSuffix(count)));
     }
 
+    private BirdWatchCategory buildGroupSageGrouse() {
+        String explanation = "Most points from Group 1st & 2nd predictions — who read the groups best "
+                + "after official results are entered (up to 5 points per group).";
+        Map<String, Long> groupPoints = poolTotals(groupStandingPredictionRepository.findLeaderboardTotals());
+        if (groupPoints.isEmpty()) {
+            return BirdWatchCategory.pending(
+                    "group-sage-grouse",
+                    "Group Sage Grouse",
+                    explanation,
+                    "Waiting for official group results — check back as admins confirm each group.");
+        }
+        return BirdWatchCategory.ready(
+                "group-sage-grouse",
+                "Group Sage Grouse",
+                explanation,
+                topByCount(groupPoints, Comparator.reverseOrder(), this::formatPoints));
+    }
+
+    private BirdWatchCategory buildKnockoutKestrels() {
+        String explanation = "Most knockout match points — 90′ score picks with round multipliers "
+                + "(R32 through Final). Updates after each scored knockout game.";
+        Map<String, Long> knockoutPoints = poolTotals(predictionRepository.findKnockoutPointsTotalsByUser());
+        return BirdWatchCategory.ready(
+                "knockout-kestrels",
+                "Knockout Kestrels",
+                explanation,
+                topByCount(knockoutPoints, Comparator.reverseOrder(), this::formatPoints));
+    }
+
     private BirdWatchCategory buildCrystalBallCondors() {
         String explanation = "Called the tournament champion correctly in the Final Prediction. "
                 + "Revealed only after the admin enters the official champion.";
@@ -221,6 +256,18 @@ public class BirdWatchService {
                 .toList();
 
         return BirdWatchCategory.ready("crystal-ball-condors", "Crystal Ball Condors", explanation, leaders);
+    }
+
+    private static Map<String, Long> poolTotals(List<Object[]> rows) {
+        Map<String, Long> totals = new HashMap<>();
+        for (Object[] row : rows) {
+            totals.put((String) row[0], ((Number) row[1]).longValue());
+        }
+        return totals;
+    }
+
+    private String formatPoints(long points) {
+        return points + " pt" + pluralSuffix(points);
     }
 
     Map<String, Duration> averageFirstPickLeadTime(List<PredictionAudit> matchAudits) {

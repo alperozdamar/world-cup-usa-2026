@@ -4,6 +4,7 @@ import com.alper.worldcup.dao.FinalPredictionAuditRepository;
 import com.alper.worldcup.dao.FinalPredictionRepository;
 import com.alper.worldcup.dao.FinalResultRepository;
 import com.alper.worldcup.dao.GroupStandingPredictionAuditRepository;
+import com.alper.worldcup.dao.GroupStandingPredictionRepository;
 import com.alper.worldcup.dao.PredictionAuditRepository;
 import com.alper.worldcup.dao.PredictionRepository;
 import com.alper.worldcup.entity.FinalResult;
@@ -36,6 +37,8 @@ class BirdWatchServiceTest {
     @Mock
     private GroupStandingPredictionAuditRepository groupStandingPredictionAuditRepository;
     @Mock
+    private GroupStandingPredictionRepository groupStandingPredictionRepository;
+    @Mock
     private FinalPredictionAuditRepository finalPredictionAuditRepository;
     @Mock
     private PredictionRepository predictionRepository;
@@ -53,6 +56,7 @@ class BirdWatchServiceTest {
         service = new BirdWatchService(
                 predictionAuditRepository,
                 groupStandingPredictionAuditRepository,
+                groupStandingPredictionRepository,
                 finalPredictionAuditRepository,
                 predictionRepository,
                 finalPredictionRepository,
@@ -105,8 +109,10 @@ class BirdWatchServiceTest {
     void crystalBallPendingUntilFinalResultExists() {
         when(predictionAuditRepository.findAllWithMatchOrderByRecordedAtDesc()).thenReturn(List.of());
         when(groupStandingPredictionAuditRepository.findAllOrderByRecordedAtDesc()).thenReturn(List.of());
+        when(groupStandingPredictionRepository.findLeaderboardTotals()).thenReturn(List.of());
         when(finalPredictionAuditRepository.findAllByOrderByRecordedAtDesc()).thenReturn(List.of());
         when(predictionRepository.findAllScoredWithMatch()).thenReturn(List.of());
+        when(predictionRepository.findKnockoutPointsTotalsByUser()).thenReturn(List.of());
         when(finalResultRepository.findByIdWithTeams(FinalResult.SINGLETON_ID)).thenReturn(Optional.empty());
 
         BirdWatchCategory crystalBall = service.buildCategories().stream()
@@ -116,6 +122,48 @@ class BirdWatchServiceTest {
 
         assertTrue(crystalBall.pending());
         assertEquals("Waiting for the official champion — check back after the final.", crystalBall.pendingMessage());
+    }
+
+    @Test
+    void groupSageGrousePendingUntilGroupResultsScored() {
+        when(predictionAuditRepository.findAllWithMatchOrderByRecordedAtDesc()).thenReturn(List.of());
+        when(groupStandingPredictionAuditRepository.findAllOrderByRecordedAtDesc()).thenReturn(List.of());
+        when(groupStandingPredictionRepository.findLeaderboardTotals()).thenReturn(List.of());
+        when(finalPredictionAuditRepository.findAllByOrderByRecordedAtDesc()).thenReturn(List.of());
+        when(predictionRepository.findAllScoredWithMatch()).thenReturn(List.of());
+        when(predictionRepository.findKnockoutPointsTotalsByUser()).thenReturn(List.of());
+        when(finalResultRepository.findByIdWithTeams(FinalResult.SINGLETON_ID)).thenReturn(Optional.empty());
+
+        BirdWatchCategory groupSage = service.buildCategories().stream()
+                .filter(category -> category.id().equals("group-sage-grouse"))
+                .findFirst()
+                .orElseThrow();
+
+        assertTrue(groupSage.pending());
+    }
+
+    @Test
+    void knockoutKestrelsShowsZeroPointLeaders() {
+        when(predictionAuditRepository.findAllWithMatchOrderByRecordedAtDesc()).thenReturn(List.of());
+        when(groupStandingPredictionAuditRepository.findAllOrderByRecordedAtDesc()).thenReturn(List.of());
+        when(groupStandingPredictionRepository.findLeaderboardTotals()).thenReturn(List.of());
+        when(finalPredictionAuditRepository.findAllByOrderByRecordedAtDesc()).thenReturn(List.of());
+        when(predictionRepository.findAllScoredWithMatch()).thenReturn(List.of());
+        when(predictionRepository.findKnockoutPointsTotalsByUser()).thenReturn(List.of(
+                new Object[] {"alper", 0L},
+                new Object[] {"gonenc", 0L}));
+        when(finalResultRepository.findByIdWithTeams(FinalResult.SINGLETON_ID)).thenReturn(Optional.empty());
+        when(userProfileService.getDisplayName("alper")).thenReturn("Alper Ozdamar");
+        when(userProfileService.getDisplayName("gonenc")).thenReturn("Gonenc Gorgulu");
+
+        BirdWatchCategory knockout = service.buildCategories().stream()
+                .filter(category -> category.id().equals("knockout-kestrels"))
+                .findFirst()
+                .orElseThrow();
+
+        assertFalse(knockout.pending());
+        assertEquals(2, knockout.leaders().size());
+        assertEquals("0 pts", knockout.leaders().get(0).statLabel());
     }
 
     private static PredictionAudit audit(String username, Match match, Instant recordedAt) {

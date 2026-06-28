@@ -28,6 +28,11 @@ public interface PredictionRepository extends JpaRepository<Prediction, Integer>
             + "GROUP BY p.username")
     List<Object[]> findKnockoutLeaderboardTotals();
 
+    @Query("SELECT p.username, COALESCE(SUM(COALESCE(p.points, 0)), 0) FROM Prediction p JOIN p.match m "
+            + "WHERE m.stage <> com.alper.worldcup.entity.MatchStage.GROUP_STAGE "
+            + "GROUP BY p.username")
+    List<Object[]> findKnockoutPointsTotalsByUser();
+
     @Query("SELECT p FROM Prediction p JOIN FETCH p.match m "
             + "WHERE m.homeScoreActual IS NOT NULL AND m.awayScoreActual IS NOT NULL")
     List<Prediction> findAllScoredWithMatch();
