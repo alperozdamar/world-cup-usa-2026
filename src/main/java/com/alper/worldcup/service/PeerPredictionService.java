@@ -11,12 +11,13 @@ import com.alper.worldcup.entity.MatchStage;
 import com.alper.worldcup.entity.Prediction;
 import com.alper.worldcup.entity.UserProfile;
 import java.time.Instant;
+import java.time.ZoneId;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -74,25 +75,42 @@ public class PeerPredictionService {
     }
 
     @Transactional(readOnly = true)
-    public Optional<PeerMatchView> getUpcomingMatchPrediction() {
+    public List<PeerMatchView> getUpcomingMatchPredictions(ZoneId zoneId) {
         Instant now = Instant.now();
+        List<Match> upcoming = collectUpcomingMatches(now);
+        if (upcoming.isEmpty()) {
+            return List.of();
+        }
 
-        Optional<Match> nextGroup = matchRepository.findByStageWithTeams(MatchStage.GROUP_STAGE).stream()
+        LocalDate nextMatchDay = upcoming.stream()
+                .min(Comparator.comparing(Match::getKickoffUtc))
+                .orElseThrow()
+                .getKickoffUtc()
+                .atZone(zoneId)
+                .toLocalDate();
+
+        return upcoming.stream()
+                .filter(match -> match.getKickoffUtc().atZone(zoneId).toLocalDate().equals(nextMatchDay))
+                .sorted(Comparator.comparing(Match::getKickoffUtc))
+                .map(match -> new PeerMatchView(match, loadHiddenPredictions(match), true))
+                .toList();
+    }
+
+    private List<Match> collectUpcomingMatches(Instant now) {
+        List<Match> upcoming = new ArrayList<>();
+
+        matchRepository.findByStageWithTeams(MatchStage.GROUP_STAGE).stream()
                 .filter(match -> match.getKickoffUtc().isAfter(now))
                 .filter(Match::isPredictionsEnabled)
-                .min(Comparator.comparing(Match::getKickoffUtc));
+                .forEach(upcoming::add);
 
-        Optional<Match> nextKnockout = matchRepository.findKnockoutMatchesWithTeams().stream()
+        matchRepository.findKnockoutMatchesWithTeams().stream()
                 .filter(match -> match.getKickoffUtc().isAfter(now))
                 .filter(Match::isPredictionsEnabled)
-                .min(Comparator.comparing(Match::getKickoffUtc));
+                .filter(match -> match.getHomeTeam() != null && match.getAwayTeam() != null)
+                .forEach(upcoming::add);
 
-        Optional<Match> next = nextGroup.flatMap(group -> nextKnockout
-                .map(knockout -> group.getKickoffUtc().isBefore(knockout.getKickoffUtc()) ? group : knockout)
-                .or(() -> Optional.of(group)))
-                .or(() -> nextKnockout);
-
-        return next.map(match -> new PeerMatchView(match, loadHiddenPredictions(match), true));
+        return upcoming;
     }
 
     private List<PeerPlayerMatchPrediction> loadPredictions(Match match) {

@@ -77,6 +77,7 @@ public class HostPredictionService {
             }
         }
 
+        views.sort(Comparator.comparing((PeerMatchView view) -> view.match().getKickoffUtc()).reversed());
         return views;
     }
 
@@ -103,6 +104,7 @@ public class HostPredictionService {
             }
         }
 
+        views.sort(Comparator.comparing((HostKnockoutMatchView view) -> view.match().getKickoffUtc()).reversed());
         return views;
     }
 

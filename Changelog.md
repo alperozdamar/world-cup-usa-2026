@@ -21,6 +21,8 @@ All notable changes to this project will be documented in this file.
   - WC-0075 - Mobile flag fix: eager load, iOS SVG sizing, wider match column, Safari ticker mask; Thymeleaf fragment split (fixes Whitelabel error)
   - WC-0076 - Others' Picks: country flags on Final (champion & runner-up) table
   - WC-0077 - Header countdown includes knockout; per-match Locks in on Knockout predictions page
+  - WC-0078 - Others' Picks: show all upcoming matches on the next match day (not just one)
+  - WC-0079 - Host's Picks: Final at top; knockout and group matches newest first; flags on final picks
 
 ## [v0.0.5-PRERELEASE]
   - WC-0039 - Changelog page (/changelog) linked from footer version; Maven build-info for accurate version display

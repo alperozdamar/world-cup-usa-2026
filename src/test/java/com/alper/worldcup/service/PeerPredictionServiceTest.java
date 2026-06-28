@@ -9,6 +9,7 @@ import com.alper.worldcup.entity.MatchStage;
 import com.alper.worldcup.entity.Prediction;
 import com.alper.worldcup.entity.Team;
 import java.time.Instant;
+import java.time.ZoneId;
 import java.util.List;
 import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
@@ -98,7 +99,7 @@ class PeerPredictionServiceTest {
         when(predictionRepository.findByMatchId(3)).thenReturn(List.of(prediction));
         when(userProfileService.getDisplayName("gonenc")).thenReturn("Gonenc Gorgulu");
 
-        PeerMatchView view = service.getUpcomingMatchPrediction().orElseThrow();
+        PeerMatchView view = service.getUpcomingMatchPredictions(ZoneId.of("America/New_York")).getFirst();
 
         assertEquals(3, view.match().getId());
         assertTrue(view.predictionsHidden());
@@ -131,10 +132,32 @@ class PeerPredictionServiceTest {
         when(matchRepository.findKnockoutMatchesWithTeams()).thenReturn(List.of(knockoutSooner));
         when(predictionRepository.findByMatchId(73)).thenReturn(List.of());
 
-        PeerMatchView view = service.getUpcomingMatchPrediction().orElseThrow();
+        PeerMatchView view = service.getUpcomingMatchPredictions(ZoneId.of("America/New_York")).getFirst();
 
         assertEquals(73, view.match().getId());
         assertTrue(view.predictionsHidden());
+    }
+
+    @Test
+    void upcomingMatchesReturnsAllGamesOnNextMatchDayInUserTimezone() {
+        ZoneId zone = ZoneId.of("America/New_York");
+        Match firstOnDay = knockoutMatch(73, Instant.parse("2099-06-11T14:00:00Z"));
+        Match secondOnDay = knockoutMatch(74, Instant.parse("2099-06-12T03:00:00Z"));
+        Match nextDay = knockoutMatch(75, Instant.parse("2099-06-12T14:00:00Z"));
+
+        when(matchRepository.findByStageWithTeams(MatchStage.GROUP_STAGE)).thenReturn(List.of());
+        when(matchRepository.findKnockoutMatchesWithTeams())
+                .thenReturn(List.of(firstOnDay, secondOnDay, nextDay));
+        when(predictionRepository.findByMatchId(73)).thenReturn(List.of());
+        when(predictionRepository.findByMatchId(74)).thenReturn(List.of());
+
+        List<PeerMatchView> views = service.getUpcomingMatchPredictions(zone);
+
+        assertEquals(2, views.size());
+        assertEquals(73, views.get(0).match().getId());
+        assertEquals(74, views.get(1).match().getId());
+        assertTrue(views.get(0).predictionsHidden());
+        assertTrue(views.get(1).predictionsHidden());
     }
 
     private Match knockoutMatch(int id, Instant kickoff) {

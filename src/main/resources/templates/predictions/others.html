@@ -15,10 +15,14 @@
         </span>.
     </p>
 
-    <section class="mt-4" th:if="${upcomingMatchView != null}">
-        <h4 class="h5">Next match</h4>
-        <p class="text-muted small">Predictions hidden until kickoff.</p>
-        <div th:replace="~{fragments/others-match-card :: others-match-card(matchView=${upcomingMatchView})}"></div>
+    <section class="mt-4" th:if="${!#lists.isEmpty(upcomingMatchViews)}">
+        <h4 class="h5">Next matches</h4>
+        <p class="text-muted small">
+            Predictions hidden until kickoff. All games on the next match day are listed below.
+        </p>
+        <div th:each="upcomingView : ${upcomingMatchViews}">
+            <div th:replace="~{fragments/others-match-card :: others-match-card(matchView=${upcomingView})}"></div>
+        </div>
     </section>
 
     <section class="mt-4">

@@ -10,6 +10,7 @@ import com.alper.worldcup.entity.Match;
 import com.alper.worldcup.entity.MatchStage;
 import com.alper.worldcup.entity.Prediction;
 import com.alper.worldcup.entity.Team;
+import java.time.Instant;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -178,6 +179,71 @@ class HostPredictionServiceTest {
         assertEquals(1, pick.homeGuess());
         assertEquals(true, pick.penaltyShootoutGuess());
         assertEquals("Japan", pick.advancingTeamName());
+    }
+
+    @Test
+    void hostMatchPredictionsNewestKickoffFirst() {
+        when(userAccountService.findAdminUsernames()).thenReturn(List.of("alper"));
+
+        Match older = groupMatch(1, Instant.parse("2026-06-11T19:00:00Z"));
+        Match newer = groupMatch(2, Instant.parse("2026-06-27T19:00:00Z"));
+
+        Prediction olderPick = prediction("alper", 1, 0);
+        Prediction newerPick = prediction("alper", 2, 1);
+
+        when(matchRepository.findByStageWithTeams(MatchStage.GROUP_STAGE)).thenReturn(List.of(older, newer));
+        when(predictionRepository.findByMatchId(1)).thenReturn(List.of(olderPick));
+        when(predictionRepository.findByMatchId(2)).thenReturn(List.of(newerPick));
+        when(userProfileService.getDisplayName("alper")).thenReturn("Alper Ozdamar");
+
+        List<PeerMatchView> views = service.getHostMatchPredictions();
+
+        assertEquals(2, views.size());
+        assertEquals(2, views.get(0).match().getId());
+        assertEquals(1, views.get(1).match().getId());
+    }
+
+    @Test
+    void hostKnockoutPredictionsNewestKickoffFirst() {
+        when(userAccountService.findAdminUsernames()).thenReturn(List.of("alper"));
+
+        Match older = knockoutMatch(73, Instant.parse("2026-06-28T19:00:00Z"));
+        Match newer = knockoutMatch(74, Instant.parse("2026-06-29T19:00:00Z"));
+
+        when(matchRepository.findKnockoutMatchesWithTeams()).thenReturn(List.of(older, newer));
+        when(predictionRepository.findByMatchId(73)).thenReturn(List.of(prediction("alper", 1, 0)));
+        when(predictionRepository.findByMatchId(74)).thenReturn(List.of(prediction("alper", 2, 1)));
+        when(userProfileService.getDisplayName("alper")).thenReturn("Alper Ozdamar");
+
+        List<HostKnockoutMatchView> views = service.getHostKnockoutPredictions();
+
+        assertEquals(2, views.size());
+        assertEquals(74, views.get(0).match().getId());
+        assertEquals(73, views.get(1).match().getId());
+    }
+
+    private static Match groupMatch(int id, Instant kickoff) {
+        Match match = new Match();
+        match.setId(id);
+        match.setStage(MatchStage.GROUP_STAGE);
+        match.setKickoffUtc(kickoff);
+        return match;
+    }
+
+    private static Match knockoutMatch(int id, Instant kickoff) {
+        Match match = groupMatch(id, kickoff);
+        match.setStage(MatchStage.ROUND_OF_32);
+        match.setHomeTeam(team(1, "Brazil"));
+        match.setAwayTeam(team(2, "Japan"));
+        return match;
+    }
+
+    private static Prediction prediction(String username, int home, int away) {
+        Prediction prediction = new Prediction();
+        prediction.setUsername(username);
+        prediction.setHomeScoreGuess(home);
+        prediction.setAwayScoreGuess(away);
+        return prediction;
     }
 
     private static Team team(int id, String name) {

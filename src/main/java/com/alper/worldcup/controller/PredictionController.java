@@ -265,7 +265,7 @@ public class PredictionController {
                 .orElse(null));
         model.addAttribute("matchViews", peerPredictionService.getVisibleMatchPredictions());
         model.addAttribute("knockoutMatchViews", peerPredictionService.getVisibleKnockoutPredictions());
-        model.addAttribute("upcomingMatchView", peerPredictionService.getUpcomingMatchPrediction().orElse(null));
+        model.addAttribute("upcomingMatchViews", peerPredictionService.getUpcomingMatchPredictions(zoneId));
         model.addAttribute("groupNames", groupStandingPredictionService.getGroupNames());
         model.addAttribute("groupRows", peerPredictionService.getVisibleGroupPredictions());
         model.addAttribute("finalRows", peerPredictionService.getVisibleFinalPredictions());
