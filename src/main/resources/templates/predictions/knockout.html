@@ -69,6 +69,11 @@
                             <span th:if="${match.venue != null}">
                                 · <span th:text="${match.venue}"></span>
                             </span>
+                            <span th:if="${matchView.editable()}">
+                                · Locks in
+                                <span class="match-lock-countdown text-nowrap"
+                                      th:attr="data-kickoff=${@matchViewHelper.formatKickoffUtcIso(match)}">…</span>
+                            </span>
                         </div>
                     </div>
                     <span class="badge"

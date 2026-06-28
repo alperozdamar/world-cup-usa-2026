@@ -20,6 +20,7 @@ All notable changes to this project will be documented in this file.
   - WC-0074 - Bird Watch: Match Magpies (most group-stage match points — standings "Match" column)
   - WC-0075 - Mobile flag fix: eager load, iOS SVG sizing, wider match column, Safari ticker mask; Thymeleaf fragment split (fixes Whitelabel error)
   - WC-0076 - Others' Picks: country flags on Final (champion & runner-up) table
+  - WC-0077 - Header countdown includes knockout; per-match Locks in on Knockout predictions page
 
 ## [v0.0.5-PRERELEASE]
   - WC-0039 - Changelog page (/changelog) linked from footer version; Maven build-info for accurate version display

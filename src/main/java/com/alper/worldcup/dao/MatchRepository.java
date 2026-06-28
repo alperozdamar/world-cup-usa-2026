@@ -40,6 +40,14 @@ public interface MatchRepository extends JpaRepository<Match, Integer> {
     Optional<Match> findFirstByStageAndPredictionsEnabledTrueAndKickoffUtcAfterOrderByKickoffUtcAsc(
             MatchStage stage, Instant instant);
 
+    @Query("SELECT m FROM Match m "
+            + "WHERE m.predictionsEnabled = true "
+            + "AND m.kickoffUtc > :now "
+            + "AND m.homeTeam IS NOT NULL AND m.awayTeam IS NOT NULL "
+            + "ORDER BY m.kickoffUtc ASC "
+            + "LIMIT 1")
+    Optional<Match> findNextPredictableMatch(Instant now);
+
     @Query("SELECT m FROM Match m JOIN FETCH m.homeTeam JOIN FETCH m.awayTeam "
             + "WHERE m.stage = com.alper.worldcup.entity.MatchStage.GROUP_STAGE "
             + "AND m.predictionsEnabled = true "
