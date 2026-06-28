@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
-<head th:replace="~{fragments/layout :: head('Group Stage Predictions')}"></head>
+<head th:replace="~{fragments/layout :: head('Group Predictions')}"></head>
 <body>
 <div th:replace="~{fragments/layout :: navbar}"></div>
 <div class="container">
@@ -27,7 +27,7 @@
             </div>
 
             <div class="d-none d-md-block mb-3">
-                <h2>Group Stage Predictions</h2>
+                <h2>Group Predictions</h2>
             </div>
 
             <p class="text-muted mb-0">
@@ -45,7 +45,7 @@
                     Group Standings
                 </a>
                 <a th:href="@{/predictions/knockout}" class="btn btn-outline-primary btn-sm me-1">
-                    Knockout Predictions
+                    Knockout &mdash; My Predictions
                 </a>
                 <a th:href="@{/predictions/final}" class="btn btn-outline-primary btn-sm">
                     Final Prediction

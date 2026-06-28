@@ -1,15 +1,15 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
-<head th:replace="~{fragments/layout :: head('Knockout Predictions')}"></head>
+<head th:replace="~{fragments/layout :: head('Knockout — My Predictions')}"></head>
 <body>
 <div th:replace="~{fragments/layout :: navbar}"></div>
 <div class="container">
-    <h2>Knockout Stage</h2>
+    <h2>Knockout &mdash; My Predictions</h2>
     <p class="text-muted mb-2">
         Regular time (90′) score, then who advances. Draw at 90′ → pick penalty shootout and the advancing team.
     </p>
     <p class="mb-3">
-        <a th:href="@{/predictions/list}" class="btn btn-outline-secondary btn-sm me-1">Group Stage Predictions</a>
+        <a th:href="@{/predictions/list}" class="btn btn-outline-secondary btn-sm me-1">Group Predictions</a>
         <a th:href="@{/predictions/standings}" class="btn btn-outline-secondary btn-sm">Group Standings</a>
     </p>
 

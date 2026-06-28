@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v0.0.6-PRERELEASE]
+  - WC-0060 - Prod SQL scripts for manual R32 setup: `db/knockout_r32_prod_fix.sql` and `db/knockout_r32_group2.sql` (standings-based team assignment, accent-safe)
+  - WC-0061 - Host's Picks: show host knockout predictions (90′ score, penalties, advancer) before kickoff, same transparency as group-stage scores
+  - WC-0062 - Others' Picks: knockout section with 90′ / penalties / advancer columns; hidden until kickoff; Next match includes earliest group or knockout game
+  - WC-0063 - Prediction Audit: knockout picks show 90′ score, penalties, and advancer; type badge "Knockout"
+  - WC-0064 - Turkuaz Market ad: left rail (desktop), footer banner (mobile); links to Yelp
+  - WC-0065 - Nav: Group Predictions + Knockout — My Predictions; Others' Picks shows Group 1st/2nd before match scores
+
 ## [v0.0.5-PRERELEASE]
   - WC-0039 - Changelog page (/changelog) linked from footer version; Maven build-info for accurate version display
   - WC-0040 - Success rate % and misses on leaderboard stats and My Predictions profile card
@@ -23,11 +31,6 @@ All notable changes to this project will be documented in this file.
   - WC-0057 - Knockout page: static bracket image (26 Jun 2026 snapshot) replaces dynamic bracket overview; prediction forms unchanged
   - WC-0058 - Admin Enter Scores: today's matches first; unscored past games stay near the top; saved past games at the bottom
   - WC-0059 - Leaderboard: Knockout column separate from group-stage Match column (stage multipliers visible per round)
-  - WC-0060 - Prod SQL scripts for manual R32 setup: `db/knockout_r32_prod_fix.sql` and `db/knockout_r32_group2.sql` (standings-based team assignment, accent-safe)
-  - WC-0061 - Host's Picks: show host knockout predictions (90′ score, penalties, advancer) before kickoff, same transparency as group-stage scores
-  - WC-0062 - Others' Picks: knockout section with 90′ / penalties / advancer columns; hidden until kickoff; Next match includes earliest group or knockout game
-  - WC-0063 - Prediction Audit: knockout picks show 90′ score, penalties, and advancer; type badge "Knockout"
-  - WC-0064 - Turkuaz Market ad: left rail (desktop), footer banner (mobile); links to Yelp
 
 ## [v0.0.4-PRERELEASE]
   - WC-0037 - Mobile-friendly header: hamburger nav on small screens, compact clocks/ticker, no wasted blue space on iPhone

@@ -22,32 +22,6 @@
     </section>
 
     <section class="mt-4">
-        <h4 class="h5">Group stage match scores</h4>
-        <p class="text-muted small">Started games — newest first.</p>
-
-        <div th:if="${#lists.isEmpty(matchViews)}" class="alert alert-secondary py-2">
-            No group-stage match predictions to show yet — check back after the first kickoff.
-        </div>
-
-        <div th:each="mv : ${matchViews}">
-            <div th:replace="~{fragments/others-match-card :: others-match-card(matchView=${mv})}"></div>
-        </div>
-    </section>
-
-    <section class="mt-4">
-        <h4 class="h5">Knockout</h4>
-        <p class="text-muted small">Started knockout games — newest first. Hidden until kickoff for upcoming games (see Next match above).</p>
-
-        <div th:if="${#lists.isEmpty(knockoutMatchViews)}" class="alert alert-secondary py-2">
-            No knockout predictions to show yet — check back after the first knockout kickoff.
-        </div>
-
-        <div th:each="mv : ${knockoutMatchViews}">
-            <div th:replace="~{fragments/others-match-card :: others-match-card(matchView=${mv})}"></div>
-        </div>
-    </section>
-
-    <section class="mt-4">
         <h4 class="h5">Group 1st &amp; 2nd</h4>
         <p class="text-muted small mb-2" th:if="${tournamentStarted}">
             Per-group points appear after admin enters official results for that group (max 5 per group).
@@ -88,6 +62,32 @@
                 </tr>
                 </tbody>
             </table>
+        </div>
+    </section>
+
+    <section class="mt-4">
+        <h4 class="h5">Group stage match scores</h4>
+        <p class="text-muted small">Started games — newest first.</p>
+
+        <div th:if="${#lists.isEmpty(matchViews)}" class="alert alert-secondary py-2">
+            No group-stage match predictions to show yet — check back after the first kickoff.
+        </div>
+
+        <div th:each="mv : ${matchViews}">
+            <div th:replace="~{fragments/others-match-card :: others-match-card(matchView=${mv})}"></div>
+        </div>
+    </section>
+
+    <section class="mt-4">
+        <h4 class="h5">Knockout</h4>
+        <p class="text-muted small">Started knockout games — newest first. Hidden until kickoff for upcoming games (see Next match above).</p>
+
+        <div th:if="${#lists.isEmpty(knockoutMatchViews)}" class="alert alert-secondary py-2">
+            No knockout predictions to show yet — check back after the first knockout kickoff.
+        </div>
+
+        <div th:each="mv : ${knockoutMatchViews}">
+            <div th:replace="~{fragments/others-match-card :: others-match-card(matchView=${mv})}"></div>
         </div>
     </section>
 

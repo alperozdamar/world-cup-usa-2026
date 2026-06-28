@@ -10,7 +10,7 @@
 	</parent>
 	<groupId>com.alper.worldcup</groupId>
 	<artifactId>world-cup-usa-2026</artifactId>
-	<version>0.0.5-PRERELEASE</version>
+	<version>0.0.6-PRERELEASE</version>
 	<name>world-cup-usa-2026</name>
 	<description>FIFA World Cup 2026 prediction pool</description>
 
