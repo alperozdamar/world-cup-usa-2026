@@ -88,8 +88,12 @@
                         <span th:text="${row.displayName}"></span>
                         <span class="small text-muted" th:text="'(' + ${row.username} + ')'"></span>
                     </td>
-                    <td th:text="${row.championName}"></td>
-                    <td th:text="${row.runnerUpName}"></td>
+                    <td>
+                        <span th:replace="~{fragments/team-flag :: team-with-flag(name=${row.championName})}"></span>
+                    </td>
+                    <td>
+                        <span th:replace="~{fragments/team-flag :: team-with-flag(name=${row.runnerUpName})}"></span>
+                    </td>
                 </tr>
                 </tbody>
             </table>
