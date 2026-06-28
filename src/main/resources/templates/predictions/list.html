@@ -73,9 +73,9 @@
                         <td class="predictions-list-date" th:text="${@matchViewHelper.formatKickoffDate(match, zoneId)}"></td>
                         <td class="predictions-list-time" th:text="${@matchViewHelper.formatKickoffTime(match, zoneId)}"></td>
                         <td class="predictions-list-match">
-                            <span th:text="${match.homeDisplayName}"></span>
+                            <span th:replace="~{fragments/team-flag :: team-with-flag(name=${match.homeDisplayName})}"></span>
                             vs
-                            <span th:text="${match.awayDisplayName}"></span>
+                            <span th:replace="~{fragments/team-flag :: team-with-flag(name=${match.awayDisplayName})}"></span>
                             <div class="small text-muted d-none d-md-block" th:text="${match.venue} + ', ' + ${match.city}"></div>
                         </td>
                         <td class="predictions-list-form-col">

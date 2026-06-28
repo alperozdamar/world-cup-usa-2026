@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<span th:fragment="team-with-flag(name)"
+      class="team-with-flag">
+    <img th:if="${@teamFlagService.hasFlag(name)}"
+         th:src="${@teamFlagService.flagUrl(name)}"
+         class="team-flag"
+         alt=""
+         loading="lazy"
+         width="20"
+         height="15">
+    <span th:text="${name}">Team</span>
+</span>
+</html>

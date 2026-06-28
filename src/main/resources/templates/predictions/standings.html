@@ -46,7 +46,9 @@
                         <tr th:each="row : ${group.rows()}"
                             th:classappend="${row.rank() <= 2} ? ' group-standings-qualified' : ''">
                             <td th:text="${row.rank()}">1</td>
-                            <td class="group-standings-team" th:text="${row.team().name}">Mexico</td>
+                            <td class="group-standings-team">
+                                <span th:replace="~{fragments/team-flag :: team-with-flag(name=${row.team().name})}"></span>
+                            </td>
                             <td class="text-center" th:text="${row.played()}">0</td>
                             <td class="text-center" th:text="${row.won()}">0</td>
                             <td class="text-center" th:text="${row.drawn()}">0</td>

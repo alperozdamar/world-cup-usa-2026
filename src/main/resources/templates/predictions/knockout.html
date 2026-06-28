@@ -53,12 +53,12 @@
                     <div>
                         <h4 class="h5 mb-1">
                             <span class="knockout-team-label">
-                                <span th:text="${homeName}">Home</span>
+                                <span th:replace="~{fragments/team-flag :: team-with-flag(name=${homeName})}"></span>
                                 <span th:if="${homeSlot != null}" class="knockout-slot-label" th:text="${homeSlot}">1A</span>
                             </span>
                             vs
                             <span class="knockout-team-label">
-                                <span th:text="${awayName}">Away</span>
+                                <span th:replace="~{fragments/team-flag :: team-with-flag(name=${awayName})}"></span>
                                 <span th:if="${awaySlot != null}" class="knockout-slot-label" th:text="${awaySlot}">2F</span>
                             </span>
                         </h4>
@@ -87,7 +87,7 @@
                     </p>
                     <p class="mb-0" th:if="${prediction.advancingTeamGuess != null}">
                         <strong>Advances:</strong>
-                        <span th:text="${prediction.advancingTeamGuess.name}">Team</span>
+                        <span th:replace="~{fragments/team-flag :: team-with-flag(name=${prediction.advancingTeamGuess.name})}"></span>
                     </p>
                 </div>
 

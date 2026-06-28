@@ -46,7 +46,11 @@
 
                 <div th:each="matchView : ${matchViews}" class="card mb-3">
                     <div class="card-header">
-                        <strong th:text="${matchView.match.homeDisplayName} + ' vs ' + ${matchView.match.awayDisplayName}"></strong>
+                        <strong>
+                            <span th:replace="~{fragments/team-flag :: team-with-flag(name=${matchView.match.homeDisplayName})}"></span>
+                            vs
+                            <span th:replace="~{fragments/team-flag :: team-with-flag(name=${matchView.match.awayDisplayName})}"></span>
+                        </strong>
                         <span class="text-muted ms-2">
                             · Group <span th:text="${matchView.match.groupName}"></span>
                             · <span th:text="${@matchViewHelper.formatKickoffDate(matchView.match, zoneId)}"></span>
@@ -101,7 +105,11 @@
 
                 <div th:each="matchView : ${knockoutMatchViews}" class="card mb-3">
                     <div class="card-header">
-                        <strong th:text="${matchView.match.homeDisplayName} + ' vs ' + ${matchView.match.awayDisplayName}"></strong>
+                        <strong>
+                            <span th:replace="~{fragments/team-flag :: team-with-flag(name=${matchView.match.homeDisplayName})}"></span>
+                            vs
+                            <span th:replace="~{fragments/team-flag :: team-with-flag(name=${matchView.match.awayDisplayName})}"></span>
+                        </strong>
                         <span class="text-muted ms-2">
                             · <span th:text="${@matchViewHelper.formatStageLabel(matchView.match)}"></span>
                             · <span th:text="${@matchViewHelper.formatKickoffDate(matchView.match, zoneId)}"></span>
