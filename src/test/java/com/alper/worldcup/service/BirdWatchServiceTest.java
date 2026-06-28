@@ -112,6 +112,7 @@ class BirdWatchServiceTest {
         when(groupStandingPredictionRepository.findLeaderboardTotals()).thenReturn(List.of());
         when(finalPredictionAuditRepository.findAllByOrderByRecordedAtDesc()).thenReturn(List.of());
         when(predictionRepository.findAllScoredWithMatch()).thenReturn(List.of());
+        when(predictionRepository.findGroupStageLeaderboardTotals()).thenReturn(List.of());
         when(predictionRepository.findKnockoutPointsTotalsByUser()).thenReturn(List.of());
         when(finalResultRepository.findByIdWithTeams(FinalResult.SINGLETON_ID)).thenReturn(Optional.empty());
 
@@ -131,6 +132,7 @@ class BirdWatchServiceTest {
         when(groupStandingPredictionRepository.findLeaderboardTotals()).thenReturn(List.of());
         when(finalPredictionAuditRepository.findAllByOrderByRecordedAtDesc()).thenReturn(List.of());
         when(predictionRepository.findAllScoredWithMatch()).thenReturn(List.of());
+        when(predictionRepository.findGroupStageLeaderboardTotals()).thenReturn(List.of());
         when(predictionRepository.findKnockoutPointsTotalsByUser()).thenReturn(List.of());
         when(finalResultRepository.findByIdWithTeams(FinalResult.SINGLETON_ID)).thenReturn(Optional.empty());
 
@@ -143,6 +145,53 @@ class BirdWatchServiceTest {
     }
 
     @Test
+    void matchMagpiesShowsTopGroupStageMatchPointLeaders() {
+        when(predictionAuditRepository.findAllWithMatchOrderByRecordedAtDesc()).thenReturn(List.of());
+        when(groupStandingPredictionAuditRepository.findAllOrderByRecordedAtDesc()).thenReturn(List.of());
+        when(groupStandingPredictionRepository.findLeaderboardTotals()).thenReturn(List.of());
+        when(finalPredictionAuditRepository.findAllByOrderByRecordedAtDesc()).thenReturn(List.of());
+        when(predictionRepository.findAllScoredWithMatch()).thenReturn(List.of());
+        when(predictionRepository.findGroupStageLeaderboardTotals()).thenReturn(List.of(
+                new Object[] {"alper", 124L},
+                new Object[] {"gonenc", 114L},
+                new Object[] {"tcan", 113L}));
+        when(predictionRepository.findKnockoutPointsTotalsByUser()).thenReturn(List.of());
+        when(finalResultRepository.findByIdWithTeams(FinalResult.SINGLETON_ID)).thenReturn(Optional.empty());
+        when(userProfileService.getDisplayName("alper")).thenReturn("Alper Ozdamar");
+        when(userProfileService.getDisplayName("gonenc")).thenReturn("Gonenc Gorgulu");
+        when(userProfileService.getDisplayName("tcan")).thenReturn("Tayyip Can");
+
+        BirdWatchCategory matchMagpies = service.buildCategories().stream()
+                .filter(category -> category.id().equals("match-magpies"))
+                .findFirst()
+                .orElseThrow();
+
+        assertFalse(matchMagpies.pending());
+        assertEquals(3, matchMagpies.leaders().size());
+        assertEquals("alper", matchMagpies.leaders().get(0).username());
+        assertEquals("124 pts", matchMagpies.leaders().get(0).statLabel());
+    }
+
+    @Test
+    void matchMagpiesPendingUntilGroupStageResultsScored() {
+        when(predictionAuditRepository.findAllWithMatchOrderByRecordedAtDesc()).thenReturn(List.of());
+        when(groupStandingPredictionAuditRepository.findAllOrderByRecordedAtDesc()).thenReturn(List.of());
+        when(groupStandingPredictionRepository.findLeaderboardTotals()).thenReturn(List.of());
+        when(finalPredictionAuditRepository.findAllByOrderByRecordedAtDesc()).thenReturn(List.of());
+        when(predictionRepository.findAllScoredWithMatch()).thenReturn(List.of());
+        when(predictionRepository.findGroupStageLeaderboardTotals()).thenReturn(List.of());
+        when(predictionRepository.findKnockoutPointsTotalsByUser()).thenReturn(List.of());
+        when(finalResultRepository.findByIdWithTeams(FinalResult.SINGLETON_ID)).thenReturn(Optional.empty());
+
+        BirdWatchCategory matchMagpies = service.buildCategories().stream()
+                .filter(category -> category.id().equals("match-magpies"))
+                .findFirst()
+                .orElseThrow();
+
+        assertTrue(matchMagpies.pending());
+    }
+
+    @Test
     void knockoutKestrelsShowsZeroPointLeaders() {
         when(predictionAuditRepository.findAllWithMatchOrderByRecordedAtDesc()).thenReturn(List.of());
         when(groupStandingPredictionAuditRepository.findAllOrderByRecordedAtDesc()).thenReturn(List.of());
@@ -152,6 +201,7 @@ class BirdWatchServiceTest {
         when(predictionRepository.findKnockoutPointsTotalsByUser()).thenReturn(List.of(
                 new Object[] {"alper", 0L},
                 new Object[] {"gonenc", 0L}));
+        when(predictionRepository.findGroupStageLeaderboardTotals()).thenReturn(List.of());
         when(finalResultRepository.findByIdWithTeams(FinalResult.SINGLETON_ID)).thenReturn(Optional.empty());
         when(userProfileService.getDisplayName("alper")).thenReturn("Alper Ozdamar");
         when(userProfileService.getDisplayName("gonenc")).thenReturn("Gonenc Gorgulu");

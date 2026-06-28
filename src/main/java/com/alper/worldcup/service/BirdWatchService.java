@@ -84,6 +84,7 @@ public class BirdWatchService {
         categories.add(buildBullseyeBirds(scoredPredictions));
         categories.add(buildLuckyDucks(scoredPredictions));
         categories.add(buildSoCloseSeabirds(scoredPredictions));
+        categories.add(buildMatchMagpies());
         categories.add(buildGroupSageGrouse());
         categories.add(buildKnockoutKestrels());
         categories.add(buildCrystalBallCondors());
@@ -200,6 +201,24 @@ public class BirdWatchService {
                 explanation,
                 topByCount(eligible, Comparator.reverseOrder(),
                         count -> count + " near miss" + pluralSuffix(count)));
+    }
+
+    private BirdWatchCategory buildMatchMagpies() {
+        String explanation = "Most group-stage match points — the \"Match\" column on the standings table "
+                + "(exact scores, correct results, and goal-difference bonuses). Updates after each scored group game.";
+        Map<String, Long> matchPoints = poolTotals(predictionRepository.findGroupStageLeaderboardTotals());
+        if (matchPoints.isEmpty()) {
+            return BirdWatchCategory.pending(
+                    "match-magpies",
+                    "Match Magpies",
+                    explanation,
+                    "Waiting for the first group-stage results — check back as admins enter scores.");
+        }
+        return BirdWatchCategory.ready(
+                "match-magpies",
+                "Match Magpies",
+                explanation,
+                topByCount(matchPoints, Comparator.reverseOrder(), this::formatPoints));
     }
 
     private BirdWatchCategory buildGroupSageGrouse() {

@@ -112,15 +112,20 @@
           class="leaderboard-ticker-item"
           th:classappend="${entry.rank == 1} ? ' leaderboard-ticker-item-leader' : ''">
         <span class="leaderboard-ticker-rank" th:text="${entry.rank + '.'}">1.</span>
+        <span th:replace="~{fragments/layout :: player-club-badge-inline(username=${entry.username})}"></span>
         <span class="leaderboard-ticker-name" th:text="${entry.displayName}">Player</span>
         <span class="leaderboard-ticker-points" th:text="${entry.points + ' pts'}">0 pts</span>
         <span class="leaderboard-ticker-sep" aria-hidden="true">◆</span>
     </span>
     <span th:if="${!#lists.isEmpty(upcomingMatchTicker)}" class="leaderboard-ticker-next-marker">NEXT</span>
     <a th:each="match : ${upcomingMatchTicker}"
-       th:href="@{/predictions/list}"
+       th:href="${match.knockout} ? @{/predictions/knockout} : @{/predictions/list}"
        class="leaderboard-ticker-item leaderboard-ticker-item-match">
-        <span class="leaderboard-ticker-match-label" th:text="${match.label}">Mexico vs South Africa</span>
+        <span class="leaderboard-ticker-match-label">
+            <span th:replace="~{fragments/team-flag :: team-with-flag(name=${match.homeTeamName}, compact=true)}"></span>
+            <span class="leaderboard-ticker-vs">vs</span>
+            <span th:replace="~{fragments/team-flag :: team-with-flag(name=${match.awayTeamName}, compact=true)}"></span>
+        </span>
         <span class="leaderboard-ticker-kickoff" th:text="${match.kickoffLabel}">Thu Jun 11 · 15:00 EDT</span>
         <span class="leaderboard-ticker-sep" aria-hidden="true">◆</span>
     </a>

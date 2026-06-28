@@ -310,7 +310,7 @@ body.admin-page .leaderboard-ticker-bar {
 
 .leaderboard-ticker-item {
     display: inline-flex;
-    align-items: baseline;
+    align-items: center;
     gap: 0.35rem;
     padding: 0.4rem 1.1rem 0.4rem 0;
 }
@@ -365,7 +365,34 @@ body.admin-page .leaderboard-ticker-bar {
 }
 
 .leaderboard-ticker-match-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
     font-weight: 600;
+}
+
+.leaderboard-ticker-vs {
+    font-weight: 500;
+    color: rgba(255, 255, 255, 0.75);
+    font-size: 0.75rem;
+}
+
+.leaderboard-ticker-item .player-club-badge-inline-img {
+    width: 1rem;
+    height: 1rem;
+    object-fit: contain;
+    vertical-align: middle;
+}
+
+.leaderboard-ticker-item .team-flag-compact {
+    width: 1rem;
+    height: auto;
+    aspect-ratio: 4 / 3;
+    box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.25);
+}
+
+.leaderboard-ticker-item .team-with-flag-compact {
+    gap: 0.25rem;
 }
 
 .leaderboard-ticker-kickoff {

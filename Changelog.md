@@ -16,6 +16,8 @@ All notable changes to this project will be documented in this file.
   - WC-0070 - Prod SQL `db/knockout_r32_28june.sql`: full R32 from 28 Jun bracket (fixes Uruguay display / partial slots)
   - WC-0071 - Bird Watch: Group Sage Grouse (group 1st/2nd points) and Knockout Kestrels (knockout match points)
   - WC-0072 - Country flags (JSON map + SVG from flag-icons): knockout, group list, standings, others' picks
+  - WC-0073 - Header ticker: club badges on standings, country flags on NEXT matches; knockout games in ticker
+  - WC-0074 - Bird Watch: Match Magpies (most group-stage match points — standings "Match" column)
 
 ## [v0.0.5-PRERELEASE]
   - WC-0039 - Changelog page (/changelog) linked from footer version; Maven build-info for accurate version display
