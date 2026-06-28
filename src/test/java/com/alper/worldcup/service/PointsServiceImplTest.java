@@ -52,11 +52,24 @@ class PointsServiceImplTest {
     }
 
     @Test
-    void knockoutCorrectAdvancerDespiteWrong90Path() {
+    void knockoutCorrectAdvancerDespiteWrong90PathAwardsSoftBonus() {
         Team canada = team(42);
-        assertEquals(2, pointsService.calculateKnockoutPoints(
-                1, 1, 1, 2, MatchStage.ROUND_OF_32,
-                false, null, canada, canada));
+        assertEquals(1, pointsService.calculateKnockoutPoints(
+                1, 1, 0, 1, MatchStage.ROUND_OF_32,
+                true, null, canada, canada));
+    }
+
+    @Test
+    void knockoutCorrect90OutcomeBeatsDrawPickWithSoftAdvancerBonus() {
+        Team canada = team(42);
+        int drawPickPoints = pointsService.calculateKnockoutPoints(
+                1, 1, 0, 1, MatchStage.ROUND_OF_32,
+                true, null, canada, canada);
+        int outcomePickPoints = pointsService.calculateKnockoutPoints(
+                0, 2, 0, 1, MatchStage.ROUND_OF_32,
+                null, null, null, canada);
+        assertEquals(1, drawPickPoints);
+        assertEquals(2, outcomePickPoints);
     }
 
     @Test
@@ -79,7 +92,8 @@ class PointsServiceImplTest {
     @Test
     void knockoutPenaltyOnlyWhenActualDraw() {
         Team brazil = team(10);
-        assertEquals(2, pointsService.calculateKnockoutPoints(
+        // Actual 2–1 (not a draw): no penalty bonus; draw pick with correct advancer gets soft +1 only.
+        assertEquals(1, pointsService.calculateKnockoutPoints(
                 1, 1, 2, 1, MatchStage.ROUND_OF_32,
                 true, true, brazil, brazil));
     }
