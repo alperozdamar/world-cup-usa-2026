@@ -53,6 +53,28 @@ public class PeerPredictionService {
     }
 
     @Transactional(readOnly = true)
+    public List<PeerMatchView> getVisibleStartedMatchPredictions() {
+        Instant now = Instant.now();
+        List<PeerMatchView> views = new ArrayList<>();
+
+        matchRepository.findByStageWithTeams(MatchStage.GROUP_STAGE).stream()
+                .filter(match -> match.hasStarted(now))
+                .map(match -> new PeerMatchView(match, loadPredictions(match), false))
+                .forEach(views::add);
+
+        matchRepository.findKnockoutMatchesWithTeams().stream()
+                .filter(match -> match.hasStarted(now))
+                .map(match -> new PeerMatchView(match, loadPredictions(match), false))
+                .forEach(views::add);
+
+        views.sort(Comparator
+                .comparing((PeerMatchView view) -> !KnockoutStageLabels.isKnockout(view.match()))
+                .thenComparing((PeerMatchView view) -> view.match().isScoreEntered())
+                .thenComparing((PeerMatchView view) -> view.match().getKickoffUtc(), Comparator.reverseOrder()));
+        return views;
+    }
+
+    @Transactional(readOnly = true)
     public List<PeerMatchView> getVisibleMatchPredictions() {
         Instant now = Instant.now();
 

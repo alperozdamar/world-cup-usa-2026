@@ -263,8 +263,7 @@ public class PredictionController {
                 .map(kickoff -> kickoff.atZone(zoneId).format(java.time.format.DateTimeFormatter
                         .ofPattern("EEE, MMM d yyyy HH:mm z")))
                 .orElse(null));
-        model.addAttribute("matchViews", peerPredictionService.getVisibleMatchPredictions());
-        model.addAttribute("knockoutMatchViews", peerPredictionService.getVisibleKnockoutPredictions());
+        model.addAttribute("startedMatchViews", peerPredictionService.getVisibleStartedMatchPredictions());
         model.addAttribute("upcomingMatchViews", peerPredictionService.getUpcomingMatchPredictions(zoneId));
         model.addAttribute("groupNames", groupStandingPredictionService.getGroupNames());
         model.addAttribute("groupRows", peerPredictionService.getVisibleGroupPredictions());
