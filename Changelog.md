@@ -10,6 +10,9 @@ All notable changes to this project will be documented in this file.
   - WC-0064 - Turkuaz Market ad: left rail (desktop), footer banner (mobile); links to Yelp
   - WC-0065 - Nav: Group Predictions + Knockout — My Predictions; Others' Picks shows Group 1st/2nd before match scores
   - WC-0066 - Others' Picks: Final (champion & runner-up) moved above match scores, next to Group 1st & 2nd
+  - WC-0067 - Knockout bracket image updated to 28 June 2026 snapshot (post group stage)
+  - WC-0068 - Admin: Sync knockout bracket from standings (fills empty slots only; keeps existing picks)
+  - WC-0069 - Admin: saving knockout scores auto-syncs next round; draw at 90′ requires advancer pick
 
 ## [v0.0.5-PRERELEASE]
   - WC-0039 - Changelog page (/changelog) linked from footer version; Maven build-info for accurate version display

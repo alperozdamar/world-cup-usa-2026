@@ -6,6 +6,9 @@ import com.alper.worldcup.entity.UserProfile;
 import com.alper.worldcup.service.AuditEntryView;
 import com.alper.worldcup.service.FinalPredictionService;
 import com.alper.worldcup.service.GroupStandingPredictionService;
+import com.alper.worldcup.service.KnockoutAssignmentService;
+import com.alper.worldcup.service.KnockoutSyncResult;
+import com.alper.worldcup.service.SaveScoreResult;
 import com.alper.worldcup.service.PredictionAuditService;
 import com.alper.worldcup.service.PredictionService;
 import com.alper.worldcup.service.UserProfileService;
@@ -37,19 +40,22 @@ public class AdminController {
     private final FinalPredictionService finalPredictionService;
     private final PredictionAuditService predictionAuditService;
     private final UserProfileService userProfileService;
+    private final KnockoutAssignmentService knockoutAssignmentService;
 
     public AdminController(MatchRepository matchRepository,
                            PredictionService predictionService,
                            GroupStandingPredictionService groupStandingPredictionService,
                            FinalPredictionService finalPredictionService,
                            PredictionAuditService predictionAuditService,
-                           UserProfileService userProfileService) {
+                           UserProfileService userProfileService,
+                           KnockoutAssignmentService knockoutAssignmentService) {
         this.matchRepository = matchRepository;
         this.predictionService = predictionService;
         this.groupStandingPredictionService = groupStandingPredictionService;
         this.finalPredictionService = finalPredictionService;
         this.predictionAuditService = predictionAuditService;
         this.userProfileService = userProfileService;
+        this.knockoutAssignmentService = knockoutAssignmentService;
     }
 
     @GetMapping("/scores")
@@ -100,10 +106,23 @@ public class AdminController {
     public String saveScore(@RequestParam Integer matchId,
                             @RequestParam Integer homeScore,
                             @RequestParam Integer awayScore,
+                            @RequestParam(required = false) Integer advancingTeamId,
                             RedirectAttributes redirectAttributes) {
         try {
-            predictionService.saveActualScore(matchId, homeScore, awayScore);
-            redirectAttributes.addFlashAttribute("successMessage", "Score saved.");
+            SaveScoreResult result = predictionService.saveActualScore(
+                    matchId, homeScore, awayScore, advancingTeamId);
+            redirectAttributes.addFlashAttribute("successMessage", result.successMessage());
+        } catch (Exception ex) {
+            redirectAttributes.addFlashAttribute("errorMessage", ex.getMessage());
+        }
+        return "redirect:/admin/scores";
+    }
+
+    @PostMapping("/knockout/sync-bracket")
+    public String syncKnockoutBracket(RedirectAttributes redirectAttributes) {
+        try {
+            KnockoutSyncResult result = knockoutAssignmentService.syncBracketFromStandings(Instant.now());
+            redirectAttributes.addFlashAttribute("successMessage", result.summaryMessage());
         } catch (Exception ex) {
             redirectAttributes.addFlashAttribute("errorMessage", ex.getMessage());
         }

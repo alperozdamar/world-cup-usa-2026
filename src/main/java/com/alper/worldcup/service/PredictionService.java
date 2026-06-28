@@ -22,15 +22,18 @@ public class PredictionService {
     private final PredictionRepository predictionRepository;
     private final PointsService pointsService;
     private final PredictionAuditService predictionAuditService;
+    private final KnockoutAssignmentService knockoutAssignmentService;
 
     public PredictionService(MatchRepository matchRepository,
                              PredictionRepository predictionRepository,
                              PointsService pointsService,
-                             PredictionAuditService predictionAuditService) {
+                             PredictionAuditService predictionAuditService,
+                             KnockoutAssignmentService knockoutAssignmentService) {
         this.matchRepository = matchRepository;
         this.predictionRepository = predictionRepository;
         this.pointsService = pointsService;
         this.predictionAuditService = predictionAuditService;
+        this.knockoutAssignmentService = knockoutAssignmentService;
     }
 
     @Transactional(readOnly = true)
@@ -108,7 +111,10 @@ public class PredictionService {
     }
 
     @Transactional
-    public void saveActualScore(Integer matchId, Integer homeScore, Integer awayScore) {
+    public SaveScoreResult saveActualScore(Integer matchId,
+                                           Integer homeScore,
+                                           Integer awayScore,
+                                           Integer advancingTeamId) {
         Match match = matchRepository.findById(matchId)
                 .orElseThrow(() -> new IllegalArgumentException("Match not found: " + matchId));
         validateScore(homeScore);
@@ -116,12 +122,25 @@ public class PredictionService {
 
         match.setHomeScoreActual(homeScore);
         match.setAwayScoreActual(awayScore);
+        if (KnockoutStageLabels.isKnockout(match)) {
+            if (homeScore.equals(awayScore)) {
+                match.setAdvancingTeamActual(requireAdvancingTeam(match, advancingTeamId));
+            } else {
+                match.setAdvancingTeamActual(null);
+            }
+        }
         matchRepository.save(match);
 
         for (Prediction prediction : predictionRepository.findByMatchId(matchId)) {
             prediction.setPoints(calculateMatchPoints(match, prediction));
             predictionRepository.save(prediction);
         }
+
+        KnockoutSyncResult sync = null;
+        if (KnockoutStageLabels.isKnockout(match)) {
+            sync = knockoutAssignmentService.syncBracketFromStandings(Instant.now());
+        }
+        return new SaveScoreResult(sync);
     }
 
     @Transactional(readOnly = true)
@@ -169,5 +188,19 @@ public class PredictionService {
         if (score == null || score < 0 || score > 20) {
             throw new IllegalArgumentException("Score must be between 0 and 20");
         }
+    }
+
+    private Team requireAdvancingTeam(Match match, Integer advancingTeamId) {
+        if (advancingTeamId == null) {
+            throw new IllegalArgumentException(
+                    "Select which team advances when the score is level at 90′.");
+        }
+        if (match.getHomeTeam() != null && advancingTeamId.equals(match.getHomeTeam().getId())) {
+            return match.getHomeTeam();
+        }
+        if (match.getAwayTeam() != null && advancingTeamId.equals(match.getAwayTeam().getId())) {
+            return match.getAwayTeam();
+        }
+        throw new IllegalArgumentException("Advancing team must be one of the two sides in this match.");
     }
 }
