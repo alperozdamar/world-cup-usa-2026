@@ -1,12 +1,23 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
-<span th:fragment="team-with-flag(name, compact)"
-      th:class="${compact} ? 'team-with-flag team-with-flag-compact' : 'team-with-flag'">
+<span th:fragment="team-with-flag(name)" class="team-with-flag">
     <img th:if="${@teamFlagService.hasFlag(name)}"
          th:src="${@teamFlagService.flagUrl(name)}"
-         th:class="${compact} ? 'team-flag team-flag-compact' : 'team-flag'"
+         class="team-flag"
          alt=""
-         loading="lazy"
+         loading="eager"
+         decoding="async"
+         width="20"
+         height="15">
+    <span th:text="${name}">Team</span>
+</span>
+<span th:fragment="team-with-flag-compact(name)" class="team-with-flag team-with-flag-compact">
+    <img th:if="${@teamFlagService.hasFlag(name)}"
+         th:src="${@teamFlagService.flagUrl(name)}"
+         class="team-flag team-flag-compact"
+         alt=""
+         loading="eager"
+         decoding="async"
          width="20"
          height="15">
     <span th:text="${name}">Team</span>

@@ -122,9 +122,9 @@
        th:href="${match.knockout} ? @{/predictions/knockout} : @{/predictions/list}"
        class="leaderboard-ticker-item leaderboard-ticker-item-match">
         <span class="leaderboard-ticker-match-label">
-            <span th:replace="~{fragments/team-flag :: team-with-flag(name=${match.homeTeamName}, compact=true)}"></span>
+            <span th:replace="~{fragments/team-flag :: team-with-flag-compact(name=${match.homeTeamName})}"></span>
             <span class="leaderboard-ticker-vs">vs</span>
-            <span th:replace="~{fragments/team-flag :: team-with-flag(name=${match.awayTeamName}, compact=true)}"></span>
+            <span th:replace="~{fragments/team-flag :: team-with-flag-compact(name=${match.awayTeamName})}"></span>
         </span>
         <span class="leaderboard-ticker-kickoff" th:text="${match.kickoffLabel}">Thu Jun 11 · 15:00 EDT</span>
         <span class="leaderboard-ticker-sep" aria-hidden="true">◆</span>
