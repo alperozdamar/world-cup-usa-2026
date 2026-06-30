@@ -114,7 +114,8 @@ public class PredictionService {
     public SaveScoreResult saveActualScore(Integer matchId,
                                            Integer homeScore,
                                            Integer awayScore,
-                                           Integer advancingTeamId) {
+                                           Integer advancingTeamId,
+                                           Boolean penaltyShootout) {
         Match match = matchRepository.findById(matchId)
                 .orElseThrow(() -> new IllegalArgumentException("Match not found: " + matchId));
         validateScore(homeScore);
@@ -125,9 +126,17 @@ public class PredictionService {
         if (KnockoutStageLabels.isKnockout(match)) {
             if (homeScore.equals(awayScore)) {
                 match.setAdvancingTeamActual(requireAdvancingTeam(match, advancingTeamId));
+                if (penaltyShootout == null) {
+                    throw new IllegalArgumentException(
+                            "Pick yes or no for penalty shootout when the score is level at 90′.");
+                }
+                match.setPenaltyShootoutActual(penaltyShootout);
             } else {
                 match.setAdvancingTeamActual(null);
+                match.setPenaltyShootoutActual(null);
             }
+        } else {
+            match.setPenaltyShootoutActual(null);
         }
         matchRepository.save(match);
 

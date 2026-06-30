@@ -62,18 +62,32 @@
                             <button type="submit" class="btn btn-sm btn-warning">Save</button>
                         </div>
                         <div th:if="${isKnockout and match.homeTeam != null and match.awayTeam != null}"
-                             class="small mt-1 text-muted">
-                            If level at 90′, advances:
-                            <label class="ms-1 me-2">
-                                <input type="radio" name="advancingTeamId" th:value="${match.homeTeam.id}"
-                                       th:checked="${match.advancingTeamActual != null and match.advancingTeamActual.id == match.homeTeam.id}">
-                                <span th:text="${match.homeTeam.name}"></span>
-                            </label>
-                            <label>
-                                <input type="radio" name="advancingTeamId" th:value="${match.awayTeam.id}"
-                                       th:checked="${match.advancingTeamActual != null and match.advancingTeamActual.id == match.awayTeam.id}">
-                                <span th:text="${match.awayTeam.name}"></span>
-                            </label>
+                             class="small mt-1 text-muted admin-knockout-draw-fields">
+                            <div class="mb-1">If level at 90′:</div>
+                            <div class="mb-1">
+                                Penalty shootout?
+                                <label class="ms-1 me-2">
+                                    <input type="radio" name="penaltyShootout" value="true"
+                                           th:checked="${match.penaltyShootoutActual == true}"> Yes
+                                </label>
+                                <label>
+                                    <input type="radio" name="penaltyShootout" value="false"
+                                           th:checked="${match.penaltyShootoutActual == false}"> No
+                                </label>
+                            </div>
+                            <div>
+                                Advances:
+                                <label class="ms-1 me-2">
+                                    <input type="radio" name="advancingTeamId" th:value="${match.homeTeam.id}"
+                                           th:checked="${match.advancingTeamActual != null and match.advancingTeamActual.id == match.homeTeam.id}">
+                                    <span th:text="${match.homeTeam.name}"></span>
+                                </label>
+                                <label>
+                                    <input type="radio" name="advancingTeamId" th:value="${match.awayTeam.id}"
+                                           th:checked="${match.advancingTeamActual != null and match.advancingTeamActual.id == match.awayTeam.id}">
+                                    <span th:text="${match.awayTeam.name}"></span>
+                                </label>
+                            </div>
                         </div>
                     </form>
                 </td>

@@ -107,10 +107,11 @@ public class AdminController {
                             @RequestParam Integer homeScore,
                             @RequestParam Integer awayScore,
                             @RequestParam(required = false) Integer advancingTeamId,
+                            @RequestParam(required = false) Boolean penaltyShootout,
                             RedirectAttributes redirectAttributes) {
         try {
             SaveScoreResult result = predictionService.saveActualScore(
-                    matchId, homeScore, awayScore, advancingTeamId);
+                    matchId, homeScore, awayScore, advancingTeamId, penaltyShootout);
             redirectAttributes.addFlashAttribute("successMessage", result.successMessage());
         } catch (Exception ex) {
             redirectAttributes.addFlashAttribute("errorMessage", ex.getMessage());

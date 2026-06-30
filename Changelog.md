@@ -26,6 +26,7 @@ All notable changes to this project will be documented in this file.
   - WC-0080 - Others' Picks: merge started group + knockout into one list; live/awaiting-score games pinned above older results
   - WC-0081 - Others' Picks: knockout started matches always listed above group stage
   - WC-0082 - Knockout scoring: advancer bonus +1 (not +2) when actual 90′ was not a draw
+  - WC-0083 - Admin Enter Scores: penalty shootout Yes/No when knockout match is level at 90′ (fixes missing +1 pens bonus)
 
 ## [v0.0.5-PRERELEASE]
   - WC-0039 - Changelog page (/changelog) linked from footer version; Maven build-info for accurate version display
