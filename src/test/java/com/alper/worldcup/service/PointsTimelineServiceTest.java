@@ -4,8 +4,11 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.when;
 
+import com.alper.worldcup.dao.FinalPredictionRepository;
+import com.alper.worldcup.dao.GroupStandingPredictionRepository;
 import com.alper.worldcup.dao.MatchRepository;
 import com.alper.worldcup.dao.PredictionRepository;
+import com.alper.worldcup.entity.GroupStandingPrediction;
 import com.alper.worldcup.entity.Match;
 import com.alper.worldcup.entity.MatchStage;
 import com.alper.worldcup.entity.Prediction;
@@ -29,6 +32,10 @@ class PointsTimelineServiceTest {
     @Mock
     private PredictionRepository predictionRepository;
     @Mock
+    private GroupStandingPredictionRepository groupStandingPredictionRepository;
+    @Mock
+    private FinalPredictionRepository finalPredictionRepository;
+    @Mock
     private MatchRepository matchRepository;
     @Mock
     private UserProfileService userProfileService;
@@ -39,6 +46,8 @@ class PointsTimelineServiceTest {
     void setUp() {
         service = new PointsTimelineService(
                 predictionRepository,
+                groupStandingPredictionRepository,
+                finalPredictionRepository,
                 matchRepository,
                 new PoolMemberRegistry("default"),
                 userProfileService);
@@ -52,6 +61,8 @@ class PointsTimelineServiceTest {
                 scoredPrediction("alper", 1, 5, "2026-06-11T19:00:00Z"),
                 scoredPrediction("alper", 2, 2, "2026-06-12T19:00:00Z"),
                 scoredPrediction("gonenc", 3, 3, "2026-06-11T23:00:00Z")));
+        when(groupStandingPredictionRepository.findAllScored()).thenReturn(List.of());
+        when(matchRepository.findDistinctGroupStageGroupNames()).thenReturn(List.of());
         when(userProfileService.getDisplayName("alper")).thenReturn("Alper Ozdamar");
         when(userProfileService.getDisplayName("gonenc")).thenReturn("Gonenc Gorgulu");
 
@@ -69,6 +80,27 @@ class PointsTimelineServiceTest {
 
         LeaderboardTimelineSeries gonenc = chart.series().get(1);
         assertEquals(List.of(3L, 3L), gonenc.data());
+    }
+
+    @Test
+    void includesGroupStandingPointsOnGroupLastMatchDay() {
+        when(matchRepository.findTournamentStartKickoff())
+                .thenReturn(Optional.of(Instant.parse("2026-06-11T19:00:00Z")));
+        when(predictionRepository.findAllScoredWithMatch()).thenReturn(List.of(
+                scoredPrediction("sadik", 1, 5, "2026-06-11T19:00:00Z")));
+        when(groupStandingPredictionRepository.findAllScored()).thenReturn(List.of(
+                groupPrediction("sadik", "A", 3)));
+        when(matchRepository.findDistinctGroupStageGroupNames()).thenReturn(List.of("A"));
+        when(matchRepository.findLatestGroupMatchKickoff("A"))
+                .thenReturn(Optional.of(Instant.parse("2026-06-14T23:00:00Z")));
+        when(userProfileService.getDisplayName("sadik")).thenReturn("Sadik Demirdogen");
+
+        LeaderboardTimelineChart chart = service.buildMatchPointsTimeline(
+                ZONE,
+                List.of("sadik"),
+                LocalDate.of(2026, 6, 14));
+
+        assertEquals(List.of(5L, 5L, 5L, 8L), chart.series().get(0).data());
     }
 
     @Test
@@ -95,6 +127,16 @@ class PointsTimelineServiceTest {
         prediction.setMatch(match);
         prediction.setHomeScoreGuess(1);
         prediction.setAwayScoreGuess(0);
+        prediction.setPoints(points);
+        return prediction;
+    }
+
+    private static GroupStandingPrediction groupPrediction(String username, String groupName, int points) {
+        GroupStandingPrediction prediction = new GroupStandingPrediction();
+        prediction.setUsername(username);
+        prediction.setGroupName(groupName);
+        prediction.setFirstPlaceTeam(team(1, "First"));
+        prediction.setSecondPlaceTeam(team(2, "Second"));
         prediction.setPoints(points);
         return prediction;
     }

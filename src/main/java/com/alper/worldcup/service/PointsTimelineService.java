@@ -1,8 +1,13 @@
 package com.alper.worldcup.service;
 
+import com.alper.worldcup.dao.FinalPredictionRepository;
+import com.alper.worldcup.dao.GroupStandingPredictionRepository;
 import com.alper.worldcup.dao.MatchRepository;
 import com.alper.worldcup.dao.PredictionRepository;
+import com.alper.worldcup.entity.FinalPrediction;
+import com.alper.worldcup.entity.GroupStandingPrediction;
 import com.alper.worldcup.entity.Prediction;
+import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
@@ -23,15 +28,21 @@ public class PointsTimelineService {
     };
 
     private final PredictionRepository predictionRepository;
+    private final GroupStandingPredictionRepository groupStandingPredictionRepository;
+    private final FinalPredictionRepository finalPredictionRepository;
     private final MatchRepository matchRepository;
     private final PoolMemberRegistry poolMemberRegistry;
     private final UserProfileService userProfileService;
 
     public PointsTimelineService(PredictionRepository predictionRepository,
+                                 GroupStandingPredictionRepository groupStandingPredictionRepository,
+                                 FinalPredictionRepository finalPredictionRepository,
                                  MatchRepository matchRepository,
                                  PoolMemberRegistry poolMemberRegistry,
                                  UserProfileService userProfileService) {
         this.predictionRepository = predictionRepository;
+        this.groupStandingPredictionRepository = groupStandingPredictionRepository;
+        this.finalPredictionRepository = finalPredictionRepository;
         this.matchRepository = matchRepository;
         this.poolMemberRegistry = poolMemberRegistry;
         this.userProfileService = userProfileService;
@@ -90,6 +101,13 @@ public class PointsTimelineService {
 
     private Map<String, Map<LocalDate, Long>> pointsEarnedByDay(ZoneId zoneId) {
         Map<String, Map<LocalDate, Long>> pointsByUserByDay = new HashMap<>();
+        addMatchPoints(pointsByUserByDay, zoneId);
+        addGroupStandingPoints(pointsByUserByDay, zoneId);
+        addFinalPoints(pointsByUserByDay, zoneId);
+        return pointsByUserByDay;
+    }
+
+    private void addMatchPoints(Map<String, Map<LocalDate, Long>> pointsByUserByDay, ZoneId zoneId) {
         for (Prediction prediction : predictionRepository.findAllScoredWithMatch()) {
             if (!poolMemberRegistry.isMember(prediction.getUsername())) {
                 continue;
@@ -98,11 +116,59 @@ public class PointsTimelineService {
                 continue;
             }
             LocalDate matchDay = prediction.getMatch().getKickoffUtc().atZone(zoneId).toLocalDate();
-            pointsByUserByDay
-                    .computeIfAbsent(prediction.getUsername(), ignored -> new HashMap<>())
-                    .merge(matchDay, prediction.getPoints().longValue(), Long::sum);
+            mergePoints(pointsByUserByDay, prediction.getUsername(), matchDay, prediction.getPoints());
         }
-        return pointsByUserByDay;
+    }
+
+    private void addGroupStandingPoints(Map<String, Map<LocalDate, Long>> pointsByUserByDay, ZoneId zoneId) {
+        Map<String, LocalDate> groupLastMatchDay = groupLastMatchDays(zoneId);
+        for (GroupStandingPrediction prediction : groupStandingPredictionRepository.findAllScored()) {
+            if (!poolMemberRegistry.isMember(prediction.getUsername())) {
+                continue;
+            }
+            LocalDate groupDay = groupLastMatchDay.get(prediction.getGroupName());
+            if (groupDay == null) {
+                continue;
+            }
+            mergePoints(pointsByUserByDay, prediction.getUsername(), groupDay, prediction.getPoints());
+        }
+    }
+
+    private void addFinalPoints(Map<String, Map<LocalDate, Long>> pointsByUserByDay, ZoneId zoneId) {
+        LocalDate finalDay = matchRepository.findFinalMatchKickoff()
+                .map(instant -> instant.atZone(zoneId).toLocalDate())
+                .orElse(null);
+        if (finalDay == null) {
+            return;
+        }
+        for (FinalPrediction prediction : finalPredictionRepository.findAllScored()) {
+            if (!poolMemberRegistry.isMember(prediction.getUsername())) {
+                continue;
+            }
+            mergePoints(pointsByUserByDay, prediction.getUsername(), finalDay, prediction.getPoints());
+        }
+    }
+
+    private Map<String, LocalDate> groupLastMatchDays(ZoneId zoneId) {
+        Map<String, LocalDate> groupLastMatchDay = new HashMap<>();
+        for (String groupName : matchRepository.findDistinctGroupStageGroupNames()) {
+            matchRepository.findLatestGroupMatchKickoff(groupName)
+                    .map(instant -> instant.atZone(zoneId).toLocalDate())
+                    .ifPresent(day -> groupLastMatchDay.put(groupName, day));
+        }
+        return groupLastMatchDay;
+    }
+
+    private static void mergePoints(Map<String, Map<LocalDate, Long>> pointsByUserByDay,
+                                    String username,
+                                    LocalDate day,
+                                    Integer points) {
+        if (points == null || points <= 0) {
+            return;
+        }
+        pointsByUserByDay
+                .computeIfAbsent(username, ignored -> new HashMap<>())
+                .merge(day, points.longValue(), Long::sum);
     }
 
     static List<LocalDate> daysInclusive(LocalDate start, LocalDate end) {

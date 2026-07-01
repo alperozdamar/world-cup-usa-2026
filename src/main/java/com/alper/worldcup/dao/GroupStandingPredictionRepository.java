@@ -23,6 +23,9 @@ public interface GroupStandingPredictionRepository extends JpaRepository<GroupSt
             + "JOIN FETCH g.firstPlaceTeam JOIN FETCH g.secondPlaceTeam ORDER BY g.username, g.groupName")
     List<GroupStandingPrediction> findAllWithTeamsOrderByUsernameAndGroup();
 
+    @Query("SELECT g FROM GroupStandingPrediction g WHERE g.points IS NOT NULL")
+    List<GroupStandingPrediction> findAllScored();
+
     @Query("SELECT g.username, COALESCE(SUM(g.points), 0) FROM GroupStandingPrediction g "
             + "WHERE g.points IS NOT NULL GROUP BY g.username")
     List<Object[]> findLeaderboardTotals();
