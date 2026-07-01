@@ -93,7 +93,24 @@ public class PointsTimelineService {
         return new LeaderboardTimelineChart(labels, series, hasScoredPoints);
     }
 
-    private LocalDate tournamentStartDay(ZoneId zoneId) {
+    @Transactional(readOnly = true)
+    public Map<String, Long> cumulativeTotalsThrough(LocalDate throughDay, ZoneId zoneId) {
+        Map<String, Map<LocalDate, Long>> earnedByDay = pointsEarnedByDay(zoneId);
+        Map<String, Long> totals = new HashMap<>();
+        for (var member : poolMemberRegistry.getMembers()) {
+            String username = member.username();
+            long cumulative = 0;
+            for (Map.Entry<LocalDate, Long> entry : earnedByDay.getOrDefault(username, Map.of()).entrySet()) {
+                if (!entry.getKey().isAfter(throughDay)) {
+                    cumulative += entry.getValue();
+                }
+            }
+            totals.put(username, cumulative);
+        }
+        return totals;
+    }
+
+    LocalDate tournamentStartDay(ZoneId zoneId) {
         return matchRepository.findTournamentStartKickoff()
                 .map(instant -> instant.atZone(zoneId).toLocalDate())
                 .orElse(LocalDate.now(zoneId));

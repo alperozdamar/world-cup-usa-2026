@@ -277,11 +277,11 @@ public class PredictionController {
 
     @GetMapping("/leaderboard")
     public String leaderboard(Principal principal, Model model) {
-        List<LeaderboardRowView> leaderboardRows = leaderboardService.getLeaderboardRows();
+        ZoneId zoneId = userProfileService.getUserZoneId(principal.getName());
+        List<LeaderboardRowView> leaderboardRows = leaderboardService.getLeaderboardRows(zoneId);
         List<String> usernames = leaderboardRows.stream()
                 .map(LeaderboardRowView::username)
                 .toList();
-        ZoneId zoneId = userProfileService.getUserZoneId(principal.getName());
         model.addAttribute("leaderboardRows", leaderboardRows);
         model.addAttribute("displayNames", userProfileService.getDisplayNamesForUsernames(usernames));
         model.addAttribute("matchStatsByUsername", userMatchStatsService.getStatsForPoolMembers());

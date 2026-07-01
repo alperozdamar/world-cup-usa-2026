@@ -2,6 +2,9 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v0.0.7-PRERELEASE]
+  - WC-0086 - Leaderboard: rank movement arrows (↑ ↓ →) vs end of previous day (user timezone)
+
 ## [v0.0.6-PRERELEASE]
   - WC-0060 - Prod SQL scripts for manual R32 setup: `db/knockout_r32_prod_fix.sql` and `db/knockout_r32_group2.sql` (standings-based team assignment, accent-safe)
   - WC-0061 - Host's Picks: show host knockout predictions (90′ score, penalties, advancer) before kickoff, same transparency as group-stage scores

@@ -610,6 +610,25 @@ body.admin-page .leaderboard-ticker-bar {
     gap: 0.75rem;
 }
 
+.leaderboard-rank-move {
+    margin-left: 0.35rem;
+    font-size: 0.85rem;
+    font-weight: 700;
+    line-height: 1;
+}
+
+.leaderboard-rank-move-up {
+    color: #198754;
+}
+
+.leaderboard-rank-move-down {
+    color: #dc3545;
+}
+
+.leaderboard-rank-move-stable {
+    color: #6c757d;
+}
+
 .leaderboard-timeline-chart-wrap {
     position: relative;
     height: 22rem;

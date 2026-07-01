@@ -9,6 +9,8 @@ import com.alper.worldcup.entity.FinalResult;
 import com.alper.worldcup.entity.PredictionAuditAction;
 import com.alper.worldcup.entity.Team;
 import java.time.Instant;
+import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -65,6 +67,15 @@ public class FinalPredictionService {
                     championId.equals(prediction.getChampionTeam().getId()));
         }
         return byUsername;
+    }
+
+    @Transactional(readOnly = true)
+    public Map<String, Boolean> getChampionCorrectByUsernameThrough(LocalDate throughDay, ZoneId zoneId) {
+        return matchRepository.findFinalMatchKickoff()
+                .map(instant -> instant.atZone(zoneId).toLocalDate())
+                .filter(finalDay -> !finalDay.isAfter(throughDay))
+                .map(ignored -> getChampionCorrectByUsername())
+                .orElse(Map.of());
     }
 
     @Transactional(readOnly = true)

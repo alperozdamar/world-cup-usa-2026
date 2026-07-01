@@ -4,6 +4,8 @@ import com.alper.worldcup.dao.FinalPredictionRepository;
 import com.alper.worldcup.dao.GroupStandingPredictionRepository;
 import com.alper.worldcup.dao.PredictionRepository;
 import com.alper.worldcup.entity.UserProfile;
+import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.List;
 import java.util.Map;
 import org.junit.jupiter.api.BeforeEach;
@@ -14,6 +16,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -31,6 +35,8 @@ class LeaderboardServiceTest {
     private UserMatchStatsService userMatchStatsService;
     @Mock
     private FinalPredictionService finalPredictionService;
+    @Mock
+    private PointsTimelineService pointsTimelineService;
 
     private LeaderboardService service;
 
@@ -43,7 +49,9 @@ class LeaderboardServiceTest {
                 userProfileService,
                 new PoolMemberRegistry("default"),
                 userMatchStatsService,
-                finalPredictionService);
+                finalPredictionService,
+                pointsTimelineService);
+        lenient().when(pointsTimelineService.tournamentStartDay(any())).thenReturn(LocalDate.now().plusDays(30));
     }
 
     @Test
@@ -167,6 +175,50 @@ class LeaderboardServiceTest {
         assertEquals(-1, LeaderboardService.successRateForSort(null));
         assertEquals(-1, LeaderboardService.successRateForSort(new UserMatchStats(0, 0, 0)));
         assertEquals(50, LeaderboardService.successRateForSort(new UserMatchStats(1, 5, 5)));
+    }
+
+    @Test
+    void rankMovementComparesAgainstPreviousDay() {
+        ZoneId zoneId = ZoneId.of("America/New_York");
+        LocalDate yesterday = LocalDate.now(zoneId).minusDays(1);
+        when(pointsTimelineService.tournamentStartDay(zoneId)).thenReturn(yesterday.minusDays(10));
+        when(pointsTimelineService.cumulativeTotalsThrough(yesterday, zoneId)).thenReturn(Map.of(
+                "alper", 8L,
+                "gonenc", 10L));
+        when(userMatchStatsService.getStatsForPoolMembersThrough(yesterday, zoneId)).thenReturn(Map.of(
+                "alper", new UserMatchStats(0, 0, 0),
+                "gonenc", new UserMatchStats(0, 0, 0)));
+        when(finalPredictionService.getChampionCorrectByUsernameThrough(yesterday, zoneId)).thenReturn(Map.of());
+
+        stubMatchPoints(List.of(
+                new Object[]{"alper", 12L},
+                new Object[]{"gonenc", 10L}));
+        when(groupStandingPredictionRepository.findLeaderboardTotals()).thenReturn(List.of());
+        when(finalPredictionRepository.findLeaderboardTotals()).thenReturn(List.of());
+        when(userProfileService.getPoolProfiles()).thenReturn(List.of(
+                profile("alper", "Alper Ozdamar"),
+                profile("gonenc", "Gonenc Gorgulu")));
+        when(userMatchStatsService.getStatsForPoolMembers()).thenReturn(Map.of(
+                "alper", new UserMatchStats(0, 0, 0),
+                "gonenc", new UserMatchStats(0, 0, 0)));
+        when(finalPredictionService.getChampionCorrectByUsername()).thenReturn(Map.of());
+
+        List<LeaderboardRowView> rows = service.getLeaderboardRows(zoneId);
+
+        assertEquals("alper", rows.get(0).username());
+        assertEquals(RankMovement.UP, rows.get(0).rankMovement());
+        assertEquals(2, rows.get(0).previousRank());
+        assertEquals("gonenc", rows.get(1).username());
+        assertEquals(RankMovement.DOWN, rows.get(1).rankMovement());
+        assertEquals(1, rows.get(1).previousRank());
+    }
+
+    @Test
+    void movementForRanks() {
+        assertEquals(RankMovement.UP, LeaderboardService.movementFor(3, 2));
+        assertEquals(RankMovement.DOWN, LeaderboardService.movementFor(2, 3));
+        assertEquals(RankMovement.STABLE, LeaderboardService.movementFor(2, 2));
+        assertEquals(RankMovement.NONE, LeaderboardService.movementFor(null, 1));
     }
 
     private void stubMatchPoints(List<Object[]> combinedTotals) {

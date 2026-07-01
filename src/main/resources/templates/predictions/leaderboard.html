@@ -6,7 +6,8 @@
 <div class="container">
     <h2>Leaderboard</h2>
     <p class="text-muted">Group-stage match scores · group 1st/2nd (3/2/1) · knockout (stage multipliers) · final</p>
-    <p class="small text-muted">Tied on total? Higher success rate % wins, then correct champion pick.</p>
+    <p class="small text-muted">Tied on total? Higher success rate % wins, then correct champion pick.
+        Rank arrow compares to end of previous day (<span th:text="${zoneId}">America/New_York</span>): ↑ up · ↓ down · → unchanged.</p>
 
     <table class="table table-striped align-middle">
         <thead class="table-dark">
@@ -23,7 +24,18 @@
         <tbody>
         <tr th:each="row, stat : ${leaderboardRows}"
             th:classappend="${stat.count == 1} ? ' leaderboard-row-leader' : ''">
-            <td th:text="${stat.count}"></td>
+            <td>
+                <span th:text="${stat.count}"></span>
+                <span th:if="${row.rankMovement.name() == 'UP'}"
+                      class="leaderboard-rank-move leaderboard-rank-move-up"
+                      th:title="${'Was #' + row.previousRank}">↑</span>
+                <span th:if="${row.rankMovement.name() == 'DOWN'}"
+                      class="leaderboard-rank-move leaderboard-rank-move-down"
+                      th:title="${'Was #' + row.previousRank}">↓</span>
+                <span th:if="${row.rankMovement.name() == 'STABLE'}"
+                      class="leaderboard-rank-move leaderboard-rank-move-stable"
+                      th:title="${'Still #' + stat.count + ' after yesterday'}">→</span>
+            </td>
             <td>
                 <div class="leaderboard-player-cell">
                     <div th:replace="~{fragments/layout :: player-club-badge-inline(username=${row.username})}"></div>

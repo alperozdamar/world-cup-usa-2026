@@ -6,5 +6,7 @@ public record LeaderboardRowView(
         long knockoutPoints,
         long groupPoints,
         long finalPoints,
-        long totalPoints) {
+        long totalPoints,
+        RankMovement rankMovement,
+        Integer previousRank) {
 }

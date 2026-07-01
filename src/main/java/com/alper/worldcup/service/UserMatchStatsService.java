@@ -3,6 +3,8 @@ package com.alper.worldcup.service;
 import com.alper.worldcup.dao.PredictionRepository;
 import com.alper.worldcup.entity.Match;
 import com.alper.worldcup.entity.Prediction;
+import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.HashMap;
 import java.util.Map;
 import org.springframework.stereotype.Service;
@@ -44,6 +46,33 @@ public class UserMatchStatsService {
             if (accumulator != null) {
                 accumulate(accumulator, prediction, prediction.getMatch());
             }
+        }
+
+        Map<String, UserMatchStats> stats = HashMap.newHashMap(accumulators.size());
+        for (Map.Entry<String, StatsAccumulator> entry : accumulators.entrySet()) {
+            stats.put(entry.getKey(), entry.getValue().toStats());
+        }
+        return stats;
+    }
+
+    @Transactional(readOnly = true)
+    public Map<String, UserMatchStats> getStatsForPoolMembersThrough(LocalDate throughDay, ZoneId zoneId) {
+        Map<String, StatsAccumulator> accumulators = new HashMap<>();
+        for (PoolMember member : poolMemberRegistry.getMembers()) {
+            accumulators.put(member.username(), new StatsAccumulator());
+        }
+
+        for (Prediction prediction : predictionRepository.findAllScoredWithMatch()) {
+            StatsAccumulator accumulator = accumulators.get(prediction.getUsername());
+            if (accumulator == null) {
+                continue;
+            }
+            Match match = prediction.getMatch();
+            LocalDate matchDay = match.getKickoffUtc().atZone(zoneId).toLocalDate();
+            if (matchDay.isAfter(throughDay)) {
+                continue;
+            }
+            accumulate(accumulator, prediction, match);
         }
 
         Map<String, UserMatchStats> stats = HashMap.newHashMap(accumulators.size());
