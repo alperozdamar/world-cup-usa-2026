@@ -17,6 +17,7 @@ import com.alper.worldcup.service.KnockoutService;
 import com.alper.worldcup.service.LeaderboardRowView;
 import com.alper.worldcup.service.LeaderboardService;
 import com.alper.worldcup.service.PeerPredictionService;
+import com.alper.worldcup.service.PointsTimelineService;
 import com.alper.worldcup.service.PredictionService;
 import com.alper.worldcup.service.UserAccountService;
 import com.alper.worldcup.service.UserMatchStatsService;
@@ -50,6 +51,7 @@ public class PredictionController {
     private final PeerPredictionService peerPredictionService;
     private final HostPredictionService hostPredictionService;
     private final LeaderboardService leaderboardService;
+    private final PointsTimelineService pointsTimelineService;
     private final BirdWatchService birdWatchService;
     private final UserProfileService userProfileService;
     private final UserAccountService userAccountService;
@@ -64,6 +66,7 @@ public class PredictionController {
                                 PeerPredictionService peerPredictionService,
                                 HostPredictionService hostPredictionService,
                                 LeaderboardService leaderboardService,
+                                PointsTimelineService pointsTimelineService,
                                 BirdWatchService birdWatchService,
                                 UserProfileService userProfileService,
                                 UserAccountService userAccountService,
@@ -77,6 +80,7 @@ public class PredictionController {
         this.peerPredictionService = peerPredictionService;
         this.hostPredictionService = hostPredictionService;
         this.leaderboardService = leaderboardService;
+        this.pointsTimelineService = pointsTimelineService;
         this.birdWatchService = birdWatchService;
         this.userProfileService = userProfileService;
         this.userAccountService = userAccountService;
@@ -282,6 +286,8 @@ public class PredictionController {
         model.addAttribute("displayNames", userProfileService.getDisplayNamesForUsernames(usernames));
         model.addAttribute("matchStatsByUsername", userMatchStatsService.getStatsForPoolMembers());
         model.addAttribute("categories", birdWatchService.buildCategories());
+        model.addAttribute("timelineChart", pointsTimelineService.buildMatchPointsTimeline(zoneId, usernames));
+        model.addAttribute("zoneId", zoneId.getId());
         model.addAttribute("computedAtLabel", ZonedDateTime.now(zoneId)
                 .format(DateTimeFormatter.ofPattern("EEE, MMM d yyyy HH:mm z")));
         return "predictions/leaderboard";

@@ -610,6 +610,12 @@ body.admin-page .leaderboard-ticker-bar {
     gap: 0.75rem;
 }
 
+.leaderboard-timeline-chart-wrap {
+    position: relative;
+    height: 22rem;
+    max-width: 100%;
+}
+
 .leaderboard-match-stats {
     margin-top: 0.15rem;
     font-size: 0.72rem;
