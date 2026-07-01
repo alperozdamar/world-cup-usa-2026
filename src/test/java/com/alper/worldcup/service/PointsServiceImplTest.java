@@ -67,9 +67,25 @@ class PointsServiceImplTest {
                 true, null, canada, canada);
         int outcomePickPoints = pointsService.calculateKnockoutPoints(
                 0, 2, 0, 1, MatchStage.ROUND_OF_32,
-                null, null, null, canada);
+                null, null, canada, canada);
         assertEquals(1, drawPickPoints);
-        assertEquals(2, outcomePickPoints);
+        assertEquals(3, outcomePickPoints);
+    }
+
+    @Test
+    void knockoutExact90WinnerIncludesAdvancerBonus() {
+        Team mexico = team(42);
+        assertEquals(6, pointsService.calculateKnockoutPoints(
+                2, 0, 2, 0, MatchStage.ROUND_OF_32,
+                null, null, mexico, mexico));
+    }
+
+    @Test
+    void knockoutCorrect90WinnerWrongScoreIncludesAdvancerBonus() {
+        Team mexico = team(42);
+        assertEquals(3, pointsService.calculateKnockoutPoints(
+                1, 0, 2, 0, MatchStage.ROUND_OF_32,
+                null, null, mexico, mexico));
     }
 
     @Test

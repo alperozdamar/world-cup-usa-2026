@@ -2,6 +2,9 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v0.0.8-PRERELEASE]
+  - WC-0087 - Knockout scoring: +1 advancer when 90′ outcome is correct (non-draw pick); rules in Turkish (default) and English
+
 ## [v0.0.7-PRERELEASE]
   - WC-0086 - Leaderboard: rank movement arrows (↑ ↓ →) vs end of previous day (user timezone)
 
