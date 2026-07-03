@@ -1391,7 +1391,7 @@ Kansas City Stadium
 Saturday 04 July 2026
 W73
 13:00
-W75
+W76
 Round of 16
 ·
 Houston Stadium
@@ -1401,9 +1401,9 @@ Houston Stadium
 
 
 
-W74
+W75
 17:00
-W77
+W78
 Round of 16
 ·
 Philadelphia Stadium
@@ -1414,9 +1414,9 @@ Philadelphia Stadium
 
 
 Sunday 05 July 2026
-W76
+W74
 16:00
-W78
+W77
 Round of 16
 ·
 New York/New Jersey Stadium

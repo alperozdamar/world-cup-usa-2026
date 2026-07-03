@@ -5,6 +5,7 @@ All notable changes to this project will be documented in this file.
 ## [v0.0.8-PRERELEASE]
   - WC-0087 - Knockout scoring: +1 advancer when 90′ outcome is correct (non-draw pick); rules in Turkish (default) and English
   - WC-0088 - Knockout page: bracket image updated to 1 July 2026 snapshot
+  - WC-0089 - Round of 16 bracket: fix W-placeholder pairings in fixtures (Canada–Morocco, Paraguay–France, Brazil–Norway); prod SQL `db/knockout_r16_bracket_fix.sql`; bracket display uses advancer on R32 draws
 
 ## [v0.0.7-PRERELEASE]
   - WC-0086 - Leaderboard: rank movement arrows (↑ ↓ →) vs end of previous day (user timezone)

@@ -89,40 +89,52 @@ class KnockoutAssignmentServiceTest {
     @Test
     void propagatesWinnerToRoundOf16AfterScoreEntered() {
         Instant now = Instant.parse("2026-07-05T12:00:00Z");
-        Team mexico = team(1, "Mexico", "A");
-        Team japan = team(2, "Japan", "F");
+        Team canada = team(1, "Canada", "B");
+        Team morocco = team(2, "Morocco", "C");
 
-        Match roundOf32 = new Match();
-        roundOf32.setId(73);
-        roundOf32.setStage(MatchStage.ROUND_OF_32);
-        roundOf32.setKickoffUtc(now.minus(2, ChronoUnit.DAYS));
-        roundOf32.setHomeTeam(mexico);
-        roundOf32.setAwayTeam(japan);
-        roundOf32.setHomeScoreActual(2);
-        roundOf32.setAwayScoreActual(0);
-        roundOf32.setPredictionsEnabled(true);
+        Match roundOf32Home = new Match();
+        roundOf32Home.setId(73);
+        roundOf32Home.setStage(MatchStage.ROUND_OF_32);
+        roundOf32Home.setKickoffUtc(now.minus(3, ChronoUnit.DAYS));
+        roundOf32Home.setHomeTeam(team(3, "South Africa", "A"));
+        roundOf32Home.setAwayTeam(canada);
+        roundOf32Home.setHomeScoreActual(0);
+        roundOf32Home.setAwayScoreActual(1);
+        roundOf32Home.setPredictionsEnabled(true);
+
+        Match roundOf32Away = new Match();
+        roundOf32Away.setId(76);
+        roundOf32Away.setStage(MatchStage.ROUND_OF_32);
+        roundOf32Away.setKickoffUtc(now.minus(2, ChronoUnit.DAYS));
+        roundOf32Away.setHomeTeam(team(4, "Netherlands", "F"));
+        roundOf32Away.setAwayTeam(morocco);
+        roundOf32Away.setHomeScoreActual(1);
+        roundOf32Away.setAwayScoreActual(3);
+        roundOf32Away.setPredictionsEnabled(true);
 
         Match roundOf16 = new Match();
         roundOf16.setId(89);
         roundOf16.setStage(MatchStage.ROUND_OF_16);
         roundOf16.setKickoffUtc(now.plus(3, ChronoUnit.DAYS));
         roundOf16.setHomePlaceholder("W73");
-        roundOf16.setAwayPlaceholder("W75");
+        roundOf16.setAwayPlaceholder("W76");
         roundOf16.setPredictionsEnabled(false);
 
         Map<Integer, Match> matchesById = new HashMap<>();
-        matchesById.put(73, roundOf32);
+        matchesById.put(73, roundOf32Home);
+        matchesById.put(76, roundOf32Away);
         matchesById.put(89, roundOf16);
 
         KnockoutSyncResult result = service.applySync(
-                List.of(roundOf32, roundOf16),
+                List.of(roundOf32Home, roundOf32Away, roundOf16),
                 Map.of(),
                 matchesById,
                 now,
                 ignored -> { });
 
-        assertEquals(1, result.teamsAssigned());
-        assertEquals(mexico, roundOf16.getHomeTeam());
+        assertEquals(2, result.teamsAssigned());
+        assertEquals(canada, roundOf16.getHomeTeam());
+        assertEquals(morocco, roundOf16.getAwayTeam());
     }
 
     private static Team team(int id, String name, String group) {

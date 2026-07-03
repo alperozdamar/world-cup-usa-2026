@@ -59,7 +59,7 @@ class KnockoutBracketResolverTest {
         roundOf16.setId(89);
         roundOf16.setStage(MatchStage.ROUND_OF_16);
         roundOf16.setHomePlaceholder("W73");
-        roundOf16.setAwayPlaceholder("W75");
+        roundOf16.setAwayPlaceholder("W76");
 
         Map<Integer, Match> matchesById = new HashMap<>();
         matchesById.put(73, roundOf32);
@@ -74,7 +74,7 @@ class KnockoutBracketResolverTest {
 
         assertEquals("Mexico", resolved.get(89).homeDisplayName());
         assertEquals("W73", resolved.get(89).homeSlotLabel());
-        assertEquals("W75", resolved.get(89).awayDisplayName());
+        assertEquals("W76", resolved.get(89).awayDisplayName());
         assertEquals(null, resolved.get(89).awaySlotLabel());
     }
 
@@ -109,6 +109,52 @@ class KnockoutBracketResolverTest {
         assertEquals("1D", resolved.get(80).homeSlotLabel());
         assertEquals("Bosnia and Herzegovina", resolved.get(80).awayDisplayName());
         assertEquals("3BEFIJ", resolved.get(80).awaySlotLabel());
+    }
+
+    @Test
+    void resolvesWinnerAfterPenaltyShootoutWhenAdvancerIsSet() {
+        Team germany = team(1, "Germany");
+        Team paraguay = team(2, "Paraguay");
+        Team france = team(3, "France");
+
+        Match roundOf32 = new Match();
+        roundOf32.setId(75);
+        roundOf32.setStage(MatchStage.ROUND_OF_32);
+        roundOf32.setHomeTeam(germany);
+        roundOf32.setAwayTeam(paraguay);
+        roundOf32.setHomePlaceholder("1E");
+        roundOf32.setAwayPlaceholder("3ABCDF");
+        roundOf32.setHomeScoreActual(1);
+        roundOf32.setAwayScoreActual(1);
+        roundOf32.setAdvancingTeamActual(paraguay);
+
+        Match roundOf16 = new Match();
+        roundOf16.setId(90);
+        roundOf16.setStage(MatchStage.ROUND_OF_16);
+        roundOf16.setHomePlaceholder("W75");
+        roundOf16.setAwayPlaceholder("W78");
+
+        Match franceMatch = new Match();
+        franceMatch.setId(78);
+        franceMatch.setStage(MatchStage.ROUND_OF_32);
+        franceMatch.setHomeTeam(france);
+        franceMatch.setHomeScoreActual(3);
+        franceMatch.setAwayScoreActual(0);
+
+        Map<Integer, Match> matchesById = new HashMap<>();
+        matchesById.put(75, roundOf32);
+        matchesById.put(78, franceMatch);
+        matchesById.put(90, roundOf16);
+
+        Map<Integer, KnockoutBracketResolver.ResolvedKnockoutSides> resolved =
+                KnockoutBracketResolver.resolveDisplayNames(
+                        List.of(roundOf16),
+                        Map.of(),
+                        matchesById,
+                        placeholderFromMatch());
+
+        assertEquals("Paraguay", resolved.get(90).homeDisplayName());
+        assertEquals("W75", resolved.get(90).homeSlotLabel());
     }
 
     @Test

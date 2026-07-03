@@ -28,4 +28,27 @@ class FixtureImportServiceTest {
         assertTrue(fixtures.stream().anyMatch(f ->
                 "Mexico".equals(f.homeName()) && "South Africa".equals(f.awayName())));
     }
+
+    @Test
+    void roundOf16PlaceholdersMatchBracketTree() {
+        FixtureImportService service = new FixtureImportService(
+                Mockito.mock(MatchRepository.class),
+                Mockito.mock(TeamRepository.class),
+                "America/New_York");
+
+        List<FixtureImportService.ParsedFixture> fixtures = service.parseFixtures();
+        List<FixtureImportService.ParsedFixture> roundOf16 = fixtures.stream()
+                .filter(f -> f.stage() == MatchStage.ROUND_OF_16)
+                .toList();
+
+        assertEquals(8, roundOf16.size());
+        assertEquals("W73", roundOf16.get(0).homeName());
+        assertEquals("W76", roundOf16.get(0).awayName());
+        assertEquals("W75", roundOf16.get(1).homeName());
+        assertEquals("W78", roundOf16.get(1).awayName());
+        assertEquals("W74", roundOf16.get(2).homeName());
+        assertEquals("W77", roundOf16.get(2).awayName());
+        assertEquals("W79", roundOf16.get(3).homeName());
+        assertEquals("W80", roundOf16.get(3).awayName());
+    }
 }

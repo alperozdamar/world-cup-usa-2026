@@ -186,6 +186,9 @@ public class KnockoutBracketResolver {
         if (awayGoals > homeGoals) {
             return resolveSideRaw(match, false, standingsByGroup, matchesById, placeholderSource);
         }
+        if (match.getAdvancingTeamActual() != null) {
+            return match.getAdvancingTeamActual().getName();
+        }
         return resolvePlaceholder(placeholderSource.placeholder(match, true), standingsByGroup, matchesById, placeholderSource)
                 + " / "
                 + resolvePlaceholder(placeholderSource.placeholder(match, false), standingsByGroup, matchesById, placeholderSource);
