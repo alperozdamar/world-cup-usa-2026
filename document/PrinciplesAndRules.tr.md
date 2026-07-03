@@ -66,14 +66,14 @@ Tahminler: `/predictions/knockout`. Sadece **normal süre (90′)** skoru — uz
 
 **90′ skoru** — grup aşaması ile aynı tablo (5 / 2 / +1 / 0, taban en fazla 6), sonra × tur çarpanı.
 
-**Eleme ekstraları** — yalnızca **gerçek** maç 90′da **berabere** bittiğinde:
+**Eleme ekstraları**
 
 | Tahmin | Puan | Not |
 |--------|------|-----|
-| Doğru **Penaltı atışları?** (Evet / Hayır) | **+1** | Sadece 90′da beraberlik tahmin ettiysen |
-| Doğru **ilerleyen takım** | **+2** | Yanlış takım = 0 |
+| Doğru **Penaltı atışları?** (Evet / Hayır) | **+1** | Sadece 90′da beraberlik tahmin ettiysen **ve** gerçek maç 90′da berabere bittiyse |
+| Doğru **ilerleyen takım** | **+1** | Doğru takım tur atladıysa — 90′ yolu yanlış olsa bile (örn. 0–1 Mısır, gerçek 1–1 penaltıda Mısır → **+1**) |
 
-Örnek: 1–1, penaltı Evet, Brezilya ilerler. Gerçek 1–1, penaltı Evet, Brezilya ilerler → 5 + 1 + 2 = 8 taban → çeyrek finalde ×1,5 = **12 puan**. Gerçek skor 2–1 ise sadece 90′ skor tablosu geçerli.
+Örnek: 0–0, penaltı Evet, Mısır tur. Gerçek 1–1, penaltı Evet, Mısır tur → 3 (sonuç + av) + 1 pen. + 1 tur = **5**. 0–1 Mısır, gerçek 1–1 penaltıda Mısır → **1** (sadece tur).
 
 Bracket özeti, güncel grup puan durumundan ve fikstür slot kodlarından (1A, 2F, W73 vb.) takım adlarını gösterir.
 

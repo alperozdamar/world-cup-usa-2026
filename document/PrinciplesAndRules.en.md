@@ -71,9 +71,9 @@ Enter picks at `/predictions/knockout`. Predict **regular time (90′)** only �
 | Pick | Points | Notes |
 |------|--------|--------|
 | Correct **Penalty shootout?** (Yes / No) | **+1** | Only if you predicted a draw at 90′ **and** the real match was level at 90′ |
-| Correct **team to advance** | **+2** | Only if you predicted a draw at 90′; correct winner after 90′ / extra time / penalties scores even when the 90′ score path was wrong (e.g. pick 1–1 + Canada advances, actual 1–2 Canada → **+2**) |
+| Correct **team to advance** | **+1** | Always when the right team goes through — even if the 90′ path was wrong (e.g. pick 0–1 Egypt, actual 1–1 Egypt on pens → **+1**) |
 
-Example: pick 1–1, penalties Yes, Brazil advances. Actual 1–1, penalties Yes, Brazil advances → 5 + 1 + 2 = 8 base → ×1.5 in quarter-final = **12 points**. Pick 1–1 + Canada advances, actual 1–2 Canada → **2** base (advancer only) → ×1.0 in R32 = **2 points**.
+Example: pick 0–0, penalties Yes, Egypt advances. Actual 1–1, penalties Yes, Egypt advances → 3 (outcome + GD) + 1 pens + 1 adv = **5**. Pick 0–1 Egypt, actual 1–1 Egypt on pens → **1** (advancer only).
 
 The bracket overview shows provisional team names from current group standings plus fixture slot codes (1A, 2F, W73, etc.).
 

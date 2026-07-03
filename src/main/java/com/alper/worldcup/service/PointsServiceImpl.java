@@ -13,9 +13,7 @@ public class PointsServiceImpl implements PointsService {
     private static final int GOAL_DIFFERENCE_BONUS = 1;
     private static final int MAX_BASE_POINTS = 6;
     private static final int PENALTY_SHOOTOUT_BONUS = 1;
-    private static final int ADVANCING_TEAM_BONUS = 2;
-    private static final int ADVANCING_TEAM_SOFT_BONUS = 1;
-    private static final int ADVANCING_TEAM_OUTCOME_BONUS = 1;
+    private static final int ADVANCING_TEAM_BONUS = 1;
 
     @Override
     public int calculatePoints(int guessHome, int guessAway, int actualHome, int actualAway,
@@ -44,17 +42,10 @@ public class PointsServiceImpl implements PointsService {
                 && penaltyGuess.equals(penaltyActual)) {
             extras += PENALTY_SHOOTOUT_BONUS;
         }
-        if (guessedDraw
-                && advancingGuess != null
+        if (advancingGuess != null
                 && advancingActual != null
                 && Objects.equals(advancingGuess.getId(), advancingActual.getId())) {
-            extras += actualDraw ? ADVANCING_TEAM_BONUS : ADVANCING_TEAM_SOFT_BONUS;
-        } else if (!guessedDraw
-                && basePoints > 0
-                && advancingGuess != null
-                && advancingActual != null
-                && Objects.equals(advancingGuess.getId(), advancingActual.getId())) {
-            extras += ADVANCING_TEAM_OUTCOME_BONUS;
+            extras += ADVANCING_TEAM_BONUS;
         }
         return (int) Math.round((basePoints + extras) * stageMultiplier(stage));
     }

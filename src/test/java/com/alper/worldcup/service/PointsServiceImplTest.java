@@ -52,7 +52,7 @@ class PointsServiceImplTest {
     }
 
     @Test
-    void knockoutCorrectAdvancerDespiteWrong90PathAwardsSoftBonus() {
+    void knockoutCorrectAdvancerDespiteWrong90PathAwardsOnePoint() {
         Team canada = team(42);
         assertEquals(1, pointsService.calculateKnockoutPoints(
                 1, 1, 0, 1, MatchStage.ROUND_OF_32,
@@ -60,7 +60,24 @@ class PointsServiceImplTest {
     }
 
     @Test
-    void knockoutCorrect90OutcomeBeatsDrawPickWithSoftAdvancerBonus() {
+    void knockoutNonDrawPickWrong90ButCorrectAdvancerAwardsOnePoint() {
+        Team egypt = team(42);
+        assertEquals(1, pointsService.calculateKnockoutPoints(
+                0, 1, 1, 1, MatchStage.ROUND_OF_32,
+                null, true, egypt, egypt));
+    }
+
+    @Test
+    void knockoutDrawPickWrongScoreButCorrectPensAndAdvancer() {
+        Team egypt = team(42);
+        // 0–0 vs 1–1: outcome + GD = 3, pens +1, advancer +1 → 5
+        assertEquals(5, pointsService.calculateKnockoutPoints(
+                0, 0, 1, 1, MatchStage.ROUND_OF_32,
+                true, true, egypt, egypt));
+    }
+
+    @Test
+    void knockoutCorrect90OutcomeBeatsDrawPickWithAdvancerOnly() {
         Team canada = team(42);
         int drawPickPoints = pointsService.calculateKnockoutPoints(
                 1, 1, 0, 1, MatchStage.ROUND_OF_32,
@@ -100,7 +117,7 @@ class PointsServiceImplTest {
     @Test
     void knockoutExactDrawWithPenaltyAndAdvancer() {
         Team brazil = team(10);
-        assertEquals(8, pointsService.calculateKnockoutPoints(
+        assertEquals(7, pointsService.calculateKnockoutPoints(
                 1, 1, 1, 1, MatchStage.ROUND_OF_32,
                 true, true, brazil, brazil));
     }
@@ -108,7 +125,7 @@ class PointsServiceImplTest {
     @Test
     void knockoutPenaltyOnlyWhenActualDraw() {
         Team brazil = team(10);
-        // Actual 2–1 (not a draw): no penalty bonus; draw pick with correct advancer gets soft +1 only.
+        // Actual 2–1 (not a draw): no penalty bonus; correct advancer still +1.
         assertEquals(1, pointsService.calculateKnockoutPoints(
                 1, 1, 2, 1, MatchStage.ROUND_OF_32,
                 true, true, brazil, brazil));
