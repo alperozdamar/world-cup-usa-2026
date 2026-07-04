@@ -50,5 +50,10 @@ class FixtureImportServiceTest {
         assertEquals("W77", roundOf16.get(2).awayName());
         assertEquals("W79", roundOf16.get(3).homeName());
         assertEquals("W80", roundOf16.get(3).awayName());
+        // Atlanta: Argentina vs Egypt; Vancouver: Switzerland vs Colombia/Ghana winner
+        assertEquals("W87", roundOf16.get(6).homeName());
+        assertEquals("W86", roundOf16.get(6).awayName());
+        assertEquals("W85", roundOf16.get(7).homeName());
+        assertEquals("W88", roundOf16.get(7).awayName());
     }
 }

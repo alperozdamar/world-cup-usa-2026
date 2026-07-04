@@ -1464,9 +1464,9 @@ Seattle Stadium
 
 
 Tuesday 07 July 2026
-W86
+W87
 12:00
-W88
+W86
 Round of 16
 ·
 Atlanta Stadium
@@ -1478,7 +1478,7 @@ Atlanta Stadium
 
 W85
 16:00
-W87
+W88
 Round of 16
 ·
 BC Place Vancouver

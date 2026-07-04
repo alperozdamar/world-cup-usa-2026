@@ -86,20 +86,57 @@
         }
     }
 
+    function initBracketPhaseTabs() {
+        const section = document.getElementById('knockout-bracket-section');
+        if (!section) {
+            return;
+        }
+        const tabs = section.querySelectorAll('.knockout-phase-tab');
+        const panels = section.querySelectorAll('.knockout-bracket-panel');
+
+        function showPhase(phase) {
+            tabs.forEach(function (tab) {
+                const selected = tab.dataset.phase === phase;
+                tab.classList.toggle('active', selected);
+                tab.setAttribute('aria-selected', selected ? 'true' : 'false');
+            });
+            panels.forEach(function (panel) {
+                const selected = panel.id === 'bracket-panel-' + phase;
+                panel.hidden = !selected;
+            });
+        }
+
+        tabs.forEach(function (tab) {
+            tab.addEventListener('click', function () {
+                showPhase(tab.dataset.phase);
+            });
+        });
+    }
+
     function init() {
+        initForms();
+        initBracketPhaseTabs();
+    }
+
+    function initForms() {
         document.querySelectorAll('.knockout-pick-form').forEach(function (form) {
             const homeInput = form.querySelector('.knockout-score-home');
             const awayInput = form.querySelector('.knockout-score-away');
-            syncForm(form);
-
-            [homeInput, awayInput].forEach(function (input) {
-                if (!input) {
-                    return;
-                }
-                input.addEventListener('input', function () {
-                    syncForm(form);
-                });
+            if (!homeInput || !awayInput) {
+                return;
+            }
+            const sync = function () {
+                syncForm(form);
+            };
+            homeInput.addEventListener('input', sync);
+            awayInput.addEventListener('input', sync);
+            form.querySelectorAll('.knockout-advance-radio').forEach(function (radio) {
+                radio.addEventListener('change', sync);
             });
+            form.querySelectorAll('.knockout-penalty-yes, .knockout-penalty-no').forEach(function (radio) {
+                radio.addEventListener('change', sync);
+            });
+            syncForm(form);
         });
     }
 

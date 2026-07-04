@@ -13,12 +13,8 @@
         <a th:href="@{/predictions/standings}" class="btn btn-outline-secondary btn-sm">Group Standings</a>
     </p>
 
-    <div th:if="${!knockoutDevPreview}" class="alert alert-info py-2 small">
-        Bracket overview is a fixed snapshot (1 July 2026). Enter and update picks in the match list below.
-    </div>
-
     <div th:if="${knockoutDevPreview}" class="alert alert-warning py-2 small">
-        <strong>Local preview.</strong> Bracket image is a static snapshot; prediction forms below still use live team names from standings and admin assignments.
+        <strong>Local preview.</strong> Bracket images are static snapshots; prediction forms below still use live team names from standings and admin assignments.
     </div>
 
     <div th:if="${successMessage}" class="alert alert-success" th:text="${successMessage}"></div>
@@ -28,14 +24,71 @@
         No knockout matches loaded yet. Ensure fixtures are imported and restart with <code>local</code> profile.
     </div>
 
-    <section class="knockout-bracket-section mb-4">
+    <section class="knockout-bracket-section mb-4" id="knockout-bracket-section">
         <h3 class="h5 mb-2">Bracket overview</h3>
-        <p class="small text-muted mb-3">Knockout tree as of 1 July 2026 — scroll horizontally on small screens.</p>
-        <div class="knockout-bracket-static">
-            <img th:src="@{/images/bracket_1July2026.png}"
-                 src="/images/bracket_1July2026.png"
-                 alt="2026 World Cup knockout bracket — Round of 32 through Final"
-                 class="knockout-bracket-static-image">
+        <p class="small text-muted mb-3">Pick a phase to view that bracket snapshot. Scroll horizontally on small screens.</p>
+
+        <div class="knockout-phase-tabs mb-3" role="tablist" aria-label="Knockout phase">
+            <button type="button" class="knockout-phase-tab" role="tab"
+                    data-phase="r32" aria-selected="false" aria-controls="bracket-panel-r32">
+                Round of 32
+            </button>
+            <button type="button" class="knockout-phase-tab active" role="tab"
+                    data-phase="r16" aria-selected="true" aria-controls="bracket-panel-r16">
+                Round of 16
+            </button>
+            <button type="button" class="knockout-phase-tab" role="tab"
+                    data-phase="qf" aria-selected="false" aria-controls="bracket-panel-qf">
+                Quarterfinals
+            </button>
+            <button type="button" class="knockout-phase-tab" role="tab"
+                    data-phase="sf" aria-selected="false" aria-controls="bracket-panel-sf">
+                Semifinals
+            </button>
+            <button type="button" class="knockout-phase-tab" role="tab"
+                    data-phase="final" aria-selected="false" aria-controls="bracket-panel-final">
+                3rd-Place &amp; Final
+            </button>
+        </div>
+
+        <div class="knockout-bracket-panels">
+            <div id="bracket-panel-r32" class="knockout-bracket-panel" role="tabpanel" hidden>
+                <div class="knockout-bracket-static">
+                    <img th:src="@{/images/bracket_1July2026.png}"
+                         src="/images/bracket_1July2026.png"
+                         alt="Round of 32 bracket — 1 July 2026"
+                         class="knockout-bracket-static-image">
+                </div>
+                <p class="small text-muted mt-2 mb-0">Snapshot as of 1 July 2026 (Round of 32).</p>
+            </div>
+
+            <div id="bracket-panel-r16" class="knockout-bracket-panel" role="tabpanel">
+                <div class="knockout-bracket-static">
+                    <img th:src="@{/images/roundOf16Bracket_3July2026.png}"
+                         src="/images/roundOf16Bracket_3July2026.png"
+                         alt="Round of 16 bracket — 3 July 2026"
+                         class="knockout-bracket-static-image">
+                </div>
+                <p class="small text-muted mt-2 mb-0">Snapshot as of 3 July 2026 (Round of 16).</p>
+            </div>
+
+            <div id="bracket-panel-qf" class="knockout-bracket-panel" role="tabpanel" hidden>
+                <div class="knockout-bracket-placeholder">
+                    <p class="mb-0 text-muted">Quarterfinals bracket snapshot will appear here when that phase starts.</p>
+                </div>
+            </div>
+
+            <div id="bracket-panel-sf" class="knockout-bracket-panel" role="tabpanel" hidden>
+                <div class="knockout-bracket-placeholder">
+                    <p class="mb-0 text-muted">Semifinals bracket snapshot will appear here when that phase starts.</p>
+                </div>
+            </div>
+
+            <div id="bracket-panel-final" class="knockout-bracket-panel" role="tabpanel" hidden>
+                <div class="knockout-bracket-placeholder">
+                    <p class="mb-0 text-muted">3rd-place and Final bracket snapshot will appear here when that phase starts.</p>
+                </div>
+            </div>
         </div>
     </section>
 
