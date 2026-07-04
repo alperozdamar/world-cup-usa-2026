@@ -75,10 +75,14 @@ public class BirdWatchService {
 
         Map<String, Long> updateCounts = countUpdates(matchAudits, groupAudits, finalAudits);
         Map<String, Duration> avgLeadTime = averageFirstPickLeadTime(matchAudits);
+        Map<String, Long> firstPickWins = countFirstPickWins(matchAudits);
+        Map<String, Long> lastTouchWins = countLastTouchWins(matchAudits);
 
         List<BirdWatchCategory> categories = new ArrayList<>();
         categories.add(buildEarlyBirds(avgLeadTime));
         categories.add(buildLastMinuteLarks(avgLeadTime));
+        categories.add(buildFirstPickFalcons(firstPickWins, matchAudits));
+        categories.add(buildNightOwls(lastTouchWins, matchAudits));
         categories.add(buildFlipFlopFinches(updateCounts, matchAudits));
         categories.add(buildSetAndForgetStorks(updateCounts, matchAudits));
         categories.add(buildBullseyeBirds(scoredPredictions));
@@ -111,6 +115,33 @@ public class BirdWatchService {
                 "Last-Minute Larks",
                 explanation,
                 topByDuration(avgLeadTime, Comparator.naturalOrder(), this::formatLeadTime));
+    }
+
+    private BirdWatchCategory buildFirstPickFalcons(Map<String, Long> firstPickWins,
+                                                    List<PredictionAudit> matchAudits) {
+        String explanation = "Most times you were the first person to enter a pick for a match. "
+                + "Later edits still count if you were first — only the original create matters. "
+                + "Requires at least " + MIN_MATCH_SAMPLE + " match picks.";
+        Map<String, Long> eligible = filterByMatchSample(firstPickWins, matchAudits);
+        return BirdWatchCategory.ready(
+                "first-pick-falcons",
+                "First-Pick Falcons",
+                explanation,
+                topByCount(eligible, Comparator.reverseOrder(),
+                        count -> count + " first pick" + pluralSuffix(count)));
+    }
+
+    private BirdWatchCategory buildNightOwls(Map<String, Long> lastTouchWins,
+                                             List<PredictionAudit> matchAudits) {
+        String explanation = "Most times you were the last person to save a pick for a match "
+                + "(create or update). Requires at least " + MIN_MATCH_SAMPLE + " match picks.";
+        Map<String, Long> eligible = filterByMatchSample(lastTouchWins, matchAudits);
+        return BirdWatchCategory.ready(
+                "night-owls",
+                "Night Owls",
+                explanation,
+                topByCount(eligible, Comparator.reverseOrder(),
+                        count -> count + " last touch" + pluralSuffix(count)));
     }
 
     private BirdWatchCategory buildFlipFlopFinches(Map<String, Long> updateCounts,
@@ -323,6 +354,64 @@ public class BirdWatchService {
             }
         }
         return averages;
+    }
+
+    /**
+     * Per match: username with the earliest CREATED audit wins.
+     * Updates never change who was first.
+     */
+    Map<String, Long> countFirstPickWins(List<PredictionAudit> matchAudits) {
+        Map<Integer, PredictionAudit> firstCreateByMatch = new HashMap<>();
+        for (PredictionAudit audit : matchAudits) {
+            if (audit.getAction() != PredictionAuditAction.CREATED) {
+                continue;
+            }
+            int matchId = audit.getMatch().getId();
+            PredictionAudit existing = firstCreateByMatch.get(matchId);
+            if (existing == null || isEarlierAudit(audit, existing)) {
+                firstCreateByMatch.put(matchId, audit);
+            }
+        }
+        Map<String, Long> wins = new HashMap<>();
+        for (PredictionAudit audit : firstCreateByMatch.values()) {
+            wins.merge(audit.getUsername(), 1L, Long::sum);
+        }
+        return wins;
+    }
+
+    /**
+     * Per match: username with the latest audit (create or update) wins.
+     */
+    Map<String, Long> countLastTouchWins(List<PredictionAudit> matchAudits) {
+        Map<Integer, PredictionAudit> lastTouchByMatch = new HashMap<>();
+        for (PredictionAudit audit : matchAudits) {
+            int matchId = audit.getMatch().getId();
+            PredictionAudit existing = lastTouchByMatch.get(matchId);
+            if (existing == null || isLaterAudit(audit, existing)) {
+                lastTouchByMatch.put(matchId, audit);
+            }
+        }
+        Map<String, Long> wins = new HashMap<>();
+        for (PredictionAudit audit : lastTouchByMatch.values()) {
+            wins.merge(audit.getUsername(), 1L, Long::sum);
+        }
+        return wins;
+    }
+
+    private static boolean isEarlierAudit(PredictionAudit candidate, PredictionAudit existing) {
+        int cmp = candidate.getRecordedAt().compareTo(existing.getRecordedAt());
+        if (cmp != 0) {
+            return cmp < 0;
+        }
+        return candidate.getUsername().compareToIgnoreCase(existing.getUsername()) < 0;
+    }
+
+    private static boolean isLaterAudit(PredictionAudit candidate, PredictionAudit existing) {
+        int cmp = candidate.getRecordedAt().compareTo(existing.getRecordedAt());
+        if (cmp != 0) {
+            return cmp > 0;
+        }
+        return candidate.getUsername().compareToIgnoreCase(existing.getUsername()) > 0;
     }
 
     Map<String, Long> countUpdates(List<PredictionAudit> matchAudits,

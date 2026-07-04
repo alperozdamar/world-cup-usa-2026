@@ -67,6 +67,42 @@ class BirdWatchServiceTest {
     }
 
     @Test
+    void firstPickWinUsesCreatedOnlyEvenAfterLaterUpdate() {
+        Match match1 = match(1, Instant.parse("2026-06-11T19:00:00Z"));
+        Match match2 = match(2, Instant.parse("2026-06-12T19:00:00Z"));
+
+        List<PredictionAudit> audits = List.of(
+                audit("alper", match1, Instant.parse("2026-06-01T10:00:00Z"), PredictionAuditAction.CREATED),
+                audit("alper", match1, Instant.parse("2026-06-10T18:00:00Z"), PredictionAuditAction.UPDATED),
+                audit("gonenc", match1, Instant.parse("2026-06-05T12:00:00Z"), PredictionAuditAction.CREATED),
+                audit("gonenc", match2, Instant.parse("2026-06-02T10:00:00Z"), PredictionAuditAction.CREATED),
+                audit("alper", match2, Instant.parse("2026-06-03T10:00:00Z"), PredictionAuditAction.CREATED));
+
+        Map<String, Long> wins = service.countFirstPickWins(audits);
+
+        assertEquals(1L, wins.get("alper"));
+        assertEquals(1L, wins.get("gonenc"));
+    }
+
+    @Test
+    void lastTouchWinUsesLatestCreateOrUpdate() {
+        Match match1 = match(1, Instant.parse("2026-06-11T19:00:00Z"));
+        Match match2 = match(2, Instant.parse("2026-06-12T19:00:00Z"));
+
+        List<PredictionAudit> audits = List.of(
+                audit("alper", match1, Instant.parse("2026-06-01T10:00:00Z"), PredictionAuditAction.CREATED),
+                audit("gonenc", match1, Instant.parse("2026-06-05T12:00:00Z"), PredictionAuditAction.CREATED),
+                audit("alper", match1, Instant.parse("2026-06-10T18:00:00Z"), PredictionAuditAction.UPDATED),
+                audit("gonenc", match2, Instant.parse("2026-06-02T10:00:00Z"), PredictionAuditAction.CREATED),
+                audit("alper", match2, Instant.parse("2026-06-03T10:00:00Z"), PredictionAuditAction.CREATED));
+
+        Map<String, Long> wins = service.countLastTouchWins(audits);
+
+        assertEquals(2L, wins.get("alper"));
+        assertEquals(null, wins.get("gonenc"));
+    }
+
+    @Test
     void averageLeadTimeFavorsEarlierFirstPick() {
         Instant kickoff = Instant.parse("2026-06-11T19:00:00Z");
         Match match1 = match(1, kickoff);
@@ -217,11 +253,18 @@ class BirdWatchServiceTest {
     }
 
     private static PredictionAudit audit(String username, Match match, Instant recordedAt) {
+        return audit(username, match, recordedAt, PredictionAuditAction.CREATED);
+    }
+
+    private static PredictionAudit audit(String username,
+                                         Match match,
+                                         Instant recordedAt,
+                                         PredictionAuditAction action) {
         PredictionAudit audit = new PredictionAudit();
         audit.setUsername(username);
         audit.setMatch(match);
         audit.setRecordedAt(recordedAt);
-        audit.setAction(PredictionAuditAction.CREATED);
+        audit.setAction(action);
         audit.setHomeScoreGuess(1);
         audit.setAwayScoreGuess(0);
         audit.setHomeTeamName("Home");
