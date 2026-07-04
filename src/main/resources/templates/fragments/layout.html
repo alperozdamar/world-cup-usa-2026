@@ -136,7 +136,8 @@
         <span class="leaderboard-ticker-rank" th:text="${entry.rank + '.'}">1.</span>
         <span th:replace="~{fragments/layout :: player-club-badge-inline(username=${entry.username})}"></span>
         <span class="leaderboard-ticker-name" th:text="${entry.displayName}">Player</span>
-        <span class="leaderboard-ticker-points" th:text="${entry.points + ' pts'}">0 pts</span>
+        <span class="leaderboard-ticker-points"
+              th:text="${T(com.alper.worldcup.service.PointsFormat).formatWithUnit(entry.points)}">0 pts</span>
         <span class="leaderboard-ticker-sep" aria-hidden="true">◆</span>
     </span>
     <span th:if="${!#lists.isEmpty(upcomingMatchTicker)}" class="leaderboard-ticker-next-marker">NEXT</span>

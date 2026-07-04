@@ -50,20 +50,20 @@ public class LeaderboardService {
 
     @Transactional(readOnly = true)
     public List<LeaderboardRowView> getLeaderboardRows(ZoneId zoneId) {
-        Map<String, Long> matchPoints = poolTotals(predictionRepository.findGroupStageLeaderboardTotals());
-        Map<String, Long> knockoutPoints = poolTotals(predictionRepository.findKnockoutLeaderboardTotals());
-        Map<String, Long> groupPoints = poolTotals(groupStandingPredictionRepository.findLeaderboardTotals());
-        Map<String, Long> finalPoints = poolTotals(finalPredictionRepository.findLeaderboardTotals());
+        Map<String, Double> matchPoints = poolTotals(predictionRepository.findGroupStageLeaderboardTotals());
+        Map<String, Double> knockoutPoints = poolTotals(predictionRepository.findKnockoutLeaderboardTotals());
+        Map<String, Double> groupPoints = poolTotals(groupStandingPredictionRepository.findLeaderboardTotals());
+        Map<String, Double> finalPoints = poolTotals(finalPredictionRepository.findLeaderboardTotals());
         Map<String, UserMatchStats> matchStats = userMatchStatsService.getStatsForPoolMembers();
         Map<String, Boolean> championCorrect = finalPredictionService.getChampionCorrectByUsername();
 
         List<LeaderboardRowView> rows = new ArrayList<>();
         for (var profile : userProfileService.getPoolProfiles()) {
             String username = profile.getUsername();
-            long match = matchPoints.getOrDefault(username, 0L);
-            long knockout = knockoutPoints.getOrDefault(username, 0L);
-            long group = groupPoints.getOrDefault(username, 0L);
-            long fin = finalPoints.getOrDefault(username, 0L);
+            double match = matchPoints.getOrDefault(username, 0.0);
+            double knockout = knockoutPoints.getOrDefault(username, 0.0);
+            double group = groupPoints.getOrDefault(username, 0.0);
+            double fin = finalPoints.getOrDefault(username, 0.0);
             rows.add(new LeaderboardRowView(
                     username,
                     match,
@@ -127,7 +127,7 @@ public class LeaderboardService {
     }
 
     private Map<String, Integer> ranksThrough(LocalDate throughDay, ZoneId zoneId) {
-        Map<String, Long> totals = pointsTimelineService.cumulativeTotalsThrough(throughDay, zoneId);
+        Map<String, Double> totals = pointsTimelineService.cumulativeTotalsThrough(throughDay, zoneId);
         Map<String, UserMatchStats> matchStats =
                 userMatchStatsService.getStatsForPoolMembersThrough(throughDay, zoneId);
         Map<String, Boolean> championCorrect =
@@ -136,7 +136,7 @@ public class LeaderboardService {
         List<RankSnapshotRow> snapshots = new ArrayList<>();
         for (var profile : userProfileService.getPoolProfiles()) {
             String username = profile.getUsername();
-            snapshots.add(new RankSnapshotRow(username, totals.getOrDefault(username, 0L)));
+            snapshots.add(new RankSnapshotRow(username, totals.getOrDefault(username, 0.0)));
         }
 
         snapshots.sort(snapshotComparator(matchStats, championCorrect));
@@ -150,7 +150,7 @@ public class LeaderboardService {
     private Comparator<LeaderboardRowView> leaderboardComparator(Map<String, UserMatchStats> matchStats,
                                                                  Map<String, Boolean> championCorrect) {
         return Comparator
-                .comparingLong(LeaderboardRowView::totalPoints).reversed()
+                .comparingDouble(LeaderboardRowView::totalPoints).reversed()
                 .thenComparing(row -> successRateForSort(matchStats.get(row.username())), Comparator.reverseOrder())
                 .thenComparing(row -> championCorrect.getOrDefault(row.username(), false), Comparator.reverseOrder())
                 .thenComparing(row -> userProfileService.getDisplayName(row.username()),
@@ -160,7 +160,7 @@ public class LeaderboardService {
     private Comparator<RankSnapshotRow> snapshotComparator(Map<String, UserMatchStats> matchStats,
                                                              Map<String, Boolean> championCorrect) {
         return Comparator
-                .comparingLong(RankSnapshotRow::totalPoints).reversed()
+                .comparingDouble(RankSnapshotRow::totalPoints).reversed()
                 .thenComparing(row -> successRateForSort(matchStats.get(row.username())), Comparator.reverseOrder())
                 .thenComparing(row -> championCorrect.getOrDefault(row.username(), false), Comparator.reverseOrder())
                 .thenComparing(row -> userProfileService.getDisplayName(row.username()),
@@ -175,18 +175,18 @@ public class LeaderboardService {
         return rate != null ? rate : -1;
     }
 
-    private Map<String, Long> poolTotals(List<Object[]> totals) {
-        Map<String, Long> pointsByUser = new HashMap<>();
+    private Map<String, Double> poolTotals(List<Object[]> totals) {
+        Map<String, Double> pointsByUser = new HashMap<>();
         for (Object[] row : totals) {
             mergePoolTotal(pointsByUser, row);
         }
         return pointsByUser;
     }
 
-    private void mergePoolTotal(Map<String, Long> totals, Object[] row) {
+    private void mergePoolTotal(Map<String, Double> totals, Object[] row) {
         String username = (String) row[0];
         if (poolMemberRegistry.isMember(username)) {
-            totals.merge(username, ((Number) row[1]).longValue(), Long::sum);
+            totals.merge(username, ((Number) row[1]).doubleValue(), Double::sum);
         }
     }
 
@@ -205,6 +205,6 @@ public class LeaderboardService {
         return ranked;
     }
 
-    private record RankSnapshotRow(String username, long totalPoints) {
+    private record RankSnapshotRow(String username, double totalPoints) {
     }
 }

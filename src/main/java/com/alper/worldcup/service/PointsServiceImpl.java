@@ -16,22 +16,22 @@ public class PointsServiceImpl implements PointsService {
     private static final int ADVANCING_TEAM_BONUS = 1;
 
     @Override
-    public int calculatePoints(int guessHome, int guessAway, int actualHome, int actualAway,
-                               MatchStage stage) {
+    public double calculatePoints(int guessHome, int guessAway, int actualHome, int actualAway,
+                                  MatchStage stage) {
         int basePoints = calculateBasePoints(guessHome, guessAway, actualHome, actualAway);
-        return (int) Math.round(basePoints * stageMultiplier(stage));
+        return basePoints * stageMultiplier(stage);
     }
 
     @Override
-    public int calculateKnockoutPoints(int guessHome,
-                                       int guessAway,
-                                       int actualHome,
-                                       int actualAway,
-                                       MatchStage stage,
-                                       Boolean penaltyGuess,
-                                       Boolean penaltyActual,
-                                       Team advancingGuess,
-                                       Team advancingActual) {
+    public double calculateKnockoutPoints(int guessHome,
+                                          int guessAway,
+                                          int actualHome,
+                                          int actualAway,
+                                          MatchStage stage,
+                                          Boolean penaltyGuess,
+                                          Boolean penaltyActual,
+                                          Team advancingGuess,
+                                          Team advancingActual) {
         int basePoints = calculateBasePoints(guessHome, guessAway, actualHome, actualAway);
         int extras = 0;
         boolean guessedDraw = guessHome == guessAway;
@@ -47,7 +47,7 @@ public class PointsServiceImpl implements PointsService {
                 && Objects.equals(advancingGuess.getId(), advancingActual.getId())) {
             extras += ADVANCING_TEAM_BONUS;
         }
-        return (int) Math.round((basePoints + extras) * stageMultiplier(stage));
+        return (basePoints + extras) * stageMultiplier(stage);
     }
 
     int calculateBasePoints(int guessHome, int guessAway, int actualHome, int actualAway) {

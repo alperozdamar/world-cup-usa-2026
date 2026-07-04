@@ -9,7 +9,7 @@ public record PeerPlayerMatchPrediction(
         Integer awayGuess,
         Boolean penaltyShootoutGuess,
         String advancingTeamName,
-        Integer points,
+        Double points,
         boolean hidden) {
 
     public static PeerPlayerMatchPrediction from(Prediction prediction, String displayName) {

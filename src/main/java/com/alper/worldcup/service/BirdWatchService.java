@@ -307,7 +307,7 @@ public class BirdWatchService {
     private BirdWatchCategory buildMatchMagpies() {
         String explanation = "Most group-stage match points — the \"Match\" column on the standings table "
                 + "(exact scores, correct results, and goal-difference bonuses). Updates after each scored group game.";
-        Map<String, Long> matchPoints = poolTotals(predictionRepository.findGroupStageLeaderboardTotals());
+        Map<String, Double> matchPoints = poolPointTotals(predictionRepository.findGroupStageLeaderboardTotals());
         if (matchPoints.isEmpty()) {
             return BirdWatchCategory.pending(
                     "match-magpies",
@@ -319,13 +319,13 @@ public class BirdWatchService {
                 "match-magpies",
                 "Match Magpies",
                 explanation,
-                topByCount(matchPoints, Comparator.reverseOrder(), this::formatPoints));
+                topByPoints(matchPoints, Comparator.reverseOrder()));
     }
 
     private BirdWatchCategory buildGroupSageGrouse() {
         String explanation = "Most points from Group 1st & 2nd predictions — who read the groups best "
                 + "after official results are entered (up to 5 points per group).";
-        Map<String, Long> groupPoints = poolTotals(groupStandingPredictionRepository.findLeaderboardTotals());
+        Map<String, Double> groupPoints = poolPointTotals(groupStandingPredictionRepository.findLeaderboardTotals());
         if (groupPoints.isEmpty()) {
             return BirdWatchCategory.pending(
                     "group-sage-grouse",
@@ -337,18 +337,19 @@ public class BirdWatchService {
                 "group-sage-grouse",
                 "Group Sage Grouse",
                 explanation,
-                topByCount(groupPoints, Comparator.reverseOrder(), this::formatPoints));
+                topByPoints(groupPoints, Comparator.reverseOrder()));
     }
 
     private BirdWatchCategory buildKnockoutKestrels() {
         String explanation = "Most knockout match points — 90′ score picks with round multipliers "
-                + "(R32 through Final). Updates after each scored knockout game.";
-        Map<String, Long> knockoutPoints = poolTotals(predictionRepository.findKnockoutPointsTotalsByUser());
+                + "(R32 through Final). Fractional points kept (e.g. R16 ×1.25). "
+                + "Updates after each scored knockout game.";
+        Map<String, Double> knockoutPoints = poolPointTotals(predictionRepository.findKnockoutPointsTotalsByUser());
         return BirdWatchCategory.ready(
                 "knockout-kestrels",
                 "Knockout Kestrels",
                 explanation,
-                topByCount(knockoutPoints, Comparator.reverseOrder(), this::formatPoints));
+                topByPoints(knockoutPoints, Comparator.reverseOrder()));
     }
 
     private BirdWatchCategory buildCrystalBallCondors() {
@@ -378,16 +379,23 @@ public class BirdWatchService {
         return BirdWatchCategory.ready("crystal-ball-condors", "Crystal Ball Condors", explanation, leaders);
     }
 
-    private static Map<String, Long> poolTotals(List<Object[]> rows) {
-        Map<String, Long> totals = new HashMap<>();
+    private static Map<String, Double> poolPointTotals(List<Object[]> rows) {
+        Map<String, Double> totals = new HashMap<>();
         for (Object[] row : rows) {
-            totals.put((String) row[0], ((Number) row[1]).longValue());
+            totals.put((String) row[0], ((Number) row[1]).doubleValue());
         }
         return totals;
     }
 
-    private String formatPoints(long points) {
-        return points + " pt" + pluralSuffix(points);
+    private List<BirdWatchLeader> topByPoints(Map<String, Double> values, Comparator<Double> comparator) {
+        return values.entrySet().stream()
+                .filter(entry -> poolMemberRegistry.isMember(entry.getKey()))
+                .sorted(Map.Entry.<String, Double>comparingByValue(comparator)
+                        .thenComparing(entry -> userProfileService.getDisplayName(entry.getKey()),
+                                String.CASE_INSENSITIVE_ORDER))
+                .limit(MAX_LEADERS)
+                .map(entry -> toLeader(entry.getKey(), PointsFormat.formatWithUnit(entry.getValue())))
+                .toList();
     }
 
     Map<String, Duration> averageFirstPickLeadTime(List<PredictionAudit> matchAudits) {

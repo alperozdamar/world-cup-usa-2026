@@ -9,7 +9,7 @@ public record HostKnockoutPickView(
         Integer awayGuess,
         Boolean penaltyShootoutGuess,
         String advancingTeamName,
-        Integer points) {
+        Double points) {
 
     static HostKnockoutPickView from(Prediction prediction, String displayName) {
         String advancer = prediction.getAdvancingTeamGuess() != null

@@ -72,7 +72,7 @@
                                 <span th:text="${pick.secondTeamName}"></span> (2nd)
                                 <div th:if="${pick.scored()}" class="small mt-1"
                                      th:classappend="${pick.points > 0} ? ' text-success' : ' text-muted'">
-                                    <strong th:text="${pick.points} + ' pts'"></strong>
+                                    <strong th:text="${T(com.alper.worldcup.service.PointsFormat).formatWithUnit(pick.points)}"></strong>
                                 </div>
                             </span>
                             <span th:if="${pick == null}" class="text-muted">—</span>

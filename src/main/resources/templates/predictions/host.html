@@ -135,7 +135,8 @@
                                         <span th:if="${pick.advancingTeamName == null}" class="text-muted">—</span>
                                     </td>
                                     <td th:if="${matchView.match.scoreEntered}">
-                                        <span th:if="${pick.points != null}" th:text="${pick.points}"></span>
+                                        <span th:if="${pick.points != null}"
+                                              th:text="${T(com.alper.worldcup.service.PointsFormat).format(pick.points)}"></span>
                                         <span th:if="${pick.points == null}" class="text-muted">—</span>
                                     </td>
                                 </tr>
@@ -194,7 +195,8 @@
                                     </td>
                                     <td th:text="${pick.homeGuess} + ' - ' + ${pick.awayGuess}"></td>
                                     <td th:if="${matchView.match.scoreEntered}">
-                                        <span th:if="${pick.points != null}" th:text="${pick.points}"></span>
+                                        <span th:if="${pick.points != null}"
+                                              th:text="${T(com.alper.worldcup.service.PointsFormat).format(pick.points)}"></span>
                                         <span th:if="${pick.points == null}" class="text-muted">—</span>
                                     </td>
                                 </tr>
@@ -239,7 +241,7 @@
                                         <span th:text="${pick.secondTeamName}"></span> (2nd)
                                         <div th:if="${pick.scored()}" class="small mt-1"
                                              th:classappend="${pick.points > 0} ? ' text-success' : ' text-muted'">
-                                            <strong th:text="${pick.points} + ' pts'"></strong>
+                                            <strong th:text="${T(com.alper.worldcup.service.PointsFormat).formatWithUnit(pick.points)}"></strong>
                                         </div>
                                     </span>
                                     <span th:if="${pick == null}" class="text-muted">—</span>

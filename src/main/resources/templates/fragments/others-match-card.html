@@ -65,7 +65,8 @@
                             <span th:if="${!pick.hidden() and pick.advancingTeamName() == null}" class="text-muted">—</span>
                         </td>
                         <td th:if="${matchView.match().scoreEntered and !matchView.predictionsHidden()}">
-                            <span th:if="${pick.points() != null}" th:text="${pick.points()}"></span>
+                            <span th:if="${pick.points() != null}"
+                                  th:text="${T(com.alper.worldcup.service.PointsFormat).format(pick.points())}"></span>
                             <span th:if="${pick.points() == null}" class="text-muted">—</span>
                         </td>
                     </tr>

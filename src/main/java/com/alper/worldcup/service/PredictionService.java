@@ -157,7 +157,7 @@ public class PredictionService {
         return predictionRepository.findLeaderboardTotals();
     }
 
-    private int calculateMatchPoints(Match match, Prediction prediction) {
+    private double calculateMatchPoints(Match match, Prediction prediction) {
         if (KnockoutStageLabels.isKnockout(match)) {
             return pointsService.calculateKnockoutPoints(
                     prediction.getHomeScoreGuess(),

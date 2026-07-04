@@ -63,7 +63,7 @@ public class PointsTimelineService {
         }
 
         List<LocalDate> days = daysInclusive(start, end);
-        Map<String, Map<LocalDate, Long>> pointsEarnedByDay = pointsEarnedByDay(zoneId);
+        Map<String, Map<LocalDate, Double>> pointsEarnedByDay = pointsEarnedByDay(zoneId);
 
         boolean hasScoredPoints = pointsEarnedByDay.values().stream()
                 .anyMatch(dayPoints -> dayPoints.values().stream().anyMatch(points -> points > 0));
@@ -75,11 +75,11 @@ public class PointsTimelineService {
             if (!poolMemberRegistry.isMember(username)) {
                 continue;
             }
-            Map<LocalDate, Long> earnedByDay = pointsEarnedByDay.getOrDefault(username, Map.of());
-            long cumulative = 0;
-            List<Long> cumulativePoints = new ArrayList<>(days.size());
+            Map<LocalDate, Double> earnedByDay = pointsEarnedByDay.getOrDefault(username, Map.of());
+            double cumulative = 0;
+            List<Double> cumulativePoints = new ArrayList<>(days.size());
             for (LocalDate day : days) {
-                cumulative += earnedByDay.getOrDefault(day, 0L);
+                cumulative += earnedByDay.getOrDefault(day, 0.0);
                 cumulativePoints.add(cumulative);
             }
             series.add(new LeaderboardTimelineSeries(
@@ -94,13 +94,13 @@ public class PointsTimelineService {
     }
 
     @Transactional(readOnly = true)
-    public Map<String, Long> cumulativeTotalsThrough(LocalDate throughDay, ZoneId zoneId) {
-        Map<String, Map<LocalDate, Long>> earnedByDay = pointsEarnedByDay(zoneId);
-        Map<String, Long> totals = new HashMap<>();
+    public Map<String, Double> cumulativeTotalsThrough(LocalDate throughDay, ZoneId zoneId) {
+        Map<String, Map<LocalDate, Double>> earnedByDay = pointsEarnedByDay(zoneId);
+        Map<String, Double> totals = new HashMap<>();
         for (var member : poolMemberRegistry.getMembers()) {
             String username = member.username();
-            long cumulative = 0;
-            for (Map.Entry<LocalDate, Long> entry : earnedByDay.getOrDefault(username, Map.of()).entrySet()) {
+            double cumulative = 0;
+            for (Map.Entry<LocalDate, Double> entry : earnedByDay.getOrDefault(username, Map.of()).entrySet()) {
                 if (!entry.getKey().isAfter(throughDay)) {
                     cumulative += entry.getValue();
                 }
@@ -116,15 +116,15 @@ public class PointsTimelineService {
                 .orElse(LocalDate.now(zoneId));
     }
 
-    private Map<String, Map<LocalDate, Long>> pointsEarnedByDay(ZoneId zoneId) {
-        Map<String, Map<LocalDate, Long>> pointsByUserByDay = new HashMap<>();
+    private Map<String, Map<LocalDate, Double>> pointsEarnedByDay(ZoneId zoneId) {
+        Map<String, Map<LocalDate, Double>> pointsByUserByDay = new HashMap<>();
         addMatchPoints(pointsByUserByDay, zoneId);
         addGroupStandingPoints(pointsByUserByDay, zoneId);
         addFinalPoints(pointsByUserByDay, zoneId);
         return pointsByUserByDay;
     }
 
-    private void addMatchPoints(Map<String, Map<LocalDate, Long>> pointsByUserByDay, ZoneId zoneId) {
+    private void addMatchPoints(Map<String, Map<LocalDate, Double>> pointsByUserByDay, ZoneId zoneId) {
         for (Prediction prediction : predictionRepository.findAllScoredWithMatch()) {
             if (!poolMemberRegistry.isMember(prediction.getUsername())) {
                 continue;
@@ -137,7 +137,7 @@ public class PointsTimelineService {
         }
     }
 
-    private void addGroupStandingPoints(Map<String, Map<LocalDate, Long>> pointsByUserByDay, ZoneId zoneId) {
+    private void addGroupStandingPoints(Map<String, Map<LocalDate, Double>> pointsByUserByDay, ZoneId zoneId) {
         Map<String, LocalDate> groupLastMatchDay = groupLastMatchDays(zoneId);
         for (GroupStandingPrediction prediction : groupStandingPredictionRepository.findAllScored()) {
             if (!poolMemberRegistry.isMember(prediction.getUsername())) {
@@ -147,11 +147,14 @@ public class PointsTimelineService {
             if (groupDay == null) {
                 continue;
             }
-            mergePoints(pointsByUserByDay, prediction.getUsername(), groupDay, prediction.getPoints());
+            if (prediction.getPoints() == null) {
+                continue;
+            }
+            mergePoints(pointsByUserByDay, prediction.getUsername(), groupDay, prediction.getPoints().doubleValue());
         }
     }
 
-    private void addFinalPoints(Map<String, Map<LocalDate, Long>> pointsByUserByDay, ZoneId zoneId) {
+    private void addFinalPoints(Map<String, Map<LocalDate, Double>> pointsByUserByDay, ZoneId zoneId) {
         LocalDate finalDay = matchRepository.findFinalMatchKickoff()
                 .map(instant -> instant.atZone(zoneId).toLocalDate())
                 .orElse(null);
@@ -162,7 +165,10 @@ public class PointsTimelineService {
             if (!poolMemberRegistry.isMember(prediction.getUsername())) {
                 continue;
             }
-            mergePoints(pointsByUserByDay, prediction.getUsername(), finalDay, prediction.getPoints());
+            if (prediction.getPoints() == null) {
+                continue;
+            }
+            mergePoints(pointsByUserByDay, prediction.getUsername(), finalDay, prediction.getPoints().doubleValue());
         }
     }
 
@@ -176,16 +182,16 @@ public class PointsTimelineService {
         return groupLastMatchDay;
     }
 
-    private static void mergePoints(Map<String, Map<LocalDate, Long>> pointsByUserByDay,
+    private static void mergePoints(Map<String, Map<LocalDate, Double>> pointsByUserByDay,
                                     String username,
                                     LocalDate day,
-                                    Integer points) {
+                                    Double points) {
         if (points == null || points <= 0) {
             return;
         }
         pointsByUserByDay
                 .computeIfAbsent(username, ignored -> new HashMap<>())
-                .merge(day, points.longValue(), Long::sum);
+                .merge(day, points, Double::sum);
     }
 
     static List<LocalDate> daysInclusive(LocalDate start, LocalDate end) {

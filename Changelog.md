@@ -2,6 +2,9 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v0.0.11-PRERELEASE]
+  - WC-0096 - Knockout points keep fractions (no rounding); e.g. R16 ×1.25 → 6.25 / 1.25; leaderboard & UI show decimals
+
 ## [v0.0.10-PRERELEASE]
   - WC-0091 - Knockout predictions: active rounds (e.g. Round of 16) listed first; finished rounds (e.g. Round of 32) at the bottom
   - WC-0092 - Round of 16: Jul 7 slots fixed — Argentina–Egypt (Atlanta), Switzerland–W88 (Vancouver)

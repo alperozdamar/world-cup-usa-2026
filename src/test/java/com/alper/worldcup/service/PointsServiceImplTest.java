@@ -9,6 +9,8 @@ import org.junit.jupiter.api.Test;
 
 class PointsServiceImplTest {
 
+    private static final double DELTA = 0.0001;
+
     private PointsServiceImpl pointsService;
 
     @BeforeEach
@@ -18,37 +20,51 @@ class PointsServiceImplTest {
 
     @Test
     void exactScoreAwardsFivePoints() {
-        assertEquals(5, pointsService.calculatePoints(2, 1, 2, 1, MatchStage.GROUP_STAGE));
+        assertEquals(5, pointsService.calculatePoints(2, 1, 2, 1, MatchStage.GROUP_STAGE), DELTA);
     }
 
     @Test
     void correctOutcomeWrongScoreAwardsTwoPoints() {
-        assertEquals(2, pointsService.calculatePoints(2, 1, 3, 1, MatchStage.GROUP_STAGE));
+        assertEquals(2, pointsService.calculatePoints(2, 1, 3, 1, MatchStage.GROUP_STAGE), DELTA);
     }
 
     @Test
     void correctOutcomeAndGoalDifferenceAwardsThreePoints() {
-        assertEquals(3, pointsService.calculatePoints(3, 1, 2, 0, MatchStage.GROUP_STAGE));
+        assertEquals(3, pointsService.calculatePoints(3, 1, 2, 0, MatchStage.GROUP_STAGE), DELTA);
     }
 
     @Test
     void wrongOutcomeAwardsZeroPoints() {
-        assertEquals(0, pointsService.calculatePoints(2, 1, 1, 2, MatchStage.GROUP_STAGE));
+        assertEquals(0, pointsService.calculatePoints(2, 1, 1, 2, MatchStage.GROUP_STAGE), DELTA);
     }
 
     @Test
     void drawExactScoreAwardsFivePoints() {
-        assertEquals(5, pointsService.calculatePoints(1, 1, 1, 1, MatchStage.GROUP_STAGE));
+        assertEquals(5, pointsService.calculatePoints(1, 1, 1, 1, MatchStage.GROUP_STAGE), DELTA);
     }
 
     @Test
     void finalExactScoreUsesDoubleMultiplier() {
-        assertEquals(10, pointsService.calculatePoints(2, 1, 2, 1, MatchStage.FINAL));
+        assertEquals(10, pointsService.calculatePoints(2, 1, 2, 1, MatchStage.FINAL), DELTA);
     }
 
     @Test
-    void roundOf16CorrectOutcomeUsesMultiplier() {
-        assertEquals(3, pointsService.calculatePoints(2, 1, 3, 1, MatchStage.ROUND_OF_16));
+    void roundOf16KeepsFractionalMultiplier() {
+        assertEquals(2.5, pointsService.calculatePoints(2, 1, 3, 1, MatchStage.ROUND_OF_16), DELTA);
+    }
+
+    @Test
+    void knockoutRoundOf16KeepsFractionalPoints() {
+        Team mexico = team(42);
+        assertEquals(7.5, pointsService.calculateKnockoutPoints(
+                2, 0, 2, 0, MatchStage.ROUND_OF_16,
+                null, null, mexico, mexico), DELTA);
+        assertEquals(6.25, pointsService.calculateKnockoutPoints(
+                0, 0, 1, 1, MatchStage.ROUND_OF_16,
+                true, true, mexico, mexico), DELTA);
+        assertEquals(1.25, pointsService.calculateKnockoutPoints(
+                0, 1, 1, 1, MatchStage.ROUND_OF_16,
+                null, true, mexico, mexico), DELTA);
     }
 
     @Test
@@ -56,7 +72,7 @@ class PointsServiceImplTest {
         Team canada = team(42);
         assertEquals(1, pointsService.calculateKnockoutPoints(
                 1, 1, 0, 1, MatchStage.ROUND_OF_32,
-                true, null, canada, canada));
+                true, null, canada, canada), DELTA);
     }
 
     @Test
@@ -64,29 +80,28 @@ class PointsServiceImplTest {
         Team egypt = team(42);
         assertEquals(1, pointsService.calculateKnockoutPoints(
                 0, 1, 1, 1, MatchStage.ROUND_OF_32,
-                null, true, egypt, egypt));
+                null, true, egypt, egypt), DELTA);
     }
 
     @Test
     void knockoutDrawPickWrongScoreButCorrectPensAndAdvancer() {
         Team egypt = team(42);
-        // 0–0 vs 1–1: outcome + GD = 3, pens +1, advancer +1 → 5
         assertEquals(5, pointsService.calculateKnockoutPoints(
                 0, 0, 1, 1, MatchStage.ROUND_OF_32,
-                true, true, egypt, egypt));
+                true, true, egypt, egypt), DELTA);
     }
 
     @Test
     void knockoutCorrect90OutcomeBeatsDrawPickWithAdvancerOnly() {
         Team canada = team(42);
-        int drawPickPoints = pointsService.calculateKnockoutPoints(
+        double drawPickPoints = pointsService.calculateKnockoutPoints(
                 1, 1, 0, 1, MatchStage.ROUND_OF_32,
                 true, null, canada, canada);
-        int outcomePickPoints = pointsService.calculateKnockoutPoints(
+        double outcomePickPoints = pointsService.calculateKnockoutPoints(
                 0, 2, 0, 1, MatchStage.ROUND_OF_32,
                 null, null, canada, canada);
-        assertEquals(1, drawPickPoints);
-        assertEquals(3, outcomePickPoints);
+        assertEquals(1, drawPickPoints, DELTA);
+        assertEquals(3, outcomePickPoints, DELTA);
     }
 
     @Test
@@ -94,7 +109,7 @@ class PointsServiceImplTest {
         Team mexico = team(42);
         assertEquals(6, pointsService.calculateKnockoutPoints(
                 2, 0, 2, 0, MatchStage.ROUND_OF_32,
-                null, null, mexico, mexico));
+                null, null, mexico, mexico), DELTA);
     }
 
     @Test
@@ -102,7 +117,7 @@ class PointsServiceImplTest {
         Team mexico = team(42);
         assertEquals(3, pointsService.calculateKnockoutPoints(
                 1, 0, 2, 0, MatchStage.ROUND_OF_32,
-                null, null, mexico, mexico));
+                null, null, mexico, mexico), DELTA);
     }
 
     @Test
@@ -111,7 +126,7 @@ class PointsServiceImplTest {
         Team southAfrica = team(7);
         assertEquals(0, pointsService.calculateKnockoutPoints(
                 1, 1, 1, 2, MatchStage.ROUND_OF_32,
-                false, null, southAfrica, canada));
+                false, null, southAfrica, canada), DELTA);
     }
 
     @Test
@@ -119,16 +134,15 @@ class PointsServiceImplTest {
         Team brazil = team(10);
         assertEquals(7, pointsService.calculateKnockoutPoints(
                 1, 1, 1, 1, MatchStage.ROUND_OF_32,
-                true, true, brazil, brazil));
+                true, true, brazil, brazil), DELTA);
     }
 
     @Test
     void knockoutPenaltyOnlyWhenActualDraw() {
         Team brazil = team(10);
-        // Actual 2–1 (not a draw): no penalty bonus; correct advancer still +1.
         assertEquals(1, pointsService.calculateKnockoutPoints(
                 1, 1, 2, 1, MatchStage.ROUND_OF_32,
-                true, true, brazil, brazil));
+                true, true, brazil, brazil), DELTA);
     }
 
     private static Team team(int id) {

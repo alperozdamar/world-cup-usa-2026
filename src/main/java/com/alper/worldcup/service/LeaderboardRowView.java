@@ -2,11 +2,11 @@ package com.alper.worldcup.service;
 
 public record LeaderboardRowView(
         String username,
-        long matchPoints,
-        long knockoutPoints,
-        long groupPoints,
-        long finalPoints,
-        long totalPoints,
+        double matchPoints,
+        double knockoutPoints,
+        double groupPoints,
+        double finalPoints,
+        double totalPoints,
         RankMovement rankMovement,
         Integer previousRank) {
 }

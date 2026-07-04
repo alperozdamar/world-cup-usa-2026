@@ -100,14 +100,13 @@ public class UserMatchStatsService {
         }
     }
 
-    private static void addTeamPoints(StatsAccumulator accumulator, Team team, int points) {
+    private static void addTeamPoints(StatsAccumulator accumulator, Team team, double points) {
         if (team == null || team.getName() == null || team.getName().isBlank()) {
             return;
         }
-        accumulator.teamTotals
-                .computeIfAbsent(team.getName(), ignored -> new long[2])
-                [0] += points;
-        accumulator.teamTotals.get(team.getName())[1]++;
+        double[] totals = accumulator.teamTotals.computeIfAbsent(team.getName(), ignored -> new double[2]);
+        totals[0] += points;
+        totals[1] += 1;
     }
 
     private boolean isExactScore(Prediction prediction, Match match) {
@@ -123,23 +122,23 @@ public class UserMatchStatsService {
                 match.getAwayScoreActual()) > 0;
     }
 
-    static TeamAffinity resolveLoveTeam(Map<String, long[]> teamTotals) {
+    static TeamAffinity resolveLoveTeam(Map<String, double[]> teamTotals) {
         return resolveExtreme(teamTotals, true);
     }
 
-    static TeamAffinity resolveHateTeam(Map<String, long[]> teamTotals) {
+    static TeamAffinity resolveHateTeam(Map<String, double[]> teamTotals) {
         return resolveExtreme(teamTotals, false);
     }
 
-    private static TeamAffinity resolveExtreme(Map<String, long[]> teamTotals, boolean highest) {
+    private static TeamAffinity resolveExtreme(Map<String, double[]> teamTotals, boolean highest) {
         TeamAffinity best = null;
-        for (Map.Entry<String, long[]> entry : teamTotals.entrySet()) {
-            long sum = entry.getValue()[0];
-            long count = entry.getValue()[1];
+        for (Map.Entry<String, double[]> entry : teamTotals.entrySet()) {
+            double sum = entry.getValue()[0];
+            double count = entry.getValue()[1];
             if (count < MIN_TEAM_SAMPLE) {
                 continue;
             }
-            double average = sum / (double) count;
+            double average = sum / count;
             TeamAffinity candidate = new TeamAffinity(entry.getKey(), average, (int) count);
             if (best == null) {
                 best = candidate;
@@ -159,7 +158,7 @@ public class UserMatchStatsService {
         private int exactScores;
         private int correctOutcomes;
         private int missedGames;
-        private final Map<String, long[]> teamTotals = new HashMap<>();
+        private final Map<String, double[]> teamTotals = new HashMap<>();
 
         private UserMatchStats toStats() {
             TeamAffinity love = resolveLoveTeam(teamTotals);

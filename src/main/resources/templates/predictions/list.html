@@ -100,7 +100,7 @@
                                 Actual:
                                 <span th:text="${match.homeScoreActual} + ' - ' + ${match.awayScoreActual}"></span>
                                 <span th:if="${predictions[match.id]?.points != null}">
-                                    · <span th:text="${predictions[match.id].points}"></span> pts
+                                    · <span th:text="${T(com.alper.worldcup.service.PointsFormat).formatWithUnit(predictions[match.id].points)}"></span>
                                 </span>
                             </div>
                         </td>

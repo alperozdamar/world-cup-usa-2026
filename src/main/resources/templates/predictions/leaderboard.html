@@ -47,11 +47,11 @@
                     </div>
                 </div>
             </td>
-            <td class="text-end" th:text="${row.matchPoints}"></td>
-            <td class="text-end" th:text="${row.groupPoints}"></td>
-            <td class="text-end" th:text="${row.knockoutPoints}"></td>
-            <td class="text-end" th:text="${row.finalPoints}"></td>
-            <td class="text-end"><strong th:text="${row.totalPoints}"></strong></td>
+            <td class="text-end" th:text="${T(com.alper.worldcup.service.PointsFormat).format(row.matchPoints)}"></td>
+            <td class="text-end" th:text="${T(com.alper.worldcup.service.PointsFormat).format(row.groupPoints)}"></td>
+            <td class="text-end" th:text="${T(com.alper.worldcup.service.PointsFormat).format(row.knockoutPoints)}"></td>
+            <td class="text-end" th:text="${T(com.alper.worldcup.service.PointsFormat).format(row.finalPoints)}"></td>
+            <td class="text-end"><strong th:text="${T(com.alper.worldcup.service.PointsFormat).format(row.totalPoints)}"></strong></td>
         </tr>
         <tr th:if="${#lists.isEmpty(leaderboardRows)}">
             <td colspan="7" class="text-muted">No scored predictions yet.</td>

@@ -43,7 +43,7 @@ public class Prediction {
     private Team advancingTeamGuess;
 
     @Column
-    private Integer points;
+    private Double points;
 
     @Column(name = "updated_at", nullable = false)
     private Instant updatedAt;
@@ -107,11 +107,11 @@ public class Prediction {
         this.advancingTeamGuess = advancingTeamGuess;
     }
 
-    public Integer getPoints() {
+    public Double getPoints() {
         return points;
     }
 
-    public void setPoints(Integer points) {
+    public void setPoints(Double points) {
         this.points = points;
     }
 

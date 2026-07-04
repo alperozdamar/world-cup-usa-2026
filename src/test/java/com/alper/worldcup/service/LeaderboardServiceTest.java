@@ -75,11 +75,11 @@ class LeaderboardServiceTest {
 
         assertEquals(3, leaderboard.size());
         assertEquals("gonenc", leaderboard.get(0)[0]);
-        assertEquals(5L, leaderboard.get(0)[1]);
+        assertEquals(5.0, leaderboard.get(0)[1]);
         assertEquals("alper", leaderboard.get(1)[0]);
-        assertEquals(2L, leaderboard.get(1)[1]);
+        assertEquals(2.0, leaderboard.get(1)[1]);
         assertEquals("kubilay", leaderboard.get(2)[0]);
-        assertEquals(0L, leaderboard.get(2)[1]);
+        assertEquals(0.0, leaderboard.get(2)[1]);
     }
 
     @Test
@@ -119,11 +119,11 @@ class LeaderboardServiceTest {
         List<LeaderboardRowView> rows = service.getLeaderboardRows();
 
         assertEquals(1, rows.size());
-        assertEquals(30L, rows.get(0).matchPoints());
-        assertEquals(10L, rows.get(0).knockoutPoints());
-        assertEquals(12L, rows.get(0).groupPoints());
-        assertEquals(8L, rows.get(0).finalPoints());
-        assertEquals(60L, rows.get(0).totalPoints());
+        assertEquals(30.0, rows.get(0).matchPoints());
+        assertEquals(10.0, rows.get(0).knockoutPoints());
+        assertEquals(12.0, rows.get(0).groupPoints());
+        assertEquals(8.0, rows.get(0).finalPoints());
+        assertEquals(60.0, rows.get(0).totalPoints());
     }
 
     @Test
@@ -183,8 +183,8 @@ class LeaderboardServiceTest {
         LocalDate yesterday = LocalDate.now(zoneId).minusDays(1);
         when(pointsTimelineService.tournamentStartDay(zoneId)).thenReturn(yesterday.minusDays(10));
         when(pointsTimelineService.cumulativeTotalsThrough(yesterday, zoneId)).thenReturn(Map.of(
-                "alper", 8L,
-                "gonenc", 10L));
+                "alper", 8.0,
+                "gonenc", 10.0));
         when(userMatchStatsService.getStatsForPoolMembersThrough(yesterday, zoneId)).thenReturn(Map.of(
                 "alper", new UserMatchStats(0, 0, 0),
                 "gonenc", new UserMatchStats(0, 0, 0)));

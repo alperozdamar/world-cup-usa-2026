@@ -76,10 +76,10 @@ class PointsTimelineServiceTest {
 
         LeaderboardTimelineSeries alper = chart.series().get(0);
         assertEquals("Alper Ozdamar", alper.label());
-        assertEquals(List.of(5L, 7L), alper.data());
+        assertEquals(List.of(5.0, 7.0), alper.data());
 
         LeaderboardTimelineSeries gonenc = chart.series().get(1);
-        assertEquals(List.of(3L, 3L), gonenc.data());
+        assertEquals(List.of(3.0, 3.0), gonenc.data());
     }
 
     @Test
@@ -100,7 +100,7 @@ class PointsTimelineServiceTest {
                 List.of("sadik"),
                 LocalDate.of(2026, 6, 14));
 
-        assertEquals(List.of(5L, 5L, 5L, 8L), chart.series().get(0).data());
+        assertEquals(List.of(5.0, 5.0, 5.0, 8.0), chart.series().get(0).data());
     }
 
     @Test
@@ -110,7 +110,7 @@ class PointsTimelineServiceTest {
                 PointsTimelineService.daysInclusive(LocalDate.of(2026, 6, 11), LocalDate.of(2026, 6, 12)));
     }
 
-    private static Prediction scoredPrediction(String username, int matchId, int points, String kickoff) {
+    private static Prediction scoredPrediction(String username, int matchId, double points, String kickoff) {
         Team home = team(1, "Home");
         Team away = team(2, "Away");
         Match match = new Match();

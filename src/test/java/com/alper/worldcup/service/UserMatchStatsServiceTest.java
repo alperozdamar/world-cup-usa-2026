@@ -91,7 +91,7 @@ class UserMatchStatsServiceTest {
                                   int guessAway,
                                   int actualHome,
                                   int actualAway,
-                                  int points) {
+                                  double points) {
         Match match = new Match();
         match.setId(matchId);
         match.setStage(MatchStage.GROUP_STAGE);
