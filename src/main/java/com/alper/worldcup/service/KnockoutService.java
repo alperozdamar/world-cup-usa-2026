@@ -95,7 +95,29 @@ public class KnockoutService {
             }
             rounds.add(new KnockoutRoundView(KnockoutStageLabels.label(stage), stage, stageMatches));
         }
+        // Open picks first (latest stage on top), then upcoming TBD rounds, finished rounds last.
+        rounds.sort(Comparator
+                .comparingInt((KnockoutRoundView round) -> roundListPriority(round, now))
+                .thenComparingInt(round -> {
+                    int order = KnockoutStageLabels.displayOrder(round.stage());
+                    return hasEditableMatch(round) ? -order : order;
+                }));
         return rounds;
+    }
+
+    /** 0 = open for picks, 1 = upcoming / TBD, 2 = all kicked off. */
+    private static int roundListPriority(KnockoutRoundView round, Instant now) {
+        if (hasEditableMatch(round)) {
+            return 0;
+        }
+        if (round.matches().stream().anyMatch(matchView -> !matchView.match().hasStarted(now))) {
+            return 1;
+        }
+        return 2;
+    }
+
+    private static boolean hasEditableMatch(KnockoutRoundView round) {
+        return round.matches().stream().anyMatch(KnockoutMatchView::editable);
     }
 
     @Transactional

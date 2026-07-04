@@ -2,6 +2,9 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v0.0.10-PRERELEASE]
+  - WC-0091 - Knockout predictions: active rounds (e.g. Round of 16) listed first; finished rounds (e.g. Round of 32) at the bottom
+
 ## [v0.0.9-PRERELEASE]
   - WC-0090 - Knockout scoring: correct advancer always +1 (even when 90′ path is wrong); draw-path advancer no longer +2
 
