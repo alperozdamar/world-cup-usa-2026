@@ -525,6 +525,18 @@ body.admin-page .leaderboard-ticker-bar {
     line-height: 1.1;
 }
 
+.player-match-stat-team {
+    font-size: 1rem;
+}
+
+.player-match-stat-love .player-match-stat-value {
+    color: #198754;
+}
+
+.player-match-stat-hate .player-match-stat-value {
+    color: #dc3545;
+}
+
 .player-match-stat-label {
     font-size: 0.72rem;
     color: #6c757d;

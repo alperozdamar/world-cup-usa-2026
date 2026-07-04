@@ -1,6 +1,7 @@
 package com.alper.worldcup.controller;
 
 import com.alper.worldcup.service.UserAccountService;
+import com.alper.worldcup.service.UserMatchStatsService;
 import com.alper.worldcup.service.UserProfilePhotoHelper;
 import com.alper.worldcup.service.UserProfilePhotoService;
 import com.alper.worldcup.service.UserProfileService;
@@ -27,15 +28,18 @@ public class ProfileController {
     private final UserAccountService userAccountService;
     private final UserProfilePhotoService userProfilePhotoService;
     private final UserProfilePhotoHelper userProfilePhotoHelper;
+    private final UserMatchStatsService userMatchStatsService;
 
     public ProfileController(UserProfileService userProfileService,
                              UserAccountService userAccountService,
                              UserProfilePhotoService userProfilePhotoService,
-                             UserProfilePhotoHelper userProfilePhotoHelper) {
+                             UserProfilePhotoHelper userProfilePhotoHelper,
+                             UserMatchStatsService userMatchStatsService) {
         this.userProfileService = userProfileService;
         this.userAccountService = userAccountService;
         this.userProfilePhotoService = userProfilePhotoService;
         this.userProfilePhotoHelper = userProfilePhotoHelper;
+        this.userMatchStatsService = userMatchStatsService;
     }
 
     @GetMapping("/settings")
@@ -47,6 +51,7 @@ public class ProfileController {
         model.addAttribute("email", userProfileService.getEmail(username));
         model.addAttribute("username", username);
         model.addAttribute("hasUploadedPhoto", userProfilePhotoHelper.hasUploadedPhoto(username));
+        model.addAttribute("matchStats", userMatchStatsService.getStats(username));
         return "profile/settings";
     }
 

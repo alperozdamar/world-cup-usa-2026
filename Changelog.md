@@ -7,6 +7,7 @@ All notable changes to this project will be documented in this file.
   - WC-0092 - Round of 16: Jul 7 slots fixed — Argentina–Egypt (Atlanta), Switzerland–W88 (Vancouver)
   - WC-0093 - Knockout page: phase tabs for bracket snapshots; default Round of 16 (`roundOf16Bracket_4July2026.png`)
   - WC-0094 - Bird Watch: First-Pick Falcons (most times first to create a pick) and Night Owls (most times last to save a pick)
+  - WC-0095 - Love/Hate teams: avg points when a team plays (min 3 games); Bird Watch Love Birds & Team Nemeses; profile + prediction sidebar
 
 ## [v0.0.9-PRERELEASE]
   - WC-0090 - Knockout scoring: correct advancer always +1 (even when 90′ path is wrong); draw-path advancer no longer +2

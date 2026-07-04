@@ -3,6 +3,7 @@ package com.alper.worldcup.service;
 import com.alper.worldcup.dao.PredictionRepository;
 import com.alper.worldcup.entity.Match;
 import com.alper.worldcup.entity.Prediction;
+import com.alper.worldcup.entity.Team;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.HashMap;
@@ -12,6 +13,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class UserMatchStatsService {
+
+    static final int MIN_TEAM_SAMPLE = 3;
 
     private final PredictionRepository predictionRepository;
     private final PoolMemberRegistry poolMemberRegistry;
@@ -91,6 +94,20 @@ public class UserMatchStatsService {
         } else {
             accumulator.missedGames++;
         }
+        if (prediction.getPoints() != null) {
+            addTeamPoints(accumulator, match.getHomeTeam(), prediction.getPoints());
+            addTeamPoints(accumulator, match.getAwayTeam(), prediction.getPoints());
+        }
+    }
+
+    private static void addTeamPoints(StatsAccumulator accumulator, Team team, int points) {
+        if (team == null || team.getName() == null || team.getName().isBlank()) {
+            return;
+        }
+        accumulator.teamTotals
+                .computeIfAbsent(team.getName(), ignored -> new long[2])
+                [0] += points;
+        accumulator.teamTotals.get(team.getName())[1]++;
     }
 
     private boolean isExactScore(Prediction prediction, Match match) {
@@ -106,13 +123,51 @@ public class UserMatchStatsService {
                 match.getAwayScoreActual()) > 0;
     }
 
+    static TeamAffinity resolveLoveTeam(Map<String, long[]> teamTotals) {
+        return resolveExtreme(teamTotals, true);
+    }
+
+    static TeamAffinity resolveHateTeam(Map<String, long[]> teamTotals) {
+        return resolveExtreme(teamTotals, false);
+    }
+
+    private static TeamAffinity resolveExtreme(Map<String, long[]> teamTotals, boolean highest) {
+        TeamAffinity best = null;
+        for (Map.Entry<String, long[]> entry : teamTotals.entrySet()) {
+            long sum = entry.getValue()[0];
+            long count = entry.getValue()[1];
+            if (count < MIN_TEAM_SAMPLE) {
+                continue;
+            }
+            double average = sum / (double) count;
+            TeamAffinity candidate = new TeamAffinity(entry.getKey(), average, (int) count);
+            if (best == null) {
+                best = candidate;
+                continue;
+            }
+            int cmp = Double.compare(candidate.averagePoints(), best.averagePoints());
+            if (highest ? cmp > 0 : cmp < 0) {
+                best = candidate;
+            } else if (cmp == 0 && candidate.teamName().compareToIgnoreCase(best.teamName()) < 0) {
+                best = candidate;
+            }
+        }
+        return best;
+    }
+
     private static final class StatsAccumulator {
         private int exactScores;
         private int correctOutcomes;
         private int missedGames;
+        private final Map<String, long[]> teamTotals = new HashMap<>();
 
         private UserMatchStats toStats() {
-            return new UserMatchStats(exactScores, correctOutcomes, missedGames);
+            TeamAffinity love = resolveLoveTeam(teamTotals);
+            TeamAffinity hate = resolveHateTeam(teamTotals);
+            if (love != null && hate != null && love.teamName().equals(hate.teamName())) {
+                hate = null;
+            }
+            return new UserMatchStats(exactScores, correctOutcomes, missedGames, love, hate);
         }
     }
 }

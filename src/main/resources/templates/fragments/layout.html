@@ -54,7 +54,23 @@
               th:text="${stats.successRatePercent() != null ? stats.successRatePercent() + '%' : '—'}">—</span>
         <span class="player-match-stat-label">Success rate</span>
     </div>
-    <p class="player-match-stat-note mb-0">Scored matches only · results include exact scores</p>
+    <div th:if="${stats.loveTeam() != null}" class="player-match-stat player-match-stat-love">
+        <span class="player-match-stat-value player-match-stat-team"
+              th:text="${stats.loveTeam().teamName()}">Mexico</span>
+        <span class="player-match-stat-label">
+            Love · <span th:text="${stats.loveTeam().formatAverage()}">4.2</span> avg
+            (<span th:text="${stats.loveTeam().matchCount()}">3</span>)
+        </span>
+    </div>
+    <div th:if="${stats.hateTeam() != null}" class="player-match-stat player-match-stat-hate">
+        <span class="player-match-stat-value player-match-stat-team"
+              th:text="${stats.hateTeam().teamName()}">Germany</span>
+        <span class="player-match-stat-label">
+            Hate · <span th:text="${stats.hateTeam().formatAverage()}">0.5</span> avg
+            (<span th:text="${stats.hateTeam().matchCount()}">3</span>)
+        </span>
+    </div>
+    <p class="player-match-stat-note mb-0">Scored matches only · love/hate need 3+ games with that team</p>
 </div>
 <div th:fragment="match-stats-summary(stats)" class="leaderboard-match-stats small text-muted">
     <span th:text="${stats.exactScores()} + ' ' + (${stats.exactScores()} == 1 ? 'exact score' : 'exact scores')">0 exact scores</span>
@@ -66,6 +82,12 @@
     <span th:if="${stats.successRatePercent() != null}"
           th:text="${stats.successRatePercent()} + '% success rate'">45% success rate</span>
     <span th:unless="${stats.successRatePercent() != null}">no scored matches yet</span>
+    <span th:if="${stats.loveTeam() != null}">
+        · Love: <span th:text="${stats.loveTeam().teamName()}">Mexico</span>
+    </span>
+    <span th:if="${stats.hateTeam() != null}">
+        · Hate: <span th:text="${stats.hateTeam().teamName()}">Germany</span>
+    </span>
 </div>
 <div th:fragment="world-clocks" class="world-clocks-bar">
     <div class="container">

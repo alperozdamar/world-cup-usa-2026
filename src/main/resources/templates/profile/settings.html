@@ -16,6 +16,13 @@
         <p class="text-muted small mb-0" th:unless="${hasUploadedPhoto}">Using the default pool photo if available.</p>
     </div>
 
+    <div class="card mb-4">
+        <div class="card-body">
+            <h5 class="card-title h6 mb-3">Your match stats</h5>
+            <div th:replace="~{fragments/layout :: player-match-stats(stats=${matchStats})}"></div>
+        </div>
+    </div>
+
     <form th:action="@{/profile/photo}" method="post" enctype="multipart/form-data" class="mb-3">
         <div class="mb-3">
             <label class="form-label">Profile photo</label>

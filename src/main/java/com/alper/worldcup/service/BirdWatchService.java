@@ -42,6 +42,7 @@ public class BirdWatchService {
     private final UserProfileService userProfileService;
     private final PoolMemberRegistry poolMemberRegistry;
     private final PointsServiceImpl pointsService;
+    private final UserMatchStatsService userMatchStatsService;
 
     public BirdWatchService(PredictionAuditRepository predictionAuditRepository,
                             GroupStandingPredictionAuditRepository groupStandingPredictionAuditRepository,
@@ -52,7 +53,8 @@ public class BirdWatchService {
                             FinalResultRepository finalResultRepository,
                             UserProfileService userProfileService,
                             PoolMemberRegistry poolMemberRegistry,
-                            PointsServiceImpl pointsService) {
+                            PointsServiceImpl pointsService,
+                            UserMatchStatsService userMatchStatsService) {
         this.predictionAuditRepository = predictionAuditRepository;
         this.groupStandingPredictionAuditRepository = groupStandingPredictionAuditRepository;
         this.groupStandingPredictionRepository = groupStandingPredictionRepository;
@@ -63,6 +65,7 @@ public class BirdWatchService {
         this.userProfileService = userProfileService;
         this.poolMemberRegistry = poolMemberRegistry;
         this.pointsService = pointsService;
+        this.userMatchStatsService = userMatchStatsService;
     }
 
     @Transactional(readOnly = true)
@@ -92,7 +95,74 @@ public class BirdWatchService {
         categories.add(buildGroupSageGrouse());
         categories.add(buildKnockoutKestrels());
         categories.add(buildCrystalBallCondors());
+        Map<String, UserMatchStats> matchStats = userMatchStatsService.getStatsForPoolMembers();
+        categories.add(buildLoveBirds(matchStats));
+        categories.add(buildTeamNemeses(matchStats));
         return categories;
+    }
+
+    private BirdWatchCategory buildLoveBirds(Map<String, UserMatchStats> matchStats) {
+        String explanation = "Highest average points when a favorite team plays (both sides of the match). "
+                + "Needs at least " + UserMatchStatsService.MIN_TEAM_SAMPLE
+                + " scored games involving that team.";
+        Map<String, TeamAffinity> loves = new HashMap<>();
+        for (Map.Entry<String, UserMatchStats> entry : matchStats.entrySet()) {
+            if (entry.getValue().loveTeam() != null) {
+                loves.put(entry.getKey(), entry.getValue().loveTeam());
+            }
+        }
+        if (loves.isEmpty()) {
+            return BirdWatchCategory.pending(
+                    "love-birds",
+                    "Love Birds",
+                    explanation,
+                    "Need more scored matches per team (min "
+                            + UserMatchStatsService.MIN_TEAM_SAMPLE + ").");
+        }
+        return BirdWatchCategory.ready(
+                "love-birds",
+                "Love Birds",
+                explanation,
+                topByAffinity(loves, Comparator.reverseOrder()));
+    }
+
+    private BirdWatchCategory buildTeamNemeses(Map<String, UserMatchStats> matchStats) {
+        String explanation = "Lowest average points when a nemesis team plays. "
+                + "Needs at least " + UserMatchStatsService.MIN_TEAM_SAMPLE
+                + " scored games involving that team.";
+        Map<String, TeamAffinity> hates = new HashMap<>();
+        for (Map.Entry<String, UserMatchStats> entry : matchStats.entrySet()) {
+            if (entry.getValue().hateTeam() != null) {
+                hates.put(entry.getKey(), entry.getValue().hateTeam());
+            }
+        }
+        if (hates.isEmpty()) {
+            return BirdWatchCategory.pending(
+                    "team-nemeses",
+                    "Team Nemeses",
+                    explanation,
+                    "Need more scored matches per team (min "
+                            + UserMatchStatsService.MIN_TEAM_SAMPLE + ").");
+        }
+        return BirdWatchCategory.ready(
+                "team-nemeses",
+                "Team Nemeses",
+                explanation,
+                topByAffinity(hates, Comparator.naturalOrder()));
+    }
+
+    private List<BirdWatchLeader> topByAffinity(Map<String, TeamAffinity> affinities,
+                                                Comparator<Double> averageComparator) {
+        return affinities.entrySet().stream()
+                .filter(entry -> poolMemberRegistry.isMember(entry.getKey()))
+                .sorted(Comparator
+                        .comparing((Map.Entry<String, TeamAffinity> entry) -> entry.getValue().averagePoints(),
+                                averageComparator)
+                        .thenComparing(entry -> userProfileService.getDisplayName(entry.getKey()),
+                                String.CASE_INSENSITIVE_ORDER))
+                .limit(MAX_LEADERS)
+                .map(entry -> toLeader(entry.getKey(), entry.getValue().formatLabel()))
+                .toList();
     }
 
     private BirdWatchCategory buildEarlyBirds(Map<String, Duration> avgLeadTime) {

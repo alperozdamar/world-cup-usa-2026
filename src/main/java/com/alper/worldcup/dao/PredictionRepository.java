@@ -34,10 +34,12 @@ public interface PredictionRepository extends JpaRepository<Prediction, Integer>
     List<Object[]> findKnockoutPointsTotalsByUser();
 
     @Query("SELECT p FROM Prediction p JOIN FETCH p.match m "
+            + "LEFT JOIN FETCH m.homeTeam LEFT JOIN FETCH m.awayTeam "
             + "WHERE m.homeScoreActual IS NOT NULL AND m.awayScoreActual IS NOT NULL")
     List<Prediction> findAllScoredWithMatch();
 
     @Query("SELECT p FROM Prediction p JOIN FETCH p.match m "
+            + "LEFT JOIN FETCH m.homeTeam LEFT JOIN FETCH m.awayTeam "
             + "WHERE p.username = :username "
             + "AND m.homeScoreActual IS NOT NULL AND m.awayScoreActual IS NOT NULL")
     List<Prediction> findScoredByUsernameWithMatch(String username);

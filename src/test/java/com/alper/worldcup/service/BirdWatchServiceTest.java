@@ -27,6 +27,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -48,6 +49,8 @@ class BirdWatchServiceTest {
     private FinalResultRepository finalResultRepository;
     @Mock
     private UserProfileService userProfileService;
+    @Mock
+    private UserMatchStatsService userMatchStatsService;
 
     private BirdWatchService service;
 
@@ -63,7 +66,9 @@ class BirdWatchServiceTest {
                 finalResultRepository,
                 userProfileService,
                 new PoolMemberRegistry("default"),
-                new PointsServiceImpl());
+                new PointsServiceImpl(),
+                userMatchStatsService);
+        lenient().when(userMatchStatsService.getStatsForPoolMembers()).thenReturn(Map.of());
     }
 
     @Test
