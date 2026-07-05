@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+<th:block th:fragment="missing-picks-alert(members, currentUsername, highlightYou)">
+    <div th:if="${!#lists.isEmpty(members)}" class="missing-picks-alert" role="alert">
+        <strong>Missing prediction:</strong>
+        <span th:each="member, stat : ${members}">
+            <span th:classappend="${highlightYou and member.username() == currentUsername} ? ' missing-picks-you' : ''"
+                  th:text="${member.displayName()} + (${highlightYou and member.username() == currentUsername} ? ' (you)' : '')"></span><span th:if="${!stat.last}">, </span>
+        </span>
+    </div>
+</th:block>
+</body>
+</html>

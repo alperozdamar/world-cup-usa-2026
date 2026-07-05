@@ -1159,3 +1159,32 @@ body.admin-page .turkuaz-market-ad-mobile {
     color: #6c757d;
     line-height: 1.25;
 }
+
+.missing-picks-alert {
+    background-color: #f8d7da;
+    border: 1px solid #f1aeb5;
+    border-left: 4px solid #dc3545;
+    color: #842029;
+    font-size: 0.9rem;
+    margin: 0;
+    padding: 0.55rem 0.85rem;
+}
+
+.missing-picks-you {
+    font-weight: 700;
+    text-decoration: underline;
+}
+
+.missing-picks-banner-top {
+    border-left: 4px solid #dc3545;
+}
+
+.missing-picks-cell {
+    color: #842029;
+    font-weight: 600;
+}
+
+.missing-picks-inline-hint {
+    display: inline-block;
+    margin-left: 0.25rem;
+}

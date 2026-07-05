@@ -2,6 +2,7 @@ package com.alper.worldcup.service;
 
 import com.alper.worldcup.entity.Match;
 import com.alper.worldcup.entity.Prediction;
+import java.util.List;
 
 public record KnockoutMatchView(
         Match match,
@@ -11,5 +12,6 @@ public record KnockoutMatchView(
         String homeDisplayName,
         String awayDisplayName,
         String homeSlotLabel,
-        String awaySlotLabel) {
+        String awaySlotLabel,
+        List<MissingPredictionMember> missingMembers) {
 }

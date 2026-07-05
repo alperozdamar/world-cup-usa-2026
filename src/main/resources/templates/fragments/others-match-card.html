@@ -21,6 +21,8 @@
             </span>
             <span th:if="${matchView.predictionsHidden()}" class="ms-2 badge bg-secondary">Upcoming</span>
         </div>
+        <div th:replace="~{fragments/missing-picks-alert :: missing-picks-alert(
+                members=${matchView.missingMembers()}, currentUsername=${username}, highlightYou=true)}"></div>
         <div class="card-body p-0">
             <div class="table-responsive">
                 <table class="table table-sm table-striped mb-0 align-middle">
@@ -70,7 +72,18 @@
                             <span th:if="${pick.points() == null}" class="text-muted">—</span>
                         </td>
                     </tr>
-                    <tr th:if="${#lists.isEmpty(matchView.predictions())}">
+                    <tr th:each="member : ${matchView.missingMembers()}">
+                        <td>
+                            <span th:text="${member.displayName()}"></span>
+                            <span class="small text-muted" th:text="'(' + ${member.username()} + ')'"></span>
+                        </td>
+                        <td th:attr="colspan=${knockout ? (matchView.match().scoreEntered and !matchView.predictionsHidden() ? 4 : 3) : (matchView.match().scoreEntered and !matchView.predictionsHidden() ? 2 : 1)}"
+                            class="missing-picks-cell">
+                            <span th:if="${member.username() == username}">No prediction yet (you)</span>
+                            <span th:if="${member.username() != username}">No prediction yet</span>
+                        </td>
+                    </tr>
+                    <tr th:if="${#lists.isEmpty(matchView.predictions()) and #lists.isEmpty(matchView.missingMembers())}">
                         <td th:colspan="${knockout ? (matchView.match().scoreEntered and !matchView.predictionsHidden() ? 5 : 4) : (matchView.match().scoreEntered and !matchView.predictionsHidden() ? 3 : 2)}"
                             class="text-muted">No predictions saved for this match.</td>
                     </tr>

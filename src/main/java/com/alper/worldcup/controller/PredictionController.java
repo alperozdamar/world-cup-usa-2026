@@ -16,6 +16,7 @@ import com.alper.worldcup.service.KnockoutRoundView;
 import com.alper.worldcup.service.KnockoutService;
 import com.alper.worldcup.service.LeaderboardRowView;
 import com.alper.worldcup.service.LeaderboardService;
+import com.alper.worldcup.service.MissingPredictionService;
 import com.alper.worldcup.service.PeerPredictionService;
 import com.alper.worldcup.service.PointsTimelineService;
 import com.alper.worldcup.service.PredictionService;
@@ -56,6 +57,7 @@ public class PredictionController {
     private final UserAccountService userAccountService;
     private final UserMatchStatsService userMatchStatsService;
     private final KnockoutService knockoutService;
+    private final MissingPredictionService missingPredictionService;
     private final Environment environment;
 
     public PredictionController(PredictionService predictionService,
@@ -71,6 +73,7 @@ public class PredictionController {
                                 UserAccountService userAccountService,
                                 UserMatchStatsService userMatchStatsService,
                                 KnockoutService knockoutService,
+                                MissingPredictionService missingPredictionService,
                                 Environment environment) {
         this.predictionService = predictionService;
         this.groupStandingPredictionService = groupStandingPredictionService;
@@ -85,6 +88,7 @@ public class PredictionController {
         this.userAccountService = userAccountService;
         this.userMatchStatsService = userMatchStatsService;
         this.knockoutService = knockoutService;
+        this.missingPredictionService = missingPredictionService;
         this.environment = environment;
     }
 
@@ -129,10 +133,13 @@ public class PredictionController {
     public String knockout(Principal principal, Model model) {
         String username = principal.getName();
         ZoneId zoneId = userProfileService.getUserZoneId(username);
-        List<KnockoutRoundView> rounds = knockoutService.getKnockoutRounds(username);
+        List<KnockoutRoundView> rounds = knockoutService.getKnockoutRounds(username, zoneId);
 
         model.addAttribute("rounds", rounds);
         model.addAttribute("zoneId", zoneId.getId());
+        model.addAttribute("username", username);
+        model.addAttribute("userMissingNextDayMatches",
+                missingPredictionService.describeMissingMatchesForUser(username, zoneId));
         model.addAttribute("knockoutDevPreview", environment.acceptsProfiles(Profiles.of("local")));
         return "predictions/knockout";
     }
@@ -259,8 +266,10 @@ public class PredictionController {
 
     @GetMapping("/others")
     public String others(Principal principal, Model model) {
-        ZoneId zoneId = userProfileService.getUserZoneId(principal.getName());
+        String username = principal.getName();
+        ZoneId zoneId = userProfileService.getUserZoneId(username);
         model.addAttribute("zoneId", zoneId.getId());
+        model.addAttribute("username", username);
         model.addAttribute("tournamentStarted", peerPredictionService.isTournamentStarted());
         model.addAttribute("tournamentStartLabel", finalPredictionService.getTournamentStartKickoff()
                 .map(kickoff -> kickoff.atZone(zoneId).format(java.time.format.DateTimeFormatter

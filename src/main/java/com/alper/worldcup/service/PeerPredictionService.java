@@ -12,7 +12,6 @@ import com.alper.worldcup.entity.Prediction;
 import com.alper.worldcup.entity.UserProfile;
 import java.time.Instant;
 import java.time.ZoneId;
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.LinkedHashMap;
@@ -30,19 +29,22 @@ public class PeerPredictionService {
     private final FinalPredictionRepository finalPredictionRepository;
     private final UserProfileService userProfileService;
     private final PoolMemberRegistry poolMemberRegistry;
+    private final MissingPredictionService missingPredictionService;
 
     public PeerPredictionService(MatchRepository matchRepository,
                                  PredictionRepository predictionRepository,
                                  GroupStandingPredictionRepository groupStandingPredictionRepository,
                                  FinalPredictionRepository finalPredictionRepository,
                                  UserProfileService userProfileService,
-                                 PoolMemberRegistry poolMemberRegistry) {
+                                 PoolMemberRegistry poolMemberRegistry,
+                                 MissingPredictionService missingPredictionService) {
         this.matchRepository = matchRepository;
         this.predictionRepository = predictionRepository;
         this.groupStandingPredictionRepository = groupStandingPredictionRepository;
         this.finalPredictionRepository = finalPredictionRepository;
         this.userProfileService = userProfileService;
         this.poolMemberRegistry = poolMemberRegistry;
+        this.missingPredictionService = missingPredictionService;
     }
 
     @Transactional(readOnly = true)
@@ -98,41 +100,13 @@ public class PeerPredictionService {
 
     @Transactional(readOnly = true)
     public List<PeerMatchView> getUpcomingMatchPredictions(ZoneId zoneId) {
-        Instant now = Instant.now();
-        List<Match> upcoming = collectUpcomingMatches(now);
-        if (upcoming.isEmpty()) {
-            return List.of();
-        }
-
-        LocalDate nextMatchDay = upcoming.stream()
-                .min(Comparator.comparing(Match::getKickoffUtc))
-                .orElseThrow()
-                .getKickoffUtc()
-                .atZone(zoneId)
-                .toLocalDate();
-
-        return upcoming.stream()
-                .filter(match -> match.getKickoffUtc().atZone(zoneId).toLocalDate().equals(nextMatchDay))
-                .sorted(Comparator.comparing(Match::getKickoffUtc))
-                .map(match -> new PeerMatchView(match, loadHiddenPredictions(match), true))
+        return missingPredictionService.openMatchesOnNextMatchDay(zoneId).stream()
+                .map(match -> new PeerMatchView(
+                        match,
+                        loadHiddenPredictions(match),
+                        true,
+                        missingPredictionService.findMissingForMatch(match)))
                 .toList();
-    }
-
-    private List<Match> collectUpcomingMatches(Instant now) {
-        List<Match> upcoming = new ArrayList<>();
-
-        matchRepository.findByStageWithTeams(MatchStage.GROUP_STAGE).stream()
-                .filter(match -> match.getKickoffUtc().isAfter(now))
-                .filter(Match::isPredictionsEnabled)
-                .forEach(upcoming::add);
-
-        matchRepository.findKnockoutMatchesWithTeams().stream()
-                .filter(match -> match.getKickoffUtc().isAfter(now))
-                .filter(Match::isPredictionsEnabled)
-                .filter(match -> match.getHomeTeam() != null && match.getAwayTeam() != null)
-                .forEach(upcoming::add);
-
-        return upcoming;
     }
 
     private List<PeerPlayerMatchPrediction> loadPredictions(Match match) {

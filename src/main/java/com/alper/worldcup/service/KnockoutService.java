@@ -8,6 +8,7 @@ import com.alper.worldcup.entity.Prediction;
 import com.alper.worldcup.entity.PredictionAuditAction;
 import com.alper.worldcup.entity.Team;
 import java.time.Instant;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -32,19 +33,22 @@ public class KnockoutService {
     private final PredictionRepository predictionRepository;
     private final PredictionAuditService predictionAuditService;
     private final KnockoutBracketResolver knockoutBracketResolver;
+    private final MissingPredictionService missingPredictionService;
 
     public KnockoutService(MatchRepository matchRepository,
                            PredictionRepository predictionRepository,
                            PredictionAuditService predictionAuditService,
-                           KnockoutBracketResolver knockoutBracketResolver) {
+                           KnockoutBracketResolver knockoutBracketResolver,
+                           MissingPredictionService missingPredictionService) {
         this.matchRepository = matchRepository;
         this.predictionRepository = predictionRepository;
         this.predictionAuditService = predictionAuditService;
         this.knockoutBracketResolver = knockoutBracketResolver;
+        this.missingPredictionService = missingPredictionService;
     }
 
     @Transactional(readOnly = true)
-    public List<KnockoutRoundView> getKnockoutRounds(String username) {
+    public List<KnockoutRoundView> getKnockoutRounds(String username, ZoneId zoneId) {
         Instant now = Instant.now();
         List<Match> matches = matchRepository.findKnockoutMatchesWithTeams().stream()
                 .sorted(Comparator
@@ -84,7 +88,8 @@ public class KnockoutService {
                             resolved.homeDisplayName(),
                             resolved.awayDisplayName(),
                             resolved.homeSlotLabel(),
-                            resolved.awaySlotLabel()));
+                            resolved.awaySlotLabel(),
+                            missingMembersForMatch(match, zoneId, now)));
         }
 
         List<KnockoutRoundView> rounds = new ArrayList<>();
@@ -227,6 +232,13 @@ public class KnockoutService {
         if (match.getHomeTeam() == null || match.getAwayTeam() == null) {
             throw new IllegalStateException("Teams are not confirmed for this match yet");
         }
+    }
+
+    private List<MissingPredictionMember> missingMembersForMatch(Match match, ZoneId zoneId, Instant now) {
+        if (!isEditable(match, now) || !missingPredictionService.isOnNextOpenMatchDay(match, zoneId)) {
+            return List.of();
+        }
+        return missingPredictionService.findMissingForMatch(match);
     }
 
     private boolean isEditable(Match match, Instant now) {

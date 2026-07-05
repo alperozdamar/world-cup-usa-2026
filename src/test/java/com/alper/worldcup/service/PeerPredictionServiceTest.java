@@ -36,6 +36,8 @@ class PeerPredictionServiceTest {
     private FinalPredictionRepository finalPredictionRepository;
     @Mock
     private UserProfileService userProfileService;
+    @Mock
+    private MissingPredictionService missingPredictionService;
 
     private PeerPredictionService service;
 
@@ -47,7 +49,8 @@ class PeerPredictionServiceTest {
                 groupStandingPredictionRepository,
                 finalPredictionRepository,
                 userProfileService,
-                new PoolMemberRegistry("default"));
+                new PoolMemberRegistry("default"),
+                missingPredictionService);
     }
 
     @Test
@@ -95,9 +98,11 @@ class PeerPredictionServiceTest {
         prediction.setHomeScoreGuess(2);
         prediction.setAwayScoreGuess(1);
 
-        when(matchRepository.findByStageWithTeams(MatchStage.GROUP_STAGE)).thenReturn(List.of(upcoming));
+        when(missingPredictionService.openMatchesOnNextMatchDay(ZoneId.of("America/New_York")))
+                .thenReturn(List.of(upcoming));
         when(predictionRepository.findByMatchId(3)).thenReturn(List.of(prediction));
         when(userProfileService.getDisplayName("gonenc")).thenReturn("Gonenc Gorgulu");
+        when(missingPredictionService.findMissingForMatch(upcoming)).thenReturn(List.of());
 
         PeerMatchView view = service.getUpcomingMatchPredictions(ZoneId.of("America/New_York")).getFirst();
 
@@ -182,9 +187,10 @@ class PeerPredictionServiceTest {
         Match groupLater = upcomingMatch(1, Instant.parse("2099-06-12T19:00:00Z"));
         Match knockoutSooner = knockoutMatch(73, Instant.parse("2099-06-11T19:00:00Z"));
 
-        when(matchRepository.findByStageWithTeams(MatchStage.GROUP_STAGE)).thenReturn(List.of(groupLater));
-        when(matchRepository.findKnockoutMatchesWithTeams()).thenReturn(List.of(knockoutSooner));
+        when(missingPredictionService.openMatchesOnNextMatchDay(ZoneId.of("America/New_York")))
+                .thenReturn(List.of(knockoutSooner));
         when(predictionRepository.findByMatchId(73)).thenReturn(List.of());
+        when(missingPredictionService.findMissingForMatch(knockoutSooner)).thenReturn(List.of());
 
         PeerMatchView view = service.getUpcomingMatchPredictions(ZoneId.of("America/New_York")).getFirst();
 
@@ -197,13 +203,13 @@ class PeerPredictionServiceTest {
         ZoneId zone = ZoneId.of("America/New_York");
         Match firstOnDay = knockoutMatch(73, Instant.parse("2099-06-11T14:00:00Z"));
         Match secondOnDay = knockoutMatch(74, Instant.parse("2099-06-12T03:00:00Z"));
-        Match nextDay = knockoutMatch(75, Instant.parse("2099-06-12T14:00:00Z"));
 
-        when(matchRepository.findByStageWithTeams(MatchStage.GROUP_STAGE)).thenReturn(List.of());
-        when(matchRepository.findKnockoutMatchesWithTeams())
-                .thenReturn(List.of(firstOnDay, secondOnDay, nextDay));
+        when(missingPredictionService.openMatchesOnNextMatchDay(zone))
+                .thenReturn(List.of(firstOnDay, secondOnDay));
         when(predictionRepository.findByMatchId(73)).thenReturn(List.of());
         when(predictionRepository.findByMatchId(74)).thenReturn(List.of());
+        when(missingPredictionService.findMissingForMatch(firstOnDay)).thenReturn(List.of());
+        when(missingPredictionService.findMissingForMatch(secondOnDay)).thenReturn(List.of());
 
         List<PeerMatchView> views = service.getUpcomingMatchPredictions(zone);
 

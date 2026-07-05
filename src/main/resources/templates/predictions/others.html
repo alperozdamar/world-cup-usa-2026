@@ -19,6 +19,7 @@
         <h4 class="h5">Next matches</h4>
         <p class="text-muted small">
             Predictions hidden until kickoff. All games on the next match day are listed below.
+            <span class="missing-picks-inline-hint">Players without a saved pick are shown in <strong class="text-danger">red</strong>.</span>
         </p>
         <div th:each="upcomingView : ${upcomingMatchViews}">
             <div th:replace="~{fragments/others-match-card :: others-match-card(matchView=${upcomingView})}"></div>

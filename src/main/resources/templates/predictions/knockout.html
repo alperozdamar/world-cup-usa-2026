@@ -20,6 +20,13 @@
     <div th:if="${successMessage}" class="alert alert-success" th:text="${successMessage}"></div>
     <div th:if="${errorMessage}" class="alert alert-danger" th:text="${errorMessage}"></div>
 
+    <div th:if="${!#lists.isEmpty(userMissingNextDayMatches)}" class="alert alert-danger missing-picks-banner-top">
+        <strong>You still need to save:</strong>
+        <ul class="mb-0 mt-1">
+            <li th:each="line : ${userMissingNextDayMatches}" th:text="${line}">Brazil vs Norway</li>
+        </ul>
+    </div>
+
     <div th:if="${#lists.isEmpty(rounds)}" class="alert alert-info">
         No knockout matches loaded yet. Ensure fixtures are imported and restart with <code>local</code> profile.
     </div>
@@ -133,6 +140,9 @@
                           th:classappend="${matchView.editable()} ? ' bg-success' : ' bg-secondary'"
                           th:text="${matchView.statusLabel()}">Open</span>
                 </div>
+
+                <div th:replace="~{fragments/missing-picks-alert :: missing-picks-alert(
+                        members=${matchView.missingMembers()}, currentUsername=${username}, highlightYou=true)}"></div>
 
                 <div th:if="${!matchView.editable() and prediction != null}" class="knockout-pick-summary">
                     <p class="mb-1">
