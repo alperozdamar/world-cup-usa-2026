@@ -45,6 +45,9 @@
                         <td>
                             <span th:text="${pick.displayName()}"></span>
                             <span class="small text-muted" th:text="'(' + ${pick.username()} + ')'"></span>
+                            <span th:if="${pick.lastSavedAt() != null}"
+                                  class="small text-muted others-pick-saved-at"
+                                  th:text="' · saved ' + ${@matchViewHelper.formatSavedAtShort(pick.lastSavedAt(), zoneId)}"></span>
                         </td>
                         <td th:if="${!knockout}">
                             <span th:if="${pick.hidden()}" class="text-muted fst-italic">Hidden until kickoff</span>

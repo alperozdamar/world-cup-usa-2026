@@ -3,6 +3,7 @@ package com.alper.worldcup.service;
 import com.alper.worldcup.dao.FinalPredictionRepository;
 import com.alper.worldcup.dao.GroupStandingPredictionRepository;
 import com.alper.worldcup.dao.MatchRepository;
+import com.alper.worldcup.dao.PredictionAuditRepository;
 import com.alper.worldcup.dao.PredictionRepository;
 import com.alper.worldcup.entity.Match;
 import com.alper.worldcup.entity.MatchStage;
@@ -10,6 +11,7 @@ import com.alper.worldcup.entity.Prediction;
 import com.alper.worldcup.entity.Team;
 import java.time.Instant;
 import java.time.ZoneId;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
@@ -21,6 +23,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -30,6 +33,8 @@ class PeerPredictionServiceTest {
     private MatchRepository matchRepository;
     @Mock
     private PredictionRepository predictionRepository;
+    @Mock
+    private PredictionAuditRepository predictionAuditRepository;
     @Mock
     private GroupStandingPredictionRepository groupStandingPredictionRepository;
     @Mock
@@ -46,6 +51,7 @@ class PeerPredictionServiceTest {
         service = new PeerPredictionService(
                 matchRepository,
                 predictionRepository,
+                predictionAuditRepository,
                 groupStandingPredictionRepository,
                 finalPredictionRepository,
                 userProfileService,
@@ -81,6 +87,7 @@ class PeerPredictionServiceTest {
         when(matchRepository.findByStageWithTeams(MatchStage.GROUP_STAGE)).thenReturn(List.of(older, newer));
         when(predictionRepository.findByMatchId(1)).thenReturn(List.of());
         when(predictionRepository.findByMatchId(2)).thenReturn(List.of());
+        when(predictionAuditRepository.findLastRecordedAtForMatches(any())).thenReturn(List.of());
 
         List<PeerMatchView> views = service.getVisibleMatchPredictions();
 
@@ -101,6 +108,7 @@ class PeerPredictionServiceTest {
         when(missingPredictionService.openMatchesOnNextMatchDay(ZoneId.of("America/New_York")))
                 .thenReturn(List.of(upcoming));
         when(predictionRepository.findByMatchId(3)).thenReturn(List.of(prediction));
+        when(predictionAuditRepository.findLastRecordedAtForMatches(List.of(3))).thenReturn(List.of());
         when(userProfileService.getDisplayName("gonenc")).thenReturn("Gonenc Gorgulu");
         when(missingPredictionService.findMissingForMatch(upcoming)).thenReturn(List.of());
 
@@ -121,6 +129,7 @@ class PeerPredictionServiceTest {
         when(matchRepository.findKnockoutMatchesWithTeams()).thenReturn(List.of(knockoutNewer));
         when(predictionRepository.findByMatchId(1)).thenReturn(List.of());
         when(predictionRepository.findByMatchId(73)).thenReturn(List.of());
+        when(predictionAuditRepository.findLastRecordedAtForMatches(List.of(1, 73))).thenReturn(List.of());
 
         List<PeerMatchView> views = service.getVisibleStartedMatchPredictions();
 
@@ -138,6 +147,7 @@ class PeerPredictionServiceTest {
         when(matchRepository.findKnockoutMatchesWithTeams()).thenReturn(List.of(olderKnockout));
         when(predictionRepository.findByMatchId(1)).thenReturn(List.of());
         when(predictionRepository.findByMatchId(73)).thenReturn(List.of());
+        when(predictionAuditRepository.findLastRecordedAtForMatches(List.of(1, 73))).thenReturn(List.of());
 
         List<PeerMatchView> views = service.getVisibleStartedMatchPredictions();
 
@@ -158,6 +168,7 @@ class PeerPredictionServiceTest {
         when(matchRepository.findKnockoutMatchesWithTeams()).thenReturn(List.of(awaitingScore));
         when(predictionRepository.findByMatchId(1)).thenReturn(List.of());
         when(predictionRepository.findByMatchId(73)).thenReturn(List.of());
+        when(predictionAuditRepository.findLastRecordedAtForMatches(List.of(1, 73))).thenReturn(List.of());
 
         List<PeerMatchView> views = service.getVisibleStartedMatchPredictions();
 
@@ -174,6 +185,7 @@ class PeerPredictionServiceTest {
         when(matchRepository.findKnockoutMatchesWithTeams()).thenReturn(List.of(older, newer));
         when(predictionRepository.findByMatchId(10)).thenReturn(List.of());
         when(predictionRepository.findByMatchId(11)).thenReturn(List.of());
+        when(predictionAuditRepository.findLastRecordedAtForMatches(List.of(10))).thenReturn(List.of());
 
         List<PeerMatchView> views = service.getVisibleKnockoutPredictions();
 
@@ -190,6 +202,7 @@ class PeerPredictionServiceTest {
         when(missingPredictionService.openMatchesOnNextMatchDay(ZoneId.of("America/New_York")))
                 .thenReturn(List.of(knockoutSooner));
         when(predictionRepository.findByMatchId(73)).thenReturn(List.of());
+        when(predictionAuditRepository.findLastRecordedAtForMatches(List.of(73))).thenReturn(List.of());
         when(missingPredictionService.findMissingForMatch(knockoutSooner)).thenReturn(List.of());
 
         PeerMatchView view = service.getUpcomingMatchPredictions(ZoneId.of("America/New_York")).getFirst();
@@ -208,6 +221,7 @@ class PeerPredictionServiceTest {
                 .thenReturn(List.of(firstOnDay, secondOnDay));
         when(predictionRepository.findByMatchId(73)).thenReturn(List.of());
         when(predictionRepository.findByMatchId(74)).thenReturn(List.of());
+        when(predictionAuditRepository.findLastRecordedAtForMatches(List.of(73, 74))).thenReturn(List.of());
         when(missingPredictionService.findMissingForMatch(firstOnDay)).thenReturn(List.of());
         when(missingPredictionService.findMissingForMatch(secondOnDay)).thenReturn(List.of());
 
@@ -218,6 +232,29 @@ class PeerPredictionServiceTest {
         assertEquals(74, views.get(1).match().getId());
         assertTrue(views.get(0).predictionsHidden());
         assertTrue(views.get(1).predictionsHidden());
+    }
+
+    @Test
+    void startedMatchPredictionUsesLatestAuditTimeWhenAvailable() {
+        Match match = upcomingMatch(5, Instant.parse("2020-06-11T19:00:00Z"));
+        Prediction prediction = new Prediction();
+        prediction.setUsername("gonenc");
+        prediction.setHomeScoreGuess(2);
+        prediction.setAwayScoreGuess(1);
+        prediction.setUpdatedAt(Instant.parse("2020-06-10T12:00:00Z"));
+        Instant lastAudit = Instant.parse("2020-06-11T08:30:00Z");
+
+        when(matchRepository.findByStageWithTeams(MatchStage.GROUP_STAGE)).thenReturn(List.of(match));
+        when(predictionRepository.findByMatchId(5)).thenReturn(List.of(prediction));
+        Object[] auditRow = new Object[] {5, "gonenc", lastAudit};
+        List<Object[]> auditRows = new ArrayList<>();
+        auditRows.add(auditRow);
+        when(predictionAuditRepository.findLastRecordedAtForMatches(any())).thenReturn(auditRows);
+        when(userProfileService.getDisplayName("gonenc")).thenReturn("Gonenc Gorgulu");
+
+        PeerMatchView view = service.getVisibleMatchPredictions().getFirst();
+
+        assertEquals(lastAudit, view.predictions().getFirst().lastSavedAt());
     }
 
     private Match knockoutMatch(int id, Instant kickoff) {

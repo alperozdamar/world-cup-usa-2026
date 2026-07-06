@@ -18,6 +18,8 @@ public class MatchViewHelper {
             DateTimeFormatter.ofPattern("HH:mm z");
     private static final DateTimeFormatter RECORDED_AT_FORMAT =
             DateTimeFormatter.ofPattern("EEE, MMM d yyyy HH:mm z");
+    private static final DateTimeFormatter SAVED_AT_SHORT_FORMAT =
+            DateTimeFormatter.ofPattern("MMM d, HH:mm");
 
     public String formatKickoffDate(Match match, String timezoneId) {
         ZonedDateTime zdt = match.getKickoffUtc().atZone(ZoneId.of(timezoneId));
@@ -35,6 +37,10 @@ public class MatchViewHelper {
 
     public String formatRecordedAt(Instant instant, String timezoneId) {
         return instant.atZone(ZoneId.of(timezoneId)).format(RECORDED_AT_FORMAT);
+    }
+
+    public String formatSavedAtShort(Instant instant, String timezoneId) {
+        return instant.atZone(ZoneId.of(timezoneId)).format(SAVED_AT_SHORT_FORMAT);
     }
 
     public String formatStageLabel(Match match) {

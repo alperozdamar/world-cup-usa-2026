@@ -3,6 +3,7 @@
 All notable changes to this project will be documented in this file.
 
 ## [v0.0.11-PRERELEASE]
+  - WC-0098 - Others' Picks: saved-at time next to each player (last audit entry; falls back to prediction updated_at)
   - WC-0097 - Missing-pick alerts (red): next match day on Knockout and Others' Picks — who has not saved; personal banner if you are missing
   - WC-0096 - Knockout points keep fractions (no rounding); e.g. R16 ×1.25 → 6.25 / 1.25; leaderboard & UI show decimals
 

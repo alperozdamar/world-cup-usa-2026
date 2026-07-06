@@ -3,6 +3,7 @@ package com.alper.worldcup.service;
 import com.alper.worldcup.dao.FinalPredictionRepository;
 import com.alper.worldcup.dao.GroupStandingPredictionRepository;
 import com.alper.worldcup.dao.MatchRepository;
+import com.alper.worldcup.dao.PredictionAuditRepository;
 import com.alper.worldcup.dao.PredictionRepository;
 import com.alper.worldcup.entity.FinalPrediction;
 import com.alper.worldcup.entity.GroupStandingPrediction;
@@ -13,10 +14,13 @@ import com.alper.worldcup.entity.UserProfile;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -25,6 +29,7 @@ public class PeerPredictionService {
 
     private final MatchRepository matchRepository;
     private final PredictionRepository predictionRepository;
+    private final PredictionAuditRepository predictionAuditRepository;
     private final GroupStandingPredictionRepository groupStandingPredictionRepository;
     private final FinalPredictionRepository finalPredictionRepository;
     private final UserProfileService userProfileService;
@@ -33,6 +38,7 @@ public class PeerPredictionService {
 
     public PeerPredictionService(MatchRepository matchRepository,
                                  PredictionRepository predictionRepository,
+                                 PredictionAuditRepository predictionAuditRepository,
                                  GroupStandingPredictionRepository groupStandingPredictionRepository,
                                  FinalPredictionRepository finalPredictionRepository,
                                  UserProfileService userProfileService,
@@ -40,6 +46,7 @@ public class PeerPredictionService {
                                  MissingPredictionService missingPredictionService) {
         this.matchRepository = matchRepository;
         this.predictionRepository = predictionRepository;
+        this.predictionAuditRepository = predictionAuditRepository;
         this.groupStandingPredictionRepository = groupStandingPredictionRepository;
         this.finalPredictionRepository = finalPredictionRepository;
         this.userProfileService = userProfileService;
@@ -57,16 +64,24 @@ public class PeerPredictionService {
     @Transactional(readOnly = true)
     public List<PeerMatchView> getVisibleStartedMatchPredictions() {
         Instant now = Instant.now();
+        List<Match> groupStarted = matchRepository.findByStageWithTeams(MatchStage.GROUP_STAGE).stream()
+                .filter(match -> match.hasStarted(now))
+                .toList();
+        List<Match> knockoutStarted = matchRepository.findKnockoutMatchesWithTeams().stream()
+                .filter(match -> match.hasStarted(now))
+                .toList();
+
+        List<Match> allStarted = new ArrayList<>(groupStarted.size() + knockoutStarted.size());
+        allStarted.addAll(groupStarted);
+        allStarted.addAll(knockoutStarted);
+        Map<Integer, Map<String, Instant>> savedAtIndex = loadLastSavedAtIndex(allStarted);
+
         List<PeerMatchView> views = new ArrayList<>();
-
-        matchRepository.findByStageWithTeams(MatchStage.GROUP_STAGE).stream()
-                .filter(match -> match.hasStarted(now))
-                .map(match -> new PeerMatchView(match, loadPredictions(match), false))
+        groupStarted.stream()
+                .map(match -> new PeerMatchView(match, loadPredictions(match, savedAtIndex), false))
                 .forEach(views::add);
-
-        matchRepository.findKnockoutMatchesWithTeams().stream()
-                .filter(match -> match.hasStarted(now))
-                .map(match -> new PeerMatchView(match, loadPredictions(match), false))
+        knockoutStarted.stream()
+                .map(match -> new PeerMatchView(match, loadPredictions(match, savedAtIndex), false))
                 .forEach(views::add);
 
         views.sort(Comparator
@@ -100,35 +115,76 @@ public class PeerPredictionService {
 
     @Transactional(readOnly = true)
     public List<PeerMatchView> getUpcomingMatchPredictions(ZoneId zoneId) {
-        return missingPredictionService.openMatchesOnNextMatchDay(zoneId).stream()
+        List<Match> upcoming = missingPredictionService.openMatchesOnNextMatchDay(zoneId);
+        Map<Integer, Map<String, Instant>> savedAtIndex = loadLastSavedAtIndex(upcoming);
+        return upcoming.stream()
                 .map(match -> new PeerMatchView(
                         match,
-                        loadHiddenPredictions(match),
+                        loadHiddenPredictions(match, savedAtIndex),
                         true,
                         missingPredictionService.findMissingForMatch(match)))
                 .toList();
     }
 
-    private List<PeerPlayerMatchPrediction> loadPredictions(Match match) {
+    private Map<Integer, Map<String, Instant>> loadLastSavedAtIndex(Collection<Match> matches) {
+        if (matches.isEmpty()) {
+            return Map.of();
+        }
+        List<Integer> matchIds = matches.stream().map(Match::getId).collect(Collectors.toList());
+        Map<Integer, Map<String, Instant>> index = new HashMap<>();
+        for (Object[] row : predictionAuditRepository.findLastRecordedAtForMatches(matchIds)) {
+            Integer matchId = (Integer) row[0];
+            String username = (String) row[1];
+            Instant recordedAt = (Instant) row[2];
+            index.computeIfAbsent(matchId, ignored -> new HashMap<>()).put(username, recordedAt);
+        }
+        return index;
+    }
+
+    private Instant resolveLastSavedAt(String username,
+                                       Integer matchId,
+                                       Instant updatedAt,
+                                       Map<Integer, Map<String, Instant>> savedAtIndex) {
+        Map<String, Instant> byUser = savedAtIndex.get(matchId);
+        if (byUser != null) {
+            Instant fromAudit = byUser.get(username);
+            if (fromAudit != null) {
+                return fromAudit;
+            }
+        }
+        return updatedAt;
+    }
+
+    private List<PeerPlayerMatchPrediction> loadPredictions(Match match,
+                                                            Map<Integer, Map<String, Instant>> savedAtIndex) {
         return predictionRepository.findByMatchId(match.getId()).stream()
                 .filter(prediction -> poolMemberRegistry.isMember(prediction.getUsername()))
                 .map(prediction -> PeerPlayerMatchPrediction.from(
                         prediction,
-                        userProfileService.getDisplayName(prediction.getUsername())))
+                        userProfileService.getDisplayName(prediction.getUsername()),
+                        resolveLastSavedAt(prediction.getUsername(), match.getId(),
+                                prediction.getUpdatedAt(), savedAtIndex)))
                 .sorted(Comparator.comparing(PeerPlayerMatchPrediction::displayName,
                         String.CASE_INSENSITIVE_ORDER))
                 .toList();
     }
 
-    private List<PeerPlayerMatchPrediction> loadHiddenPredictions(Match match) {
+    private List<PeerPlayerMatchPrediction> loadHiddenPredictions(Match match,
+                                                                  Map<Integer, Map<String, Instant>> savedAtIndex) {
         return predictionRepository.findByMatchId(match.getId()).stream()
                 .filter(prediction -> poolMemberRegistry.isMember(prediction.getUsername()))
                 .map(prediction -> PeerPlayerMatchPrediction.hidden(
                         prediction.getUsername(),
-                        userProfileService.getDisplayName(prediction.getUsername())))
+                        userProfileService.getDisplayName(prediction.getUsername()),
+                        resolveLastSavedAt(prediction.getUsername(), match.getId(),
+                                prediction.getUpdatedAt(), savedAtIndex)))
                 .sorted(Comparator.comparing(PeerPlayerMatchPrediction::displayName,
                         String.CASE_INSENSITIVE_ORDER))
                 .toList();
+    }
+
+    private List<PeerPlayerMatchPrediction> loadPredictions(Match match) {
+        return loadPredictions(match, loadLastSavedAtIndex(List.of(match)));
     }
 
     @Transactional(readOnly = true)
