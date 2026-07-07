@@ -17,6 +17,7 @@ import com.alper.worldcup.service.KnockoutService;
 import com.alper.worldcup.service.LeaderboardRowView;
 import com.alper.worldcup.service.LeaderboardService;
 import com.alper.worldcup.service.MissingPredictionService;
+import com.alper.worldcup.service.TournamentTeamStatusService;
 import com.alper.worldcup.service.PeerPredictionService;
 import com.alper.worldcup.service.PointsTimelineService;
 import com.alper.worldcup.service.PredictionService;
@@ -58,6 +59,7 @@ public class PredictionController {
     private final UserMatchStatsService userMatchStatsService;
     private final KnockoutService knockoutService;
     private final MissingPredictionService missingPredictionService;
+    private final TournamentTeamStatusService tournamentTeamStatusService;
     private final Environment environment;
 
     public PredictionController(PredictionService predictionService,
@@ -74,6 +76,7 @@ public class PredictionController {
                                 UserMatchStatsService userMatchStatsService,
                                 KnockoutService knockoutService,
                                 MissingPredictionService missingPredictionService,
+                                TournamentTeamStatusService tournamentTeamStatusService,
                                 Environment environment) {
         this.predictionService = predictionService;
         this.groupStandingPredictionService = groupStandingPredictionService;
@@ -89,6 +92,7 @@ public class PredictionController {
         this.userMatchStatsService = userMatchStatsService;
         this.knockoutService = knockoutService;
         this.missingPredictionService = missingPredictionService;
+        this.tournamentTeamStatusService = tournamentTeamStatusService;
         this.environment = environment;
     }
 
@@ -280,6 +284,7 @@ public class PredictionController {
         model.addAttribute("groupNames", groupStandingPredictionService.getGroupNames());
         model.addAttribute("groupRows", peerPredictionService.getVisibleGroupPredictions());
         model.addAttribute("finalRows", peerPredictionService.getVisibleFinalPredictions());
+        model.addAttribute("eliminatedTeamNames", tournamentTeamStatusService.findEliminatedTeamNames());
         return "predictions/others";
     }
 

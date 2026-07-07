@@ -15,6 +15,48 @@
         </span>.
     </p>
 
+    <section class="mt-4">
+        <h4 class="h5">Final (champion &amp; runner-up)</h4>
+        <p class="text-muted small mb-2" th:if="${tournamentStarted}">
+            Eliminated teams are <span class="team-eliminated-example">struck through</span>.
+        </p>
+        <div th:if="${!tournamentStarted}" class="alert alert-secondary py-2">
+            Hidden until tournament kickoff — picks are still editable before then.
+        </div>
+        <div th:if="${tournamentStarted and #lists.isEmpty(finalRows)}" class="alert alert-secondary py-2">
+            No final predictions saved yet.
+        </div>
+        <div th:if="${tournamentStarted and !#lists.isEmpty(finalRows)}" class="table-responsive">
+            <table class="table table-sm table-striped align-middle">
+                <thead class="table-dark">
+                <tr>
+                    <th>Player</th>
+                    <th>Champion</th>
+                    <th>Runner-up</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="row : ${finalRows}">
+                    <td>
+                        <span th:text="${row.displayName}"></span>
+                        <span class="small text-muted" th:text="'(' + ${row.username} + ')'"></span>
+                    </td>
+                    <td>
+                        <span th:classappend="${eliminatedTeamNames.contains(row.championName)} ? ' team-eliminated' : ''">
+                            <span th:replace="~{fragments/team-flag :: team-with-flag(name=${row.championName})}"></span>
+                        </span>
+                    </td>
+                    <td>
+                        <span th:classappend="${eliminatedTeamNames.contains(row.runnerUpName)} ? ' team-eliminated' : ''">
+                            <span th:replace="~{fragments/team-flag :: team-with-flag(name=${row.runnerUpName})}"></span>
+                        </span>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
     <section class="mt-4" th:if="${!#lists.isEmpty(upcomingMatchViews)}">
         <h4 class="h5">Next matches</h4>
         <p class="text-muted small">
@@ -41,7 +83,7 @@
         </div>
     </section>
 
-    <section class="mt-4">
+    <section class="mt-4 mb-4">
         <h4 class="h5">Group 1st &amp; 2nd</h4>
         <p class="text-muted small mb-2" th:if="${tournamentStarted}">
             Per-group points appear after admin enters official results for that group (max 5 per group).
@@ -78,41 +120,6 @@
                             </span>
                             <span th:if="${pick == null}" class="text-muted">—</span>
                         </span>
-                    </td>
-                </tr>
-                </tbody>
-            </table>
-        </div>
-    </section>
-
-    <section class="mt-4 mb-4">
-        <h4 class="h5">Final (champion &amp; runner-up)</h4>
-        <div th:if="${!tournamentStarted}" class="alert alert-secondary py-2">
-            Hidden until tournament kickoff — picks are still editable before then.
-        </div>
-        <div th:if="${tournamentStarted and #lists.isEmpty(finalRows)}" class="alert alert-secondary py-2">
-            No final predictions saved yet.
-        </div>
-        <div th:if="${tournamentStarted and !#lists.isEmpty(finalRows)}" class="table-responsive">
-            <table class="table table-sm table-striped align-middle">
-                <thead class="table-dark">
-                <tr>
-                    <th>Player</th>
-                    <th>Champion</th>
-                    <th>Runner-up</th>
-                </tr>
-                </thead>
-                <tbody>
-                <tr th:each="row : ${finalRows}">
-                    <td>
-                        <span th:text="${row.displayName}"></span>
-                        <span class="small text-muted" th:text="'(' + ${row.username} + ')'"></span>
-                    </td>
-                    <td>
-                        <span th:replace="~{fragments/team-flag :: team-with-flag(name=${row.championName})}"></span>
-                    </td>
-                    <td>
-                        <span th:replace="~{fragments/team-flag :: team-with-flag(name=${row.runnerUpName})}"></span>
                     </td>
                 </tr>
                 </tbody>

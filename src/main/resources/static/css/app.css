@@ -844,6 +844,20 @@ body.admin-page .leaderboard-ticker-bar {
     gap: 0.35rem;
 }
 
+.team-eliminated,
+.team-eliminated .team-flag {
+    opacity: 0.55;
+}
+
+.team-eliminated span {
+    text-decoration: line-through;
+}
+
+.team-eliminated-example {
+    text-decoration: line-through;
+    opacity: 0.7;
+}
+
 .team-flag {
     width: 1.25rem;
     height: 0.9375rem;
