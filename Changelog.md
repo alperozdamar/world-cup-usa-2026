@@ -3,6 +3,7 @@
 All notable changes to this project will be documented in this file.
 
 ## [v0.0.11-PRERELEASE]
+  - WC-0101 - Third-place play-off: fix fixture stage import (`Play-off for third place`); points ×1.75 (same as semi-final)
   - WC-0100 - Others' Picks: Final table at top; eliminated champion/runner-up picks shown struck through
   - WC-0099 - Bracket snapshots: R16 complete (`roundOf16Bracket_7July2026.png`); Quarter-finals (`quarterFinalBracket_7July2026.png`); default tab QF
   - WC-0098 - Others' Picks: saved-at time next to each player (last audit entry; falls back to prediction updated_at)

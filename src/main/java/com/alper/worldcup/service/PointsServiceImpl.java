@@ -76,8 +76,8 @@ public class PointsServiceImpl implements PointsService {
         return switch (stage) {
             case GROUP_STAGE, ROUND_OF_32, UNKNOWN -> 1.0;
             case ROUND_OF_16 -> 1.25;
-            case QUARTER_FINAL, THIRD_PLACE -> 1.5;
-            case SEMI_FINAL -> 1.75;
+            case QUARTER_FINAL -> 1.5;
+            case SEMI_FINAL, THIRD_PLACE -> 1.75;
             case FINAL -> 2.0;
         };
     }

@@ -235,7 +235,7 @@ public class FixtureImportService {
         if (stageLine.contains("Semi-final") || stageLine.contains("Semi final")) {
             return MatchStage.SEMI_FINAL;
         }
-        if (stageLine.contains("Third place") || stageLine.contains("Third Place")) {
+        if (stageLine.toLowerCase(Locale.ENGLISH).contains("third place")) {
             return MatchStage.THIRD_PLACE;
         }
         if (stageLine.contains("Final")) {

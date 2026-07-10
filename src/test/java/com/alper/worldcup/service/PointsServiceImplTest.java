@@ -54,6 +54,12 @@ class PointsServiceImplTest {
     }
 
     @Test
+    void thirdPlaceUsesSameMultiplierAsSemiFinal() {
+        assertEquals(3.5, pointsService.calculatePoints(2, 1, 3, 1, MatchStage.THIRD_PLACE), DELTA);
+        assertEquals(3.5, pointsService.calculatePoints(2, 1, 3, 1, MatchStage.SEMI_FINAL), DELTA);
+    }
+
+    @Test
     void knockoutRoundOf16KeepsFractionalPoints() {
         Team mexico = team(42);
         assertEquals(7.5, pointsService.calculateKnockoutPoints(

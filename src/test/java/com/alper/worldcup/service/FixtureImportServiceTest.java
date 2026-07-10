@@ -56,4 +56,21 @@ class FixtureImportServiceTest {
         assertEquals("W85", roundOf16.get(7).homeName());
         assertEquals("W88", roundOf16.get(7).awayName());
     }
+
+    @Test
+    void thirdPlacePlayOffParsedAsThirdPlaceStage() {
+        FixtureImportService service = new FixtureImportService(
+                Mockito.mock(MatchRepository.class),
+                Mockito.mock(TeamRepository.class),
+                "America/New_York");
+
+        List<FixtureImportService.ParsedFixture> fixtures = service.parseFixtures();
+        List<FixtureImportService.ParsedFixture> thirdPlace = fixtures.stream()
+                .filter(f -> f.stage() == MatchStage.THIRD_PLACE)
+                .toList();
+
+        assertEquals(1, thirdPlace.size());
+        assertEquals("RU101", thirdPlace.get(0).homeName());
+        assertEquals("RU102", thirdPlace.get(0).awayName());
+    }
 }

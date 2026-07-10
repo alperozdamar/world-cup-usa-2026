@@ -48,7 +48,7 @@ Multiply match points by round so late games still matter:
 | Round of 16 | ×1.25 |
 | Quarter-final | ×1.5 |
 | Semi-final | ×1.75 |
-| Third place | ×1.5 |
+| Third place | ×1.75 |
 | Final | ×2.0 |
 
 Round to nearest whole point after multiplying. Applied to 90′ score base points and knockout extras below.
