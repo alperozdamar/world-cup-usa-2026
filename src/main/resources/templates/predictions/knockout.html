@@ -44,12 +44,12 @@
                     data-phase="r16" aria-selected="false" aria-controls="bracket-panel-r16">
                 Round of 16
             </button>
-            <button type="button" class="knockout-phase-tab active" role="tab"
-                    data-phase="qf" aria-selected="true" aria-controls="bracket-panel-qf">
+            <button type="button" class="knockout-phase-tab" role="tab"
+                    data-phase="qf" aria-selected="false" aria-controls="bracket-panel-qf">
                 Quarterfinals
             </button>
-            <button type="button" class="knockout-phase-tab" role="tab"
-                    data-phase="sf" aria-selected="false" aria-controls="bracket-panel-sf">
+            <button type="button" class="knockout-phase-tab active" role="tab"
+                    data-phase="sf" aria-selected="true" aria-controls="bracket-panel-sf">
                 Semifinals
             </button>
             <button type="button" class="knockout-phase-tab" role="tab"
@@ -79,7 +79,7 @@
                 <p class="small text-muted mt-2 mb-0">Round of 16 complete — snapshot 7 July 2026.</p>
             </div>
 
-            <div id="bracket-panel-qf" class="knockout-bracket-panel" role="tabpanel">
+            <div id="bracket-panel-qf" class="knockout-bracket-panel" role="tabpanel" hidden>
                 <div class="knockout-bracket-static">
                     <img th:src="@{/images/quarterFinalBracket_7July2026.png}"
                          src="/images/quarterFinalBracket_7July2026.png"
@@ -89,10 +89,14 @@
                 <p class="small text-muted mt-2 mb-0">Snapshot as of 7 July 2026 (Quarter-finals).</p>
             </div>
 
-            <div id="bracket-panel-sf" class="knockout-bracket-panel" role="tabpanel" hidden>
-                <div class="knockout-bracket-placeholder">
-                    <p class="mb-0 text-muted">Semifinals bracket snapshot will appear here when that phase starts.</p>
+            <div id="bracket-panel-sf" class="knockout-bracket-panel" role="tabpanel">
+                <div class="knockout-bracket-static">
+                    <img th:src="@{/images/semiFinalBracket_11July2026.png}"
+                         src="/images/semiFinalBracket_11July2026.png"
+                         alt="Semi-finals bracket — 11 July 2026"
+                         class="knockout-bracket-static-image">
                 </div>
+                <p class="small text-muted mt-2 mb-0">Snapshot as of 11 July 2026 (Semi-finals).</p>
             </div>
 
             <div id="bracket-panel-final" class="knockout-bracket-panel" role="tabpanel" hidden>
