@@ -3,6 +3,7 @@
 All notable changes to this project will be documented in this file.
 
 ## [v0.0.11-PRERELEASE]
+  - WC-0103 - Bird Watch: list all qualifying pool players per category (not only top 3)
   - WC-0102 - Bracket snapshot: Semi-finals (`semiFinalBracket_11July2026.png`); default tab Semifinals
   - WC-0101 - Third-place play-off: fix fixture stage import (`Play-off for third place`); points ×1.75 (same as semi-final)
   - WC-0100 - Others' Picks: Final table at top; eliminated champion/runner-up picks shown struck through

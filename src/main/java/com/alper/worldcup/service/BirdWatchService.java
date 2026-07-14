@@ -30,7 +30,6 @@ import org.springframework.transaction.annotation.Transactional;
 public class BirdWatchService {
 
     static final int MIN_MATCH_SAMPLE = 3;
-    static final int MAX_LEADERS = 3;
 
     private final PredictionAuditRepository predictionAuditRepository;
     private final GroupStandingPredictionAuditRepository groupStandingPredictionAuditRepository;
@@ -160,7 +159,6 @@ public class BirdWatchService {
                                 averageComparator)
                         .thenComparing(entry -> userProfileService.getDisplayName(entry.getKey()),
                                 String.CASE_INSENSITIVE_ORDER))
-                .limit(MAX_LEADERS)
                 .map(entry -> toLeader(entry.getKey(), entry.getValue().formatLabel()))
                 .toList();
     }
@@ -368,9 +366,9 @@ public class BirdWatchService {
         Integer championId = finalResult.get().getChampionTeam().getId();
         List<BirdWatchLeader> leaders = finalPredictionRepository.findAllWithTeamsOrderByUsername().stream()
                 .filter(prediction -> championId.equals(prediction.getChampionTeam().getId()))
+                .filter(prediction -> poolMemberRegistry.isMember(prediction.getUsername()))
                 .sorted(Comparator.comparing(prediction -> userProfileService.getDisplayName(prediction.getUsername()),
                         String.CASE_INSENSITIVE_ORDER))
-                .limit(MAX_LEADERS)
                 .map(prediction -> toLeader(
                         prediction.getUsername(),
                         "Called it: " + championName))
@@ -393,7 +391,6 @@ public class BirdWatchService {
                 .sorted(Map.Entry.<String, Double>comparingByValue(comparator)
                         .thenComparing(entry -> userProfileService.getDisplayName(entry.getKey()),
                                 String.CASE_INSENSITIVE_ORDER))
-                .limit(MAX_LEADERS)
                 .map(entry -> toLeader(entry.getKey(), PointsFormat.formatWithUnit(entry.getValue())))
                 .toList();
     }
@@ -557,7 +554,6 @@ public class BirdWatchService {
                 .sorted(Map.Entry.<String, Duration>comparingByValue(comparator)
                         .thenComparing(entry -> userProfileService.getDisplayName(entry.getKey()),
                                 String.CASE_INSENSITIVE_ORDER))
-                .limit(MAX_LEADERS)
                 .map(entry -> toLeader(entry.getKey(), formatter.apply(entry.getValue())))
                 .toList();
     }
@@ -570,7 +566,6 @@ public class BirdWatchService {
                 .sorted(Map.Entry.<String, Long>comparingByValue(comparator)
                         .thenComparing(entry -> userProfileService.getDisplayName(entry.getKey()),
                                 String.CASE_INSENSITIVE_ORDER))
-                .limit(MAX_LEADERS)
                 .map(entry -> toLeader(entry.getKey(), formatter.apply(entry.getValue())))
                 .toList();
     }
