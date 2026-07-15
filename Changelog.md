@@ -3,6 +3,7 @@
 All notable changes to this project will be documented in this file.
 
 ## [v0.0.11-PRERELEASE]
+  - WC-0105 - End Tournament celebration: admin button triggers fireworks + winner screen for all users (canvas-confetti); `app_settings` table for flags
   - WC-0104 - Bracket snapshots: updated SF with France 0–2 Spain (`semiFinalBracket_14July2026.png`); added 3rd-place & Final (`finalBracket_14July2026.png`)
   - WC-0103 - Bird Watch: list all qualifying pool players per category (not only top 3)
   - WC-0102 - Bracket snapshot: Semi-finals (`semiFinalBracket_11July2026.png`); default tab Semifinals

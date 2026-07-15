@@ -188,6 +188,11 @@
             </div>
         </div>
     </nav>
+    <div th:if="${tournamentEnded}" class="celebration-banner">
+        <a th:href="@{/celebration}">
+            &#127942; The tournament is over! See the champion &rarr;
+        </a>
+    </div>
     <script th:src="@{/js/world-clocks.js}" defer></script>
     <div th:replace="~{fragments/layout :: turkuaz-market-ad}"></div>
 </div>
@@ -219,6 +224,7 @@
                     <a class="nav-link active-admin" th:href="@{/admin/group-results}">Group Results</a>
                     <a class="nav-link active-admin" th:href="@{/admin/final-result}">Final Result</a>
                     <a class="nav-link active-admin" th:href="@{/admin/audit}">Audit</a>
+                    <a class="nav-link active-admin" th:href="@{/admin/celebration}">Celebration</a>
                     <span class="nav-link text-white-50" sec:authentication="name">user</span>
                     <form th:action="@{/logout}" method="post" class="d-inline">
                         <button type="submit" class="btn btn-link nav-link">Logout</button>

@@ -11,6 +11,7 @@ import com.alper.worldcup.service.KnockoutSyncResult;
 import com.alper.worldcup.service.SaveScoreResult;
 import com.alper.worldcup.service.PredictionAuditService;
 import com.alper.worldcup.service.PredictionService;
+import com.alper.worldcup.service.TournamentCelebrationService;
 import com.alper.worldcup.service.UserProfileService;
 import com.alper.worldcup.entity.GroupResult;
 import com.alper.worldcup.entity.Team;
@@ -41,6 +42,7 @@ public class AdminController {
     private final PredictionAuditService predictionAuditService;
     private final UserProfileService userProfileService;
     private final KnockoutAssignmentService knockoutAssignmentService;
+    private final TournamentCelebrationService celebrationService;
 
     public AdminController(MatchRepository matchRepository,
                            PredictionService predictionService,
@@ -48,7 +50,8 @@ public class AdminController {
                            FinalPredictionService finalPredictionService,
                            PredictionAuditService predictionAuditService,
                            UserProfileService userProfileService,
-                           KnockoutAssignmentService knockoutAssignmentService) {
+                           KnockoutAssignmentService knockoutAssignmentService,
+                           TournamentCelebrationService celebrationService) {
         this.matchRepository = matchRepository;
         this.predictionService = predictionService;
         this.groupStandingPredictionService = groupStandingPredictionService;
@@ -56,6 +59,7 @@ public class AdminController {
         this.predictionAuditService = predictionAuditService;
         this.userProfileService = userProfileService;
         this.knockoutAssignmentService = knockoutAssignmentService;
+        this.celebrationService = celebrationService;
     }
 
     @GetMapping("/scores")
@@ -197,5 +201,30 @@ public class AdminController {
         model.addAttribute("selectedUsername", username != null ? username : "");
         model.addAttribute("zoneId", userProfileService.getUserZoneId(principal.getName()).getId());
         return "admin/audit";
+    }
+
+    @GetMapping("/celebration")
+    public String celebrationAdmin(Model model) {
+        model.addAttribute("tournamentEnded", celebrationService.isTournamentEnded());
+        model.addAttribute("finalScored", celebrationService.isFinalMatchScored());
+        model.addAttribute("celebrationData",
+                celebrationService.getCelebrationData().orElse(null));
+        return "admin/celebration";
+    }
+
+    @PostMapping("/end-tournament")
+    public String endTournament(RedirectAttributes redirectAttributes) {
+        celebrationService.endTournament();
+        redirectAttributes.addFlashAttribute("successMessage",
+                "Tournament ended! Celebration mode is now ACTIVE for all users.");
+        return "redirect:/admin/celebration";
+    }
+
+    @PostMapping("/reset-tournament-end")
+    public String resetTournamentEnd(RedirectAttributes redirectAttributes) {
+        celebrationService.resetTournamentEnd();
+        redirectAttributes.addFlashAttribute("successMessage",
+                "Tournament end reset. Celebration mode is OFF.");
+        return "redirect:/admin/celebration";
     }
 }

@@ -1202,3 +1202,27 @@ body.admin-page .turkuaz-market-ad-mobile {
     display: inline-block;
     margin-left: 0.25rem;
 }
+
+/* Tournament celebration banner */
+.celebration-banner {
+    background: linear-gradient(90deg, #ffd700, #ff8c00, #ffd700);
+    text-align: center;
+    padding: 0.6rem 1rem;
+    font-weight: 700;
+    font-size: 1rem;
+    animation: celebration-pulse 2s ease-in-out infinite alternate;
+}
+
+.celebration-banner a {
+    color: #1a1a2e;
+    text-decoration: none;
+}
+
+.celebration-banner a:hover {
+    text-decoration: underline;
+}
+
+@keyframes celebration-pulse {
+    from { opacity: 0.85; }
+    to { opacity: 1; }
+}

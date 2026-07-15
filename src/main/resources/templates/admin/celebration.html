@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Admin - End Tournament')}"></head>
+<body class="admin-page">
+<div th:replace="~{fragments/layout :: navbar-admin}"></div>
+<div class="container">
+    <h2>End Tournament &amp; Celebration</h2>
+    <p class="text-muted">Trigger the celebration screen for all users when the tournament is over.</p>
+
+    <div th:if="${successMessage}" class="alert alert-success" th:text="${successMessage}"></div>
+    <div th:if="${errorMessage}" class="alert alert-danger" th:text="${errorMessage}"></div>
+
+    <div class="card mb-4">
+        <div class="card-body">
+            <h5 class="card-title">Tournament Status</h5>
+            <table class="table table-sm mb-3">
+                <tr>
+                    <td><strong>Final match result entered:</strong></td>
+                    <td>
+                        <span th:if="${finalScored}" class="badge bg-success">Yes</span>
+                        <span th:unless="${finalScored}" class="badge bg-warning text-dark">Not yet</span>
+                    </td>
+                </tr>
+                <tr>
+                    <td><strong>Tournament ended (celebration active):</strong></td>
+                    <td>
+                        <span th:if="${tournamentEnded}" class="badge bg-success">ACTIVE</span>
+                        <span th:unless="${tournamentEnded}" class="badge bg-secondary">OFF</span>
+                    </td>
+                </tr>
+            </table>
+
+            <div th:unless="${tournamentEnded}">
+                <form th:action="@{/admin/end-tournament}" method="post">
+                    <input type="hidden" th:if="${_csrf != null}" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+                    <button type="submit" class="btn btn-lg btn-danger"
+                            onclick="return confirm('Are you sure? This will activate the celebration screen for ALL users!')">
+                        End Tournament &amp; Celebrate!
+                    </button>
+                </form>
+                <p class="small text-muted mt-2">
+                    This will show fireworks and the winner on every user's screen.
+                    For local testing, you can trigger this at any time.
+                </p>
+            </div>
+
+            <div th:if="${tournamentEnded}">
+                <div class="d-flex gap-2 align-items-center">
+                    <a th:href="@{/celebration}" class="btn btn-success" target="_blank">
+                        View Celebration Page
+                    </a>
+                    <form th:action="@{/admin/reset-tournament-end}" method="post" class="d-inline">
+                        <input type="hidden" th:if="${_csrf != null}" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+                        <button type="submit" class="btn btn-outline-secondary"
+                                onclick="return confirm('Reset celebration? Users will no longer see the winner screen.')">
+                            Reset (Turn Off)
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div th:if="${celebrationData != null}" class="card">
+        <div class="card-body">
+            <h5 class="card-title">Current Winner Preview</h5>
+            <p>
+                <strong th:text="${celebrationData.winnerDisplayName()}">Winner</strong>
+                (<span th:text="${celebrationData.winnerUsername()}">username</span>)
+                &mdash;
+                <span th:text="${T(com.alper.worldcup.service.PointsFormat).format(celebrationData.totalPoints())}">0</span> points
+            </p>
+            <p th:if="${celebrationData.championTeamName() != null}">
+                World Cup Champion: <strong th:text="${celebrationData.championTeamName()}">Team</strong>
+            </p>
+            <p>
+                Stats: <span th:text="${celebrationData.stats().exactScores()}">0</span> exact scores,
+                <span th:text="${celebrationData.stats().correctOutcomes()}">0</span> correct results,
+                <span th:if="${celebrationData.stats().successRatePercent() != null}" th:text="${celebrationData.stats().successRatePercent() + '%'}">0%</span> success rate
+            </p>
+        </div>
+    </div>
+</div>
+</body>
+</html>

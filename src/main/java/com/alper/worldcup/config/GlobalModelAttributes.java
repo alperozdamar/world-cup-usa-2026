@@ -3,6 +3,7 @@ package com.alper.worldcup.config;
 import com.alper.worldcup.dao.MatchRepository;
 import com.alper.worldcup.service.LeaderboardService;
 import com.alper.worldcup.service.LeaderboardTickerEntry;
+import com.alper.worldcup.service.TournamentCelebrationService;
 import com.alper.worldcup.service.UpcomingMatchTickerEntry;
 import com.alper.worldcup.service.UpcomingMatchTickerService;
 import com.alper.worldcup.service.UserProfileService;
@@ -23,6 +24,7 @@ public class GlobalModelAttributes {
     private final LeaderboardService leaderboardService;
     private final UpcomingMatchTickerService upcomingMatchTickerService;
     private final UserProfileService userProfileService;
+    private final TournamentCelebrationService celebrationService;
 
     @Value("${app.version:unknown}")
     private String appVersion;
@@ -33,11 +35,13 @@ public class GlobalModelAttributes {
     public GlobalModelAttributes(MatchRepository matchRepository,
                                  LeaderboardService leaderboardService,
                                  UpcomingMatchTickerService upcomingMatchTickerService,
-                                 UserProfileService userProfileService) {
+                                 UserProfileService userProfileService,
+                                 TournamentCelebrationService celebrationService) {
         this.matchRepository = matchRepository;
         this.leaderboardService = leaderboardService;
         this.upcomingMatchTickerService = upcomingMatchTickerService;
         this.userProfileService = userProfileService;
+        this.celebrationService = celebrationService;
     }
 
     @ModelAttribute("appVersion")
@@ -71,5 +75,10 @@ public class GlobalModelAttributes {
         }
         String zoneId = userProfileService.getUserZoneId(principal.getName()).getId();
         return upcomingMatchTickerService.getUpcomingMatches(zoneId);
+    }
+
+    @ModelAttribute("tournamentEnded")
+    public boolean tournamentEnded() {
+        return celebrationService.isTournamentEnded();
     }
 }

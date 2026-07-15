@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Champion Crowned!</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link th:href="@{/css/app.css}" rel="stylesheet">
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            background: radial-gradient(ellipse at center, #1a1a2e 0%, #0f0f23 50%, #000 100%);
+            min-height: 100vh;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+
+        #fireworks-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+            pointer-events: none;
+        }
+
+        .celebration-container {
+            position: relative;
+            z-index: 10;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 2rem;
+            text-align: center;
+            animation: fadeInUp 1.5s ease-out;
+        }
+
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(40px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        @keyframes shimmer {
+            0% { background-position: -200% center; }
+            100% { background-position: 200% center; }
+        }
+
+        @keyframes trophySpin {
+            0% { transform: rotateY(0deg); }
+            100% { transform: rotateY(360deg); }
+        }
+
+        .trophy-icon {
+            font-size: 5rem;
+            animation: trophySpin 3s ease-in-out infinite;
+            display: inline-block;
+            margin-bottom: 1rem;
+        }
+
+        .celebration-title {
+            font-size: 1.2rem;
+            text-transform: uppercase;
+            letter-spacing: 4px;
+            color: #ffd700;
+            margin-bottom: 0.5rem;
+            opacity: 0.9;
+        }
+
+        .winner-name {
+            font-size: clamp(2.5rem, 6vw, 4.5rem);
+            font-weight: 800;
+            background: linear-gradient(90deg, #ffd700, #fff, #ffd700, #fff, #ffd700);
+            background-size: 200% auto;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: shimmer 3s linear infinite;
+            margin-bottom: 0.5rem;
+        }
+
+        .winner-photo-container {
+            position: relative;
+            margin: 1.5rem 0;
+        }
+
+        .winner-photo {
+            width: 160px;
+            height: 160px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 4px solid #ffd700;
+            box-shadow: 0 0 40px rgba(255, 215, 0, 0.4), 0 0 80px rgba(255, 215, 0, 0.2);
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        .winner-photo-fallback {
+            width: 160px;
+            height: 160px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #ffd700, #ff8c00);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 4rem;
+            font-weight: 700;
+            color: #fff;
+            border: 4px solid #ffd700;
+            box-shadow: 0 0 40px rgba(255, 215, 0, 0.4), 0 0 80px rgba(255, 215, 0, 0.2);
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        .winner-points {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #fff;
+            margin: 0.5rem 0;
+        }
+
+        .winner-points span {
+            color: #ffd700;
+        }
+
+        .winner-stats {
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 1.1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .champion-team {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: rgba(255, 215, 0, 0.15);
+            border: 1px solid rgba(255, 215, 0, 0.3);
+            border-radius: 2rem;
+            padding: 0.5rem 1.5rem;
+            color: #ffd700;
+            font-size: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .podium {
+            display: flex;
+            gap: 1.5rem;
+            align-items: flex-end;
+            justify-content: center;
+            margin-top: 2rem;
+        }
+
+        .podium-entry {
+            text-align: center;
+            padding: 1rem;
+            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            min-width: 120px;
+        }
+
+        .podium-entry.gold {
+            background: rgba(255, 215, 0, 0.1);
+            border-color: rgba(255, 215, 0, 0.3);
+            transform: scale(1.1);
+        }
+
+        .podium-entry.silver { border-color: rgba(192, 192, 192, 0.3); }
+        .podium-entry.bronze { border-color: rgba(205, 127, 50, 0.3); }
+
+        .podium-rank {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 0.25rem;
+        }
+
+        .podium-rank.gold-text { color: #ffd700; }
+        .podium-rank.silver-text { color: #c0c0c0; }
+        .podium-rank.bronze-text { color: #cd7f32; }
+
+        .podium-name {
+            color: #fff;
+            font-weight: 600;
+            font-size: 0.95rem;
+        }
+
+        .podium-points {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 0.85rem;
+        }
+
+        .back-link {
+            position: fixed;
+            bottom: 2rem;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 20;
+            color: rgba(255, 255, 255, 0.5);
+            text-decoration: none;
+            font-size: 0.9rem;
+            transition: color 0.2s;
+        }
+
+        .back-link:hover {
+            color: #ffd700;
+        }
+    </style>
+</head>
+<body>
+<canvas id="fireworks-canvas"></canvas>
+
+<div class="celebration-container">
+    <div class="trophy-icon">&#127942;</div>
+    <div class="celebration-title">World Cup 2026 Pool Champion</div>
+
+    <div class="winner-name" th:text="${celebration.winnerDisplayName()}">Winner Name</div>
+
+    <div class="winner-photo-container">
+        <img th:if="${@userProfilePhotoHelper.hasPhoto(celebration.winnerUsername())}"
+             th:src="${@userProfilePhotoHelper.photoUrl(celebration.winnerUsername())}"
+             class="winner-photo"
+             alt="Winner">
+        <div th:unless="${@userProfilePhotoHelper.hasPhoto(celebration.winnerUsername())}"
+             class="winner-photo-fallback">
+            <span th:text="${#strings.substring(celebration.winnerDisplayName(), 0, 1)}">W</span>
+        </div>
+    </div>
+
+    <div class="winner-points">
+        <span th:text="${T(com.alper.worldcup.service.PointsFormat).format(celebration.totalPoints())}">0</span>
+        points
+    </div>
+
+    <div class="winner-stats">
+        <span th:text="${celebration.stats().exactScores()}">0</span> exact scores &middot;
+        <span th:text="${celebration.stats().correctOutcomes()}">0</span> correct results &middot;
+        <span th:if="${celebration.stats().successRatePercent() != null}"
+              th:text="${celebration.stats().successRatePercent() + '% success rate'}">0%</span>
+    </div>
+
+    <div th:if="${celebration.championTeamName() != null}" class="champion-team">
+        &#9917; World Cup Champion: <strong th:text="${celebration.championTeamName()}">Team</strong>
+    </div>
+
+    <div class="podium">
+        <div th:each="entry, stat : ${celebration.topThree()}"
+             th:classappend="${stat.count == 1} ? 'gold' : (${stat.count == 2} ? 'silver' : 'bronze')"
+             class="podium-entry">
+            <div class="podium-rank"
+                 th:classappend="${stat.count == 1} ? 'gold-text' : (${stat.count == 2} ? 'silver-text' : 'bronze-text')">
+                <span th:if="${stat.count == 1}">&#129351;</span>
+                <span th:if="${stat.count == 2}">&#129352;</span>
+                <span th:if="${stat.count == 3}">&#129353;</span>
+            </div>
+            <div class="podium-name" th:text="${entry.displayName()}">Player</div>
+            <div class="podium-points"
+                 th:text="${T(com.alper.worldcup.service.PointsFormat).format(entry.totalPoints()) + ' pts'}">0 pts</div>
+        </div>
+    </div>
+</div>
+
+<a th:href="@{/predictions/leaderboard}" class="back-link">Back to Leaderboard &rarr;</a>
+
+<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
+<script>
+(function() {
+    var duration = 15000;
+    var end = Date.now() + duration;
+
+    var colors = ['#ffd700', '#ff6b6b', '#4ecdc4', '#45b7d1', '#96ceb4', '#ffeaa7', '#ff9ff3', '#54a0ff'];
+
+    function frame() {
+        confetti({
+            particleCount: 3,
+            angle: 60,
+            spread: 55,
+            origin: { x: 0, y: 0.7 },
+            colors: colors
+        });
+        confetti({
+            particleCount: 3,
+            angle: 120,
+            spread: 55,
+            origin: { x: 1, y: 0.7 },
+            colors: colors
+        });
+
+        if (Date.now() < end) {
+            requestAnimationFrame(frame);
+        }
+    }
+
+    // Big burst on load
+    setTimeout(function() {
+        confetti({
+            particleCount: 150,
+            spread: 100,
+            origin: { y: 0.6 },
+            colors: colors
+        });
+    }, 500);
+
+    // Continuous side streams
+    setTimeout(frame, 1000);
+
+    // Periodic big bursts
+    var burstInterval = setInterval(function() {
+        confetti({
+            particleCount: 80,
+            spread: 80,
+            origin: { x: Math.random(), y: Math.random() * 0.4 + 0.3 },
+            colors: colors
+        });
+    }, 3000);
+
+    setTimeout(function() {
+        clearInterval(burstInterval);
+    }, duration + 5000);
+})();
+</script>
+</body>
+</html>
