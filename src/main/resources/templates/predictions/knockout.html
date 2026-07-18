@@ -48,12 +48,12 @@
                     data-phase="qf" aria-selected="false" aria-controls="bracket-panel-qf">
                 Quarterfinals
             </button>
-            <button type="button" class="knockout-phase-tab active" role="tab"
-                    data-phase="sf" aria-selected="true" aria-controls="bracket-panel-sf">
+            <button type="button" class="knockout-phase-tab" role="tab"
+                    data-phase="sf" aria-selected="false" aria-controls="bracket-panel-sf">
                 Semifinals
             </button>
-            <button type="button" class="knockout-phase-tab" role="tab"
-                    data-phase="final" aria-selected="false" aria-controls="bracket-panel-final">
+            <button type="button" class="knockout-phase-tab active" role="tab"
+                    data-phase="final" aria-selected="true" aria-controls="bracket-panel-final">
                 3rd-Place &amp; Final
             </button>
         </div>
@@ -89,7 +89,7 @@
                 <p class="small text-muted mt-2 mb-0">Snapshot as of 7 July 2026 (Quarter-finals).</p>
             </div>
 
-            <div id="bracket-panel-sf" class="knockout-bracket-panel" role="tabpanel">
+            <div id="bracket-panel-sf" class="knockout-bracket-panel" role="tabpanel" hidden>
                 <div class="knockout-bracket-static">
                     <img th:src="@{/images/semiFinalBracket_14July2026.png}"
                          src="/images/semiFinalBracket_14July2026.png"
@@ -99,14 +99,14 @@
                 <p class="small text-muted mt-2 mb-0">Snapshot as of 14 July 2026 (Semi-finals). France 0–2 Spain.</p>
             </div>
 
-            <div id="bracket-panel-final" class="knockout-bracket-panel" role="tabpanel" hidden>
+            <div id="bracket-panel-final" class="knockout-bracket-panel" role="tabpanel">
                 <div class="knockout-bracket-static">
-                    <img th:src="@{/images/finalBracket_14July2026.png}"
-                         src="/images/finalBracket_14July2026.png"
-                         alt="3rd-place &amp; Final bracket — 14 July 2026"
+                    <img th:src="@{/images/finalBracket_18July2026.png}"
+                         src="/images/finalBracket_18July2026.png"
+                         alt="3rd-place &amp; Final — 18 July 2026"
                          class="knockout-bracket-static-image">
                 </div>
-                <p class="small text-muted mt-2 mb-0">Snapshot as of 14 July 2026 (3rd-place &amp; Final).</p>
+                <p class="small text-muted mt-2 mb-0">Snapshot as of 18 July 2026 — 3rd: France vs England · Final: Spain vs Argentina.</p>
             </div>
         </div>
     </section>
