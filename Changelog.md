@@ -3,6 +3,7 @@
 All notable changes to this project will be documented in this file.
 
 ## [v0.0.11-PRERELEASE]
+  - WC-0107 - Rename pre-tournament pick label: "Final (champion & runner-up)" → "Champion & Runner-up" (EN) / "Şampiyon & İkinci" (TR)
   - WC-0106 - Bracket snapshot: 3rd-place France–England & Final Spain–Argentina (`finalBracket_18July2026.png`); default tab Final
   - WC-0105 - End Tournament celebration: admin button triggers fireworks + winner screen for all users (canvas-confetti); `app_settings` table for flags
   - WC-0104 - Bracket snapshots: updated SF with France 0–2 Spain (`semiFinalBracket_14July2026.png`); added 3rd-place & Final (`finalBracket_14July2026.png`)

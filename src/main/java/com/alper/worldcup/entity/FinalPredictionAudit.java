@@ -108,7 +108,7 @@ public class FinalPredictionAudit {
     }
 
     public String getSubjectLabel() {
-        return "Final";
+        return "Champion & Runner-up";
     }
 
     public String getPickLabel() {

@@ -215,7 +215,7 @@ public class BirdWatchService {
     private BirdWatchCategory buildFlipFlopFinches(Map<String, Long> updateCounts,
                                                    List<PredictionAudit> matchAudits) {
         String explanation = "Players who change their mind the most — total edits across match, group, "
-                + "and final predictions. Requires at least " + MIN_MATCH_SAMPLE + " match picks.";
+                + "and champion & runner-up predictions. Requires at least " + MIN_MATCH_SAMPLE + " match picks.";
         Map<String, Long> eligible = filterByMatchSample(updateCounts, matchAudits);
         return BirdWatchCategory.ready(
                 "flip-flop-finches",
@@ -351,7 +351,7 @@ public class BirdWatchService {
     }
 
     private BirdWatchCategory buildCrystalBallCondors() {
-        String explanation = "Called the tournament champion correctly in the Final Prediction. "
+        String explanation = "Called the tournament champion correctly in Champion & Runner-up. "
                 + "Revealed only after the admin enters the official champion.";
         Optional<FinalResult> finalResult = finalResultRepository.findByIdWithTeams(FinalResult.SINGLETON_ID);
         if (finalResult.isEmpty()) {

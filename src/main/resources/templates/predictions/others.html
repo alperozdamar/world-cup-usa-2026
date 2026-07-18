@@ -9,14 +9,14 @@
         Match scores appear after each game kicks off.
         The next game shows who has picked — scores stay hidden until kickoff.
         Knockout picks include 90′ score, penalty shootout, and advancer.
-        Group and final picks appear after the tournament starts
+        Group and champion &amp; runner-up picks appear after the tournament starts
         <span th:if="${tournamentStartLabel != null}">
             (<strong th:text="${tournamentStartLabel}"></strong>)
         </span>.
     </p>
 
     <section class="mt-4">
-        <h4 class="h5">Final (champion &amp; runner-up)</h4>
+        <h4 class="h5">Champion &amp; Runner-up</h4>
         <p class="text-muted small mb-2" th:if="${tournamentStarted}">
             Eliminated teams are <span class="team-eliminated-example">struck through</span>.
         </p>
@@ -24,7 +24,7 @@
             Hidden until tournament kickoff — picks are still editable before then.
         </div>
         <div th:if="${tournamentStarted and #lists.isEmpty(finalRows)}" class="alert alert-secondary py-2">
-            No final predictions saved yet.
+            No champion &amp; runner-up predictions saved yet.
         </div>
         <div th:if="${tournamentStarted and !#lists.isEmpty(finalRows)}" class="table-responsive">
             <table class="table table-sm table-striped align-middle">

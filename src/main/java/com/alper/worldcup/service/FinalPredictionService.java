@@ -98,7 +98,7 @@ public class FinalPredictionService {
     @Transactional
     public void savePrediction(String username, Integer championTeamId, Integer runnerUpTeamId) {
         if (!isEditable()) {
-            throw new IllegalStateException("Final prediction is locked — the tournament has started.");
+            throw new IllegalStateException("Champion & runner-up prediction is locked — the tournament has started.");
         }
 
         Team championTeam = loadTeam(championTeamId);

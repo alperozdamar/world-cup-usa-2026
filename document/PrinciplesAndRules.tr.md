@@ -94,7 +94,7 @@ Her iki tahmin de doğruysa grup başına en fazla **5 puan**. Admin, grup aşam
 
 ---
 
-## Puanlama — final tahmini (şampiyon ve ikinci) (uygulandı)
+## Puanlama — şampiyon & ikinci (uygulandı)
 
 **Turnuva başlangıcından önce** kilitlenir (ilk grup maçı). Tahminler: `/predictions/final`
 

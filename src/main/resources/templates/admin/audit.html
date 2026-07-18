@@ -6,7 +6,7 @@
 <div class="container">
     <h2>Prediction Audit</h2>
     <p class="text-muted">
-        History of every group-stage match, knockout pick (90′ score, penalties, advancer), group 1st/2nd, and final prediction entered or updated. Times shown in
+        History of every group-stage match, knockout pick (90′ score, penalties, advancer), group 1st/2nd, and champion &amp; runner-up prediction entered or updated. Times shown in
         <strong th:text="${zoneId}">America/New_York</strong>.
     </p>
 
@@ -49,7 +49,7 @@
                 <td>
                     <span class="badge"
                           th:classappend="${audit.type() == 'Group'} ? ' bg-warning text-dark' :
-                                          (${audit.type() == 'Final'} ? ' bg-danger' :
+                                          (${audit.type() == 'Champion & Runner-up'} ? ' bg-danger' :
                                           (${audit.type() == 'Knockout'} ? ' bg-dark' : ' bg-primary'))"
                           th:text="${audit.type()}"></span>
                 </td>

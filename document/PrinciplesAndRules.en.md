@@ -94,7 +94,7 @@ Maximum **5 points per group** if both 1st and 2nd are correct. Admin enters off
 
 ---
 
-## Scoring — final prediction (champion & runner-up) (implemented)
+## Scoring — champion & runner-up (implemented)
 
 Locked **before tournament kickoff** (first group-stage match). Enter picks at `/predictions/final`.
 

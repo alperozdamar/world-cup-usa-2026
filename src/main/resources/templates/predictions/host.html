@@ -37,11 +37,11 @@
             </p>
 
             <section class="mt-4">
-                <h4 class="h5">Final (champion &amp; runner-up)</h4>
+                <h4 class="h5">Champion &amp; Runner-up</h4>
                 <p class="text-muted small">Visible before tournament kickoff.</p>
 
                 <div th:if="${#lists.isEmpty(finalRows)}" class="alert alert-secondary py-2">
-                    The host hasn&rsquo;t entered a final prediction yet.
+                    The host hasn&rsquo;t entered a champion &amp; runner-up prediction yet.
                 </div>
                 <div th:if="${!#lists.isEmpty(finalRows)}" class="table-responsive">
                     <table class="table table-sm table-striped align-middle">

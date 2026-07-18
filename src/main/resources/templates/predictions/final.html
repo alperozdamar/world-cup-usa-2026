@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
-<head th:replace="~{fragments/layout :: head('Final Prediction')}"></head>
+<head th:replace="~{fragments/layout :: head('Champion & Runner-up')}"></head>
 <body>
 <div th:replace="~{fragments/layout :: navbar}"></div>
 <div class="container">
@@ -10,7 +10,7 @@
         <a th:href="@{/predictions/groups}" class="text-decoration-none">Group 1st &amp; 2nd</a>
     </div>
 
-    <h2>Final Prediction</h2>
+    <h2>Champion &amp; Runner-up</h2>
     <p class="text-muted mb-0">
         Pick the champion and runner-up before the tournament starts.
         Times shown in <strong th:text="${zoneId}">America/New_York</strong>.
@@ -75,7 +75,7 @@
                 <button type="submit" class="btn btn-primary">Save prediction</button>
             </form>
             <p th:if="${!editable and prediction == null}" class="text-danger mb-0">
-                Locked — you did not enter a final prediction before kickoff.
+                Locked — you did not enter a champion &amp; runner-up prediction before kickoff.
             </p>
             <p th:if="${#lists.isEmpty(teams)}" class="text-warning mb-0">
                 No teams loaded yet. Fixtures import on startup from <code>data/fixtures.txt</code>.

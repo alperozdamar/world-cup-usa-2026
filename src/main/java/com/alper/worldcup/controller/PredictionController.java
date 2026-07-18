@@ -241,7 +241,7 @@ public class PredictionController {
         try {
             finalPredictionService.savePrediction(
                     principal.getName(), championTeamId, runnerUpTeamId);
-            redirectAttributes.addFlashAttribute("successMessage", "Final prediction saved.");
+            redirectAttributes.addFlashAttribute("successMessage", "Champion & runner-up prediction saved.");
         } catch (Exception ex) {
             redirectAttributes.addFlashAttribute("errorMessage", ex.getMessage());
         }

@@ -151,7 +151,7 @@ public class PredictionAuditService {
                     audit.getRecordedAt(),
                     audit.getUsername(),
                     audit.getAction(),
-                    "Final",
+                    "Champion & Runner-up",
                     audit.getSubjectLabel(),
                     audit.getChangeLabel()));
         }

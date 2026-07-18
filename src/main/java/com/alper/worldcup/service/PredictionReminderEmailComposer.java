@@ -25,7 +25,7 @@ public class PredictionReminderEmailComposer {
         body.append("You still have prediction picks to complete:\n\n");
 
         if (reminder.missingFinal()) {
-            body.append("• Final (champion & runner-up)\n");
+            body.append("• Champion & Runner-up\n");
             body.append("  ").append(appBaseUrl).append("/predictions/final\n\n");
         }
 
