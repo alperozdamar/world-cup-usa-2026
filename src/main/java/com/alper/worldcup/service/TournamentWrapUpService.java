@@ -43,6 +43,8 @@ public class TournamentWrapUpService {
     private final ResourceLoader resourceLoader;
     private final int configuredGitCommits;
     private final LocalDate projectStartDate;
+    private final int hostingMonthlyUsd;
+    private final int hostingPoolGroups;
 
     public TournamentWrapUpService(MatchRepository matchRepository,
                                    PredictionRepository predictionRepository,
@@ -54,7 +56,9 @@ public class TournamentWrapUpService {
                                    PoolMemberRegistry poolMemberRegistry,
                                    ResourceLoader resourceLoader,
                                    @Value("${app.wrapup.git-commits:95}") int configuredGitCommits,
-                                   @Value("${app.wrapup.project-start-date:2026-05-31}") String projectStartDate) {
+                                   @Value("${app.wrapup.project-start-date:2026-05-31}") String projectStartDate,
+                                   @Value("${app.wrapup.hosting-monthly-usd:18}") int hostingMonthlyUsd,
+                                   @Value("${app.wrapup.hosting-pool-groups:2}") int hostingPoolGroups) {
         this.matchRepository = matchRepository;
         this.predictionRepository = predictionRepository;
         this.predictionAuditRepository = predictionAuditRepository;
@@ -66,6 +70,8 @@ public class TournamentWrapUpService {
         this.resourceLoader = resourceLoader;
         this.configuredGitCommits = configuredGitCommits;
         this.projectStartDate = LocalDate.parse(projectStartDate);
+        this.hostingMonthlyUsd = hostingMonthlyUsd;
+        this.hostingPoolGroups = hostingPoolGroups;
     }
 
     @Transactional(readOnly = true)
@@ -154,6 +160,10 @@ public class TournamentWrapUpService {
                 format(commits),
                 "Git commits",
                 "Yes, counting the one that added this page."));
+        stats.add(new WrapUpStat(
+                "~$" + hostingMonthlyUsd + " / mo",
+                "Cloud hosting",
+                hostingPoolGroups + " tournament pools on AWS EC2 — not free, still cheaper than a stadium ticket."));
         stats.add(new WrapUpStat(
                 format(feedback),
                 "Feedback notes",

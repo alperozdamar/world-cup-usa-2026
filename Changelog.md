@@ -3,6 +3,7 @@
 All notable changes to this project will be documented in this file.
 
 ## [v0.0.12-PRERELEASE]
+  - WC-0111 - Season Recap: cloud hosting card (~$18/mo for 2 tournament pools on AWS EC2)
   - WC-0110 - Bird Watch: Crown Cranes — days each player spent as #1 on the cumulative leaderboard
   - WC-0109 - Season Recap: Days as #1 ranking (how many days each player led the cumulative leaderboard)
   - WC-0108 - Season Recap (`/wrap-up`): funny live stats — matches, goals, picks, mind-changes, commits, features, bugs, days

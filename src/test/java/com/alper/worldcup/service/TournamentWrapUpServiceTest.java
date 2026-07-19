@@ -29,7 +29,9 @@ class TournamentWrapUpServiceTest {
                 mock(PoolMemberRegistry.class),
                 new DefaultResourceLoader(),
                 95,
-                "2026-05-31");
+                "2026-05-31",
+                18,
+                2);
 
         TournamentWrapUpService.ChangelogCounts counts = service.parseChangelog();
         assertTrue(counts.features() >= 100, "expected WC feature tickets in Changelog");
@@ -75,12 +77,16 @@ class TournamentWrapUpServiceTest {
                 poolMemberRegistry,
                 new DefaultResourceLoader(),
                 95,
-                "2026-05-31");
+                "2026-05-31",
+                18,
+                2);
 
         java.util.List<WrapUpStat> stats = service.getStats();
         assertTrue(stats.size() >= 12);
         assertTrue(stats.stream().anyMatch(s -> s.label().contains("Git commits")));
         assertTrue(stats.stream().anyMatch(s -> s.label().contains("Mind-changes")));
+        assertTrue(stats.stream().anyMatch(s -> s.label().contains("Cloud hosting")));
+        assertTrue(stats.stream().anyMatch(s -> s.value().contains("$18")));
         assertTrue(stats.stream().anyMatch(s -> s.quip().contains("this page")
                 || s.quip().contains("this recap")));
     }
