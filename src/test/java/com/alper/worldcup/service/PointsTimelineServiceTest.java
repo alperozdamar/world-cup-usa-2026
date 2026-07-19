@@ -119,7 +119,6 @@ class PointsTimelineServiceTest {
                 scoredPrediction("gonenc", 2, 2, "2026-06-11T23:00:00Z"),
                 scoredPrediction("gonenc", 3, 10, "2026-06-12T19:00:00Z")));
         when(groupStandingPredictionRepository.findAllScored()).thenReturn(List.of());
-        when(finalPredictionRepository.findAllScored()).thenReturn(List.of());
         when(matchRepository.findDistinctGroupStageGroupNames()).thenReturn(List.of());
         when(matchRepository.findFinalMatchKickoff()).thenReturn(Optional.empty());
         when(userProfileService.getDisplayName(org.mockito.ArgumentMatchers.anyString()))
