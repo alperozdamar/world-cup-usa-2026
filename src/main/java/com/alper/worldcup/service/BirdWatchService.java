@@ -42,6 +42,7 @@ public class BirdWatchService {
     private final PoolMemberRegistry poolMemberRegistry;
     private final PointsServiceImpl pointsService;
     private final UserMatchStatsService userMatchStatsService;
+    private final PointsTimelineService pointsTimelineService;
 
     public BirdWatchService(PredictionAuditRepository predictionAuditRepository,
                             GroupStandingPredictionAuditRepository groupStandingPredictionAuditRepository,
@@ -53,7 +54,8 @@ public class BirdWatchService {
                             UserProfileService userProfileService,
                             PoolMemberRegistry poolMemberRegistry,
                             PointsServiceImpl pointsService,
-                            UserMatchStatsService userMatchStatsService) {
+                            UserMatchStatsService userMatchStatsService,
+                            PointsTimelineService pointsTimelineService) {
         this.predictionAuditRepository = predictionAuditRepository;
         this.groupStandingPredictionAuditRepository = groupStandingPredictionAuditRepository;
         this.groupStandingPredictionRepository = groupStandingPredictionRepository;
@@ -65,10 +67,16 @@ public class BirdWatchService {
         this.poolMemberRegistry = poolMemberRegistry;
         this.pointsService = pointsService;
         this.userMatchStatsService = userMatchStatsService;
+        this.pointsTimelineService = pointsTimelineService;
     }
 
     @Transactional(readOnly = true)
     public List<BirdWatchCategory> buildCategories() {
+        return buildCategories(java.time.ZoneId.of("America/New_York"));
+    }
+
+    @Transactional(readOnly = true)
+    public List<BirdWatchCategory> buildCategories(java.time.ZoneId zoneId) {
         List<PredictionAudit> matchAudits = predictionAuditRepository.findAllWithMatchOrderByRecordedAtDesc();
         List<GroupStandingPredictionAudit> groupAudits =
                 groupStandingPredictionAuditRepository.findAllOrderByRecordedAtDesc();
@@ -94,10 +102,33 @@ public class BirdWatchService {
         categories.add(buildGroupSageGrouse());
         categories.add(buildKnockoutKestrels());
         categories.add(buildCrystalBallCondors());
+        categories.add(buildCrownCranes(zoneId));
         Map<String, UserMatchStats> matchStats = userMatchStatsService.getStatsForPoolMembers();
         categories.add(buildLoveBirds(matchStats));
         categories.add(buildTeamNemeses(matchStats));
         return categories;
+    }
+
+    private BirdWatchCategory buildCrownCranes(java.time.ZoneId zoneId) {
+        String explanation = "Days spent alone as #1 on the cumulative points leaderboard "
+                + "(tournament kickoff through today). Zero-point days before the first scores don't count.";
+        List<LeaderDaysRow> rows = pointsTimelineService.leaderDaysRanking(zoneId);
+        boolean anyLeadDays = rows.stream().anyMatch(row -> row.daysAsLeader() > 0);
+        if (!anyLeadDays) {
+            return BirdWatchCategory.pending(
+                    "crown-cranes",
+                    "Crown Cranes",
+                    explanation,
+                    "Need scored matches before anyone can perch at #1.");
+        }
+        List<BirdWatchLeader> leaders = rows.stream()
+                .filter(row -> row.daysAsLeader() > 0)
+                .map(row -> toLeader(row.username(),
+                        row.daysAsLeader() == 1
+                                ? "1 day as #1"
+                                : row.daysAsLeader() + " days as #1"))
+                .toList();
+        return BirdWatchCategory.ready("crown-cranes", "Crown Cranes", explanation, leaders);
     }
 
     private BirdWatchCategory buildLoveBirds(Map<String, UserMatchStats> matchStats) {

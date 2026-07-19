@@ -43,4 +43,10 @@ public interface PredictionRepository extends JpaRepository<Prediction, Integer>
             + "WHERE p.username = :username "
             + "AND m.homeScoreActual IS NOT NULL AND m.awayScoreActual IS NOT NULL")
     List<Prediction> findScoredByUsernameWithMatch(String username);
+
+    @Query("SELECT COUNT(p) FROM Prediction p JOIN p.match m "
+            + "WHERE m.homeScoreActual IS NOT NULL AND m.awayScoreActual IS NOT NULL "
+            + "AND p.homeScoreGuess = m.homeScoreActual "
+            + "AND p.awayScoreGuess = m.awayScoreActual")
+    long countExactScorePredictions();
 }

@@ -173,6 +173,7 @@
                     <a class="nav-link" sec:authorize="!hasRole('ADMIN')" th:href="@{/predictions/host}">Host&rsquo;s Picks</a>
                     <a class="nav-link" th:href="@{/predictions/others}">Others&rsquo; Picks</a>
                     <a class="nav-link" th:href="@{/predictions/leaderboard}">Leaderboard</a>
+                    <a class="nav-link" th:href="@{/wrap-up}">Season Recap</a>
                     <a class="nav-link" th:href="@{/rules}">Rules</a>
                     <a class="nav-link" th:href="@{/feedback}">Feedback</a>
                     <a class="nav-link" th:href="@{/profile/settings}">Profile</a>
@@ -189,9 +190,9 @@
         </div>
     </nav>
     <div th:if="${tournamentEnded}" class="celebration-banner">
-        <a th:href="@{/celebration}">
-            &#127942; The tournament is over! See the champion &rarr;
-        </a>
+        <a th:href="@{/celebration}">&#127942; The tournament is over! See the champion</a>
+        <span aria-hidden="true"> · </span>
+        <a th:href="@{/wrap-up}">Season Recap</a>
     </div>
     <script th:src="@{/js/world-clocks.js}" defer></script>
     <div th:replace="~{fragments/layout :: turkuaz-market-ad}"></div>
@@ -217,6 +218,7 @@
                     <a class="nav-link" sec:authorize="!hasRole('ADMIN')" th:href="@{/predictions/host}">Host&rsquo;s Picks</a>
                     <a class="nav-link" th:href="@{/predictions/others}">Others&rsquo; Picks</a>
                     <a class="nav-link" th:href="@{/predictions/leaderboard}">Leaderboard</a>
+                    <a class="nav-link" th:href="@{/wrap-up}">Season Recap</a>
                     <a class="nav-link" th:href="@{/rules}">Rules</a>
                     <a class="nav-link" th:href="@{/feedback}">Feedback</a>
                     <a class="nav-link" th:href="@{/profile/settings}">Profile</a>

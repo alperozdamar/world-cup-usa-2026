@@ -110,6 +110,29 @@ class PointsTimelineServiceTest {
                 PointsTimelineService.daysInclusive(LocalDate.of(2026, 6, 11), LocalDate.of(2026, 6, 12)));
     }
 
+    @Test
+    void leaderDaysRankingCountsDaysAtopLeaderboard() {
+        when(matchRepository.findTournamentStartKickoff())
+                .thenReturn(Optional.of(Instant.parse("2026-06-11T19:00:00Z")));
+        when(predictionRepository.findAllScoredWithMatch()).thenReturn(List.of(
+                scoredPrediction("alper", 1, 5, "2026-06-11T19:00:00Z"),
+                scoredPrediction("gonenc", 2, 2, "2026-06-11T23:00:00Z"),
+                scoredPrediction("gonenc", 3, 10, "2026-06-12T19:00:00Z")));
+        when(groupStandingPredictionRepository.findAllScored()).thenReturn(List.of());
+        when(finalPredictionRepository.findAllScored()).thenReturn(List.of());
+        when(matchRepository.findDistinctGroupStageGroupNames()).thenReturn(List.of());
+        when(matchRepository.findFinalMatchKickoff()).thenReturn(Optional.empty());
+        when(userProfileService.getDisplayName(org.mockito.ArgumentMatchers.anyString()))
+                .thenAnswer(invocation -> invocation.getArgument(0));
+
+        List<LeaderDaysRow> rows = service.leaderDaysRanking(ZONE, LocalDate.of(2026, 6, 12));
+
+        assertEquals("alper", rows.get(0).username());
+        assertEquals(1, rows.get(0).daysAsLeader()); // day 11 only (5 > 2)
+        assertEquals("gonenc", rows.get(1).username());
+        assertEquals(1, rows.get(1).daysAsLeader()); // day 12 (12 > 5)
+    }
+
     private static Prediction scoredPrediction(String username, int matchId, double points, String kickoff) {
         Team home = team(1, "Home");
         Team away = team(2, "Away");

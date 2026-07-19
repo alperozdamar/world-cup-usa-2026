@@ -12,6 +12,7 @@ import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -108,6 +109,80 @@ public class PointsTimelineService {
             totals.put(username, cumulative);
         }
         return totals;
+    }
+
+    /**
+     * Days each pool member spent as sole #1 on the cumulative points leaderboard,
+     * from tournament kickoff day through today (user zone). Days where everyone is
+     * still on 0 points are skipped. Ties for #1 are broken by display name.
+     */
+    @Transactional(readOnly = true)
+    public List<LeaderDaysRow> leaderDaysRanking(ZoneId zoneId) {
+        return leaderDaysRanking(zoneId, LocalDate.now(zoneId));
+    }
+
+    List<LeaderDaysRow> leaderDaysRanking(ZoneId zoneId, LocalDate throughDay) {
+        LocalDate start = tournamentStartDay(zoneId);
+        LocalDate end = throughDay;
+        if (end.isBefore(start)) {
+            end = start;
+        }
+
+        Map<String, Map<LocalDate, Double>> earnedByDay = pointsEarnedByDay(zoneId);
+        Map<String, Integer> daysAsLeader = new HashMap<>();
+        for (var member : poolMemberRegistry.getMembers()) {
+            daysAsLeader.put(member.username(), 0);
+        }
+
+        for (LocalDate day : daysInclusive(start, end)) {
+            Map<String, Double> totals = new HashMap<>();
+            for (var member : poolMemberRegistry.getMembers()) {
+                String username = member.username();
+                double cumulative = 0;
+                for (Map.Entry<LocalDate, Double> entry : earnedByDay.getOrDefault(username, Map.of()).entrySet()) {
+                    if (!entry.getKey().isAfter(day)) {
+                        cumulative += entry.getValue();
+                    }
+                }
+                totals.put(username, cumulative);
+            }
+            if (totals.values().stream().noneMatch(points -> points > 0)) {
+                continue;
+            }
+            String leader = totals.entrySet().stream()
+                    .max(Comparator
+                            .comparingDouble(Map.Entry<String, Double>::getValue)
+                            .thenComparing(entry -> userProfileService.getDisplayName(entry.getKey()),
+                                    String.CASE_INSENSITIVE_ORDER.reversed()))
+                    .map(Map.Entry::getKey)
+                    .orElse(null);
+            if (leader != null) {
+                daysAsLeader.merge(leader, 1, Integer::sum);
+            }
+        }
+
+        List<LeaderDaysRow> rows = new ArrayList<>();
+        List<Map.Entry<String, Integer>> sorted = daysAsLeader.entrySet().stream()
+                .sorted(Comparator
+                        .comparingInt(Map.Entry<String, Integer>::getValue).reversed()
+                        .thenComparing(entry -> userProfileService.getDisplayName(entry.getKey()),
+                                String.CASE_INSENSITIVE_ORDER))
+                .toList();
+        int rank = 0;
+        int lastDays = Integer.MIN_VALUE;
+        for (int i = 0; i < sorted.size(); i++) {
+            Map.Entry<String, Integer> entry = sorted.get(i);
+            if (entry.getValue() != lastDays) {
+                rank = i + 1;
+                lastDays = entry.getValue();
+            }
+            rows.add(new LeaderDaysRow(
+                    rank,
+                    entry.getKey(),
+                    userProfileService.getDisplayName(entry.getKey()),
+                    entry.getValue()));
+        }
+        return rows;
     }
 
     LocalDate tournamentStartDay(ZoneId zoneId) {

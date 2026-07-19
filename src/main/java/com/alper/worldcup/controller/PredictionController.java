@@ -298,7 +298,7 @@ public class PredictionController {
         model.addAttribute("leaderboardRows", leaderboardRows);
         model.addAttribute("displayNames", userProfileService.getDisplayNamesForUsernames(usernames));
         model.addAttribute("matchStatsByUsername", userMatchStatsService.getStatsForPoolMembers());
-        model.addAttribute("categories", birdWatchService.buildCategories());
+        model.addAttribute("categories", birdWatchService.buildCategories(zoneId));
         model.addAttribute("timelineChart", pointsTimelineService.buildMatchPointsTimeline(zoneId, usernames));
         model.addAttribute("zoneId", zoneId.getId());
         model.addAttribute("computedAtLabel", ZonedDateTime.now(zoneId)

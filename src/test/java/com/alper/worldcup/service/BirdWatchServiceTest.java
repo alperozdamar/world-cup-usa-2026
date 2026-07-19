@@ -51,6 +51,8 @@ class BirdWatchServiceTest {
     private UserProfileService userProfileService;
     @Mock
     private UserMatchStatsService userMatchStatsService;
+    @Mock
+    private PointsTimelineService pointsTimelineService;
 
     private BirdWatchService service;
 
@@ -67,8 +69,11 @@ class BirdWatchServiceTest {
                 userProfileService,
                 new PoolMemberRegistry("default"),
                 new PointsServiceImpl(),
-                userMatchStatsService);
+                userMatchStatsService,
+                pointsTimelineService);
         lenient().when(userMatchStatsService.getStatsForPoolMembers()).thenReturn(Map.of());
+        lenient().when(pointsTimelineService.leaderDaysRanking(org.mockito.ArgumentMatchers.any()))
+                .thenReturn(List.of());
     }
 
     @Test

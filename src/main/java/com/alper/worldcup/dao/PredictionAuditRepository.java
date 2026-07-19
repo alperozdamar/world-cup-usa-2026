@@ -7,6 +7,8 @@ import org.springframework.data.jpa.repository.Query;
 
 public interface PredictionAuditRepository extends JpaRepository<PredictionAudit, Integer> {
 
+    long countByAction(com.alper.worldcup.entity.PredictionAuditAction action);
+
     @Query("SELECT a FROM PredictionAudit a JOIN FETCH a.match ORDER BY a.recordedAt DESC")
     List<PredictionAudit> findAllWithMatchOrderByRecordedAtDesc();
 

@@ -8,6 +8,8 @@ import org.springframework.data.jpa.repository.Query;
 public interface GroupStandingPredictionAuditRepository
         extends JpaRepository<GroupStandingPredictionAudit, Integer> {
 
+    long countByAction(com.alper.worldcup.entity.PredictionAuditAction action);
+
     @Query("SELECT a FROM GroupStandingPredictionAudit a ORDER BY a.recordedAt DESC")
     List<GroupStandingPredictionAudit> findAllOrderByRecordedAtDesc();
 

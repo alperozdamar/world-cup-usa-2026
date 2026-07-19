@@ -1226,3 +1226,92 @@ body.admin-page .turkuaz-market-ad-mobile {
     from { opacity: 0.85; }
     to { opacity: 1; }
 }
+
+/* Season Recap */
+.wrap-up-page {
+    padding-bottom: 2rem;
+}
+
+.wrap-up-eyebrow {
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: #0d6efd;
+}
+
+.wrap-up-title {
+    font-size: clamp(2rem, 5vw, 3rem);
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    margin-bottom: 0.5rem;
+}
+
+.wrap-up-lead {
+    max-width: 36rem;
+    font-size: 1.05rem;
+}
+
+.wrap-up-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 1rem;
+}
+
+.wrap-up-card {
+    background: linear-gradient(160deg, #f8fbff 0%, #eef5ff 100%);
+    border: 1px solid #d6e4ff;
+    border-radius: 12px;
+    padding: 1.25rem 1.15rem;
+    min-height: 140px;
+}
+
+.wrap-up-value {
+    font-size: clamp(1.75rem, 4vw, 2.35rem);
+    font-weight: 800;
+    line-height: 1.1;
+    color: #0b3d91;
+    letter-spacing: -0.03em;
+}
+
+.wrap-up-label {
+    margin-top: 0.35rem;
+    font-weight: 700;
+    font-size: 0.95rem;
+    color: #1a1a2e;
+}
+
+.wrap-up-quip {
+    margin-top: 0.4rem;
+    font-size: 0.88rem;
+    color: #5c6b7a;
+    line-height: 1.35;
+}
+
+.wrap-up-footer {
+    font-size: 0.9rem;
+}
+
+.wrap-up-section-title {
+    font-size: 1.5rem;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    margin-bottom: 0.35rem;
+}
+
+.wrap-up-leader-table {
+    background: #fff;
+    border: 1px solid #d6e4ff;
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+.wrap-up-leader-table thead th {
+    background: #eef5ff;
+    border-bottom-color: #d6e4ff;
+    font-size: 0.85rem;
+}
+
+.wrap-up-leader-top td {
+    background: #fff8e6;
+}

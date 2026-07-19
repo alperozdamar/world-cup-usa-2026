@@ -12,6 +12,17 @@ public interface MatchRepository extends JpaRepository<Match, Integer> {
 
     long countByStage(MatchStage stage);
 
+    @Query("SELECT COUNT(m) FROM Match m "
+            + "WHERE m.homeScoreActual IS NOT NULL AND m.awayScoreActual IS NOT NULL")
+    long countScoredMatches();
+
+    @Query("SELECT COALESCE(SUM(m.homeScoreActual + m.awayScoreActual), 0) FROM Match m "
+            + "WHERE m.homeScoreActual IS NOT NULL AND m.awayScoreActual IS NOT NULL")
+    long sumGoalsScored();
+
+    @Query("SELECT COUNT(m) FROM Match m WHERE m.penaltyShootoutActual = TRUE")
+    long countPenaltyShootouts();
+
     @Query("SELECT m FROM Match m JOIN FETCH m.homeTeam JOIN FETCH m.awayTeam "
             + "WHERE m.stage = :stage ORDER BY m.kickoffUtc")
     List<Match> findByStageWithTeams(MatchStage stage);
