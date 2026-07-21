@@ -3,6 +3,7 @@
 All notable changes to this project will be documented in this file.
 
 ## [v0.0.12-PRERELEASE]
+  - WC-0114 - Survey: admin can view cumulative results before End Tournament / own vote; voting still opens after End Tournament
   - WC-0113 - Closing survey (TR) at `/survey`: fairness, score visibility, extra-time prefs; live cumulative results for everyone; one response per user
   - WC-0113b - Shutdown notice when tournament ended: Audit open 1 week, then system shuts down; audit saved to GitHub
   - WC-0112 - Audit trail opens to all players after End Tournament; during the tournament admin-only (`/audit`)
