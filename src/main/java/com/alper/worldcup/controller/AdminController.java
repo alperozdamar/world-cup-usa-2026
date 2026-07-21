@@ -2,14 +2,11 @@ package com.alper.worldcup.controller;
 
 import com.alper.worldcup.dao.MatchRepository;
 import com.alper.worldcup.entity.Match;
-import com.alper.worldcup.entity.UserProfile;
-import com.alper.worldcup.service.AuditEntryView;
 import com.alper.worldcup.service.FinalPredictionService;
 import com.alper.worldcup.service.GroupStandingPredictionService;
 import com.alper.worldcup.service.KnockoutAssignmentService;
 import com.alper.worldcup.service.KnockoutSyncResult;
 import com.alper.worldcup.service.SaveScoreResult;
-import com.alper.worldcup.service.PredictionAuditService;
 import com.alper.worldcup.service.PredictionService;
 import com.alper.worldcup.service.TournamentCelebrationService;
 import com.alper.worldcup.service.UserProfileService;
@@ -20,7 +17,6 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import org.springframework.stereotype.Controller;
@@ -39,7 +35,6 @@ public class AdminController {
     private final PredictionService predictionService;
     private final GroupStandingPredictionService groupStandingPredictionService;
     private final FinalPredictionService finalPredictionService;
-    private final PredictionAuditService predictionAuditService;
     private final UserProfileService userProfileService;
     private final KnockoutAssignmentService knockoutAssignmentService;
     private final TournamentCelebrationService celebrationService;
@@ -48,7 +43,6 @@ public class AdminController {
                            PredictionService predictionService,
                            GroupStandingPredictionService groupStandingPredictionService,
                            FinalPredictionService finalPredictionService,
-                           PredictionAuditService predictionAuditService,
                            UserProfileService userProfileService,
                            KnockoutAssignmentService knockoutAssignmentService,
                            TournamentCelebrationService celebrationService) {
@@ -56,7 +50,6 @@ public class AdminController {
         this.predictionService = predictionService;
         this.groupStandingPredictionService = groupStandingPredictionService;
         this.finalPredictionService = finalPredictionService;
-        this.predictionAuditService = predictionAuditService;
         this.userProfileService = userProfileService;
         this.knockoutAssignmentService = knockoutAssignmentService;
         this.celebrationService = celebrationService;
@@ -186,21 +179,11 @@ public class AdminController {
     }
 
     @GetMapping("/audit")
-    public String audit(Principal principal,
-                        @RequestParam(required = false) String username,
-                        Model model) {
-        List<AuditEntryView> audits = predictionAuditService.getCombinedAuditTrail(username);
-        Map<String, String> displayNames = new HashMap<>();
-        for (UserProfile profile : userProfileService.getPoolProfiles()) {
-            displayNames.put(profile.getUsername(), userProfileService.getDisplayName(profile.getUsername()));
+    public String audit(@RequestParam(required = false) String username) {
+        if (username != null && !username.isBlank()) {
+            return "redirect:/audit?username=" + username;
         }
-
-        model.addAttribute("audits", audits);
-        model.addAttribute("players", userProfileService.getPoolProfiles());
-        model.addAttribute("displayNames", displayNames);
-        model.addAttribute("selectedUsername", username != null ? username : "");
-        model.addAttribute("zoneId", userProfileService.getUserZoneId(principal.getName()).getId());
-        return "admin/audit";
+        return "redirect:/audit";
     }
 
     @GetMapping("/celebration")

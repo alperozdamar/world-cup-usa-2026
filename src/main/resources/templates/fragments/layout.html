@@ -177,10 +177,11 @@
                     <a class="nav-link" th:href="@{/rules}">Rules</a>
                     <a class="nav-link" th:href="@{/feedback}">Feedback</a>
                     <a class="nav-link" th:href="@{/profile/settings}">Profile</a>
+                    <a class="nav-link" th:if="${tournamentEnded}" sec:authorize="!hasRole('ADMIN')" th:href="@{/audit}">Audit</a>
                     <a class="nav-link" sec:authorize="hasRole('ADMIN')" th:href="@{/admin/scores}">Admin Scores</a>
                     <a class="nav-link" sec:authorize="hasRole('ADMIN')" th:href="@{/admin/group-results}">Group Results</a>
                     <a class="nav-link" sec:authorize="hasRole('ADMIN')" th:href="@{/admin/final-result}">Final Result</a>
-                    <a class="nav-link" sec:authorize="hasRole('ADMIN')" th:href="@{/admin/audit}">Audit</a>
+                    <a class="nav-link" sec:authorize="hasRole('ADMIN')" th:href="@{/audit}">Audit</a>
                     <span class="nav-link text-white-50" sec:authentication="name">user</span>
                     <form th:action="@{/logout}" method="post" class="d-inline">
                         <button type="submit" class="btn btn-link nav-link">Logout</button>
@@ -193,6 +194,8 @@
         <a th:href="@{/celebration}">&#127942; The tournament is over! See the champion</a>
         <span aria-hidden="true"> · </span>
         <a th:href="@{/wrap-up}">Season Recap</a>
+        <span aria-hidden="true"> · </span>
+        <a th:href="@{/audit}">Audit</a>
     </div>
     <script th:src="@{/js/world-clocks.js}" defer></script>
     <div th:replace="~{fragments/layout :: turkuaz-market-ad}"></div>
@@ -225,7 +228,7 @@
                     <a class="nav-link active-admin" th:href="@{/admin/scores}">Admin Scores</a>
                     <a class="nav-link active-admin" th:href="@{/admin/group-results}">Group Results</a>
                     <a class="nav-link active-admin" th:href="@{/admin/final-result}">Final Result</a>
-                    <a class="nav-link active-admin" th:href="@{/admin/audit}">Audit</a>
+                    <a class="nav-link active-admin" th:href="@{/audit}">Audit</a>
                     <a class="nav-link active-admin" th:href="@{/admin/celebration}">Celebration</a>
                     <span class="nav-link text-white-50" sec:authentication="name">user</span>
                     <form th:action="@{/logout}" method="post" class="d-inline">
