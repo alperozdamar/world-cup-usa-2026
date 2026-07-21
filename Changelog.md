@@ -3,6 +3,8 @@
 All notable changes to this project will be documented in this file.
 
 ## [v0.0.12-PRERELEASE]
+  - WC-0113 - Closing survey (TR) at `/survey`: fairness, score visibility, extra-time prefs; live cumulative results for everyone; one response per user
+  - WC-0113b - Shutdown notice when tournament ended: Audit open 1 week, then system shuts down; audit saved to GitHub
   - WC-0112 - Audit trail opens to all players after End Tournament; during the tournament admin-only (`/audit`)
   - WC-0111 - Season Recap: cloud hosting card (~$18/mo for 2 tournament pools on AWS EC2)
   - WC-0110 - Bird Watch: Crown Cranes — days each player spent as #1 on the cumulative leaderboard

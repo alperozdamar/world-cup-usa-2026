@@ -1315,3 +1315,20 @@ body.admin-page .turkuaz-market-ad-mobile {
 .wrap-up-leader-top td {
     background: #fff8e6;
 }
+
+.shutdown-notice {
+    background: #fff3cd;
+    border-bottom: 1px solid #ffecb5;
+    color: #664d03;
+    text-align: center;
+    padding: 0.55rem 1rem;
+    font-size: 0.92rem;
+}
+
+.survey-page fieldset legend {
+    margin-bottom: 0.5rem;
+}
+
+.survey-page .form-check {
+    margin-bottom: 0.35rem;
+}

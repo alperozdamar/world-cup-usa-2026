@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Anket')}"></head>
+<body>
+<div th:replace="~{fragments/layout :: navbar}"></div>
+<div class="container survey-page">
+    <h2>Kapanış Anketi</h2>
+    <p class="text-muted">
+        Kısa bir anket — sonraki turnuva için görüşlerinizi topluyoruz.
+        Sonuçlar herkese açık; cevaplar geldikçe güncellenir.
+    </p>
+
+    <div th:if="${successMessage}" class="alert alert-success" th:text="${successMessage}"></div>
+    <div th:if="${errorMessage}" class="alert alert-danger" th:text="${errorMessage}"></div>
+
+    <div th:if="${!alreadySubmitted}" class="card mb-4">
+        <div class="card-body">
+            <form th:action="@{/survey}" method="post">
+                <input type="hidden" th:if="${_csrf != null}" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+
+                <fieldset class="mb-4">
+                    <legend class="h6">1) Turnuva puanlama kuralları adildi.</legend>
+                    <div class="form-check" th:each="opt : ${T(com.alper.worldcup.entity.SurveyFairness).values()}">
+                        <input class="form-check-input" type="radio" name="fairness"
+                               th:id="${'fairness-' + opt.name()}" th:value="${opt.name()}" required>
+                        <label class="form-check-label" th:for="${'fairness-' + opt.name()}"
+                               th:text="${opt.name() == 'KATILIYORUM'} ? 'Katılıyorum' :
+                                        (${opt.name() == 'KISMEN_KATILIYORUM'} ? 'Kısmen katılıyorum' :
+                                        (${opt.name() == 'KISMEN_KATILMIYORUM'} ? 'Kısmen katılmıyorum' : 'Hiç katılmıyorum'))">
+                        </label>
+                    </div>
+                </fieldset>
+
+                <fieldset class="mb-4">
+                    <legend class="h6">2) Bir sonraki turnuvada skorlar:</legend>
+                    <div class="form-check" th:each="opt : ${T(com.alper.worldcup.entity.SurveyScoreVisibility).values()}">
+                        <input class="form-check-input" type="radio" name="scoreVisibility"
+                               th:id="${'visibility-' + opt.name()}" th:value="${opt.name()}" required>
+                        <label class="form-check-label" th:for="${'visibility-' + opt.name()}"
+                               th:text="${opt.name() == 'HERKES_GOREBILSIN'} ? 'Herkes herkesi görebilsin' :
+                                        (${opt.name() == 'SADECE_ADMIN'} ? 'Aynen devam (sadece admin görebilsin)' :
+                                        'Admin / developer de göremesin (DB encryption uygulansın)')">
+                        </label>
+                    </div>
+                </fieldset>
+
+                <fieldset class="mb-4">
+                    <legend class="h6">3) Uzatma skorları:</legend>
+                    <div class="form-check" th:each="opt : ${T(com.alper.worldcup.entity.SurveyExtraTime).values()}">
+                        <input class="form-check-input" type="radio" name="extraTime"
+                               th:id="${'extra-' + opt.name()}" th:value="${opt.name()}" required>
+                        <label class="form-check-label" th:for="${'extra-' + opt.name()}"
+                               th:text="${opt.name() == 'GEREK_YOK'} ? 'Gerek yok, aynen devam' :
+                                        'Uzatma skoru tahmini de ilave edilsin'">
+                        </label>
+                    </div>
+                </fieldset>
+
+                <button type="submit" class="btn btn-primary">Gönder</button>
+            </form>
+        </div>
+    </div>
+
+    <div th:if="${alreadySubmitted}" class="alert alert-info">
+        Anketinizi zaten gönderdiniz. Aşağıda güncel sonuçlar var.
+    </div>
+
+    <section class="survey-results mb-5">
+        <h3 class="h5">Toplu sonuçlar
+            <span class="badge bg-secondary"
+                  th:text="${results.totalResponses()} + ' yanıt'">0 yanıt</span>
+        </h3>
+        <p th:if="${results.totalResponses() == 0}" class="text-muted">Henüz yanıt yok — ilk siz olun.</p>
+
+        <div th:if="${results.totalResponses() > 0}" class="row g-3">
+            <div class="col-md-4">
+                <div class="card h-100">
+                    <div class="card-header">1) Puanlama adildi</div>
+                    <ul class="list-group list-group-flush">
+                        <li th:each="opt : ${results.fairness()}"
+                            class="list-group-item d-flex justify-content-between align-items-start gap-2">
+                            <span th:text="${opt.label()}">Seçenek</span>
+                            <span class="text-nowrap">
+                                <strong th:text="${opt.count()}">0</strong>
+                                <span class="text-muted small" th:text="'(' + ${opt.percent()} + '%)'"></span>
+                            </span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card h-100">
+                    <div class="card-header">2) Sonraki turnuva skorları</div>
+                    <ul class="list-group list-group-flush">
+                        <li th:each="opt : ${results.scoreVisibility()}"
+                            class="list-group-item d-flex justify-content-between align-items-start gap-2">
+                            <span th:text="${opt.label()}">Seçenek</span>
+                            <span class="text-nowrap">
+                                <strong th:text="${opt.count()}">0</strong>
+                                <span class="text-muted small" th:text="'(' + ${opt.percent()} + '%)'"></span>
+                            </span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card h-100">
+                    <div class="card-header">3) Uzatma skorları</div>
+                    <ul class="list-group list-group-flush">
+                        <li th:each="opt : ${results.extraTime()}"
+                            class="list-group-item d-flex justify-content-between align-items-start gap-2">
+                            <span th:text="${opt.label()}">Seçenek</span>
+                            <span class="text-nowrap">
+                                <strong th:text="${opt.count()}">0</strong>
+                                <span class="text-muted small" th:text="'(' + ${opt.percent()} + '%)'"></span>
+                            </span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+</div>
+</body>
+</html>
